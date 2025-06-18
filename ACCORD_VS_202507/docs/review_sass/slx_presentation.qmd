@@ -526,4 +526,4 @@ Sass, B.H. (2021). A scheme for verifying the spatial structure of extremes in n
 - Gilleland et al. (2010): Spatial verification overview
 
 **Code Repository:**
-- This presentation is available [in this repository](https://github.com/carlos9917/oper-harp-verif/tree/master/ACCORD_VS_202406)
+- This presentation is available [in this repository](https://github.com/carlos9917/oper-harp-verif/tree/master/ACCORD_VS_202507/docs/review_sass)
