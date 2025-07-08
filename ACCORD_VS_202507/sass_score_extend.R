@@ -5,7 +5,7 @@ library(dplyr)
 library(hdf5r)
 library(mmand) # For morphological filtering (local extrema)
 
-obs_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/radar_dmi/sqpe/kavrrad_1h"
+obs_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/radar_dmi/sqpe/kavrrad_1h/2025/05"
 fc_file_path  <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/dini/2025/05"
 
 # Read model precipitation from GRIB2
@@ -20,12 +20,12 @@ dom_ob <-  get_domain(precip_ob)
 
 precip_fc_regrid <- geo_regrid(precip_fc, dom_ob)
 
-print("passed rgridding fc")
+print("passed regridding fc")
 
 # Convert geogrid objects to simple 2D matrices for calculation
-# Assuming the structure is [lon, lat, leadtime, member]
-obs_field <- as.array(precip_ob)[,,1,1]
-fc_field <- as.array(precip_fc_regrid)[,,1,1]
+# Assuming the structure is [lon, lat]
+obs_field <- as.array(precip_ob)
+fc_field <- as.array(precip_fc_regrid)
 
 # Ensure no NA values, replace with 0
 obs_field[is.na(obs_field)] <- 0
@@ -99,6 +99,7 @@ calculate_slx <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9)
   results <- list()
 
   for (L in neighbourhood_sizes) {
+    print(paste0("Doing neighbourhood ",L))
     scores_ob_max <- if (nrow(obs_maxima) > 0) {
       apply(obs_maxima, 1, function(extr) {
         fc_neighbourhood_max <- get_neighbourhood_extreme(forecast, extr['row'], extr['col'], L, 'max')
@@ -152,6 +153,7 @@ calculate_slx <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9)
   return(results)
 }
 
+print("Calculating SLX scores")
 # Calculate SLX scores
 slx_results <- calculate_slx(obs_field, fc_field)
 
