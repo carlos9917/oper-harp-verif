@@ -23,7 +23,6 @@ precip_fc_regrid <- geo_regrid(precip_fc, dom_ob)
 print("passed regridding fc")
 
 # Convert geogrid objects to simple 2D matrices for calculation
-# Assuming the structure is [lon, lat]
 obs_field <- as.array(precip_ob)
 fc_field <- as.array(precip_fc_regrid)
 
@@ -31,17 +30,27 @@ fc_field <- as.array(precip_fc_regrid)
 obs_field[is.na(obs_field)] <- 0
 fc_field[is.na(fc_field)] <- 0
 
-
-############ SLX (Sass 2021) Score Calculation ############
-
-# Based on python implementation from:
-# https://github.com/carlos9917/oper-harp-verif/blob/master/ACCORD_VS_202507/docs/review_sass/slx_presentation.qmd
+#### SLX (Sass 2021) Score Calculation ####
+# Adapted to use different neighborhood sizes for extrema detection
 
 calculate_slx <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9), k=0.1, A=4.0, tolerance=0.0) {
 
-  # Helper function to find local extrema
-  find_local_extrema <- function(arr, mode='max', tolerance=0.0) {
-    kernel <- matrix(1, 3, 3)
+  # Helper function to find local extrema with variable neighborhood size
+  find_local_extrema <- function(arr, mode='max', tolerance=0.0, L=1) {
+    # For L=0, we consider each point as its own extremum
+    if (L == 0) {
+      indices <- which(!is.na(arr), arr.ind = TRUE)
+      if (nrow(indices) == 0) {
+        return(matrix(numeric(0), 0, 3, dimnames=list(NULL, c("row", "col", "value"))))
+      }
+      extrema <- cbind(indices, value = arr[indices])
+      return(extrema)
+    }
+    
+    # Create kernel of size (2*L + 1) x (2*L + 1)
+    kernel_size <- 2 * L + 1
+    kernel <- matrix(1, kernel_size, kernel_size)
+    
     if (mode == 'max') {
       filtered <- mmand::dilate(arr, kernel)
       mask <- (arr >= filtered - tolerance) & (arr == filtered)
@@ -60,7 +69,7 @@ calculate_slx <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9)
     return(extrema)
   }
   
-  # Helper function for neighbourhood extreme
+  # Helper function for neighbourhood extreme (unchanged)
   get_neighbourhood_extreme <- function(arr, i, j, L, mode='max') {
     i_min <- max(1, i - L)
     i_max <- min(nrow(arr), i + L)
@@ -76,7 +85,7 @@ calculate_slx <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9)
     }
   }
   
-  # Helper function for score
+  # Helper function for score (unchanged)
   score_function <- function(phi, ob, k=0.1, A=4.0) {
     if (is.na(phi) || is.na(ob)) return(NA)
     
@@ -90,16 +99,23 @@ calculate_slx <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9)
     }
   }
 
-  # Find local extrema
-  obs_maxima <- find_local_extrema(obs, 'max', tolerance)
-  obs_minima <- find_local_extrema(obs, 'min', tolerance)
-  fc_maxima <- find_local_extrema(forecast, 'max', tolerance)
-  fc_minima <- find_local_extrema(forecast, 'min', tolerance)
-
   results <- list()
 
   for (L in neighbourhood_sizes) {
-    print(paste0("Doing neighbourhood ",L))
+    print(paste0("Processing neighborhood size L = ", L))
+    
+    # Find local extrema using the current neighborhood size L
+    obs_maxima <- find_local_extrema(obs, 'max', tolerance, L)
+    obs_minima <- find_local_extrema(obs, 'min', tolerance, L)
+    fc_maxima <- find_local_extrema(forecast, 'max', tolerance, L)
+    fc_minima <- find_local_extrema(forecast, 'min', tolerance, L)
+    
+    print(paste0("  Found extrema - Obs max: ", nrow(obs_maxima), 
+                 ", Obs min: ", nrow(obs_minima),
+                 ", FC max: ", nrow(fc_maxima), 
+                 ", FC min: ", nrow(fc_minima)))
+
+    # Calculate scores for observed extrema
     scores_ob_max <- if (nrow(obs_maxima) > 0) {
       apply(obs_maxima, 1, function(extr) {
         fc_neighbourhood_max <- get_neighbourhood_extreme(forecast, extr['row'], extr['col'], L, 'max')
@@ -114,6 +130,7 @@ calculate_slx <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9)
       })
     } else { c() }
 
+    # Calculate scores for forecast extrema
     scores_fc_max <- if (nrow(fc_maxima) > 0) {
       apply(fc_maxima, 1, function(extr) {
         obs_neighbourhood_max <- get_neighbourhood_extreme(obs, extr['row'], extr['col'], L, 'max')
@@ -153,26 +170,33 @@ calculate_slx <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9)
   return(results)
 }
 
-print("Calculating SLX scores")
+print("Calculating SLX scores with proper neighborhood-based extrema detection")
 # Calculate SLX scores
 slx_results <- calculate_slx(obs_field, fc_field)
 
 # Display results
-cat("SLX Results:\n")
-cat(paste(rep("=", 60), collapse=""), "\n")
-cat(sprintf("%-3s %-6s %-7s %-7s %-7s %-7s\n", "L", "SLX", "ob_max", "ob_min", "fc_max", "fc_min"))
-cat(paste(rep("-", 60), collapse=""), "\n")
+cat("\nSLX Results (Sass 2021 Implementation):\n")
+cat(paste(rep("=", 70), collapse=""), "\n")
+cat(sprintf("%-3s %-8s %-8s %-8s %-8s %-8s %-12s\n", 
+            "L", "SLX", "ob_max", "ob_min", "fc_max", "fc_min", "extrema_count"))
+cat(paste(rep("-", 70), collapse=""), "\n")
 
 for (L in names(slx_results)) {
     r <- slx_results[[L]]
-    cat(sprintf("%-3s %-6.3f %-7.3f %-7.3f %-7.3f %-7.3f\n",
-          L, r$SLX, r$SLX_ob_max, r$SLX_ob_min, r$SLX_fc_max, r$SLX_fc_min))
+    total_extrema <- r$n_obs_max + r$n_obs_min + r$n_fc_max + r$n_fc_min
+    cat(sprintf("%-3s %-8.4f %-8.4f %-8.4f %-8.4f %-8.4f %-12d\n",
+                L, r$SLX, r$SLX_ob_max, r$SLX_ob_min, r$SLX_fc_max, r$SLX_fc_min, total_extrema))
 }
 
-cat("\n", paste(rep("=", 60), collapse=""), "\n")
-cat("Extrema counts:\n")
-r_counts <- slx_results[['0']]
-cat(sprintf("Observed maxima: %d\n", r_counts$n_obs_max))
-cat(sprintf("Observed minima: %d\n", r_counts$n_obs_min))
-cat(sprintf("Forecast maxima: %d\n", r_counts$n_fc_max))
-cat(sprintf("Forecast minima: %d\n", r_counts$n_fc_min))
+cat("\n", paste(rep("=", 70), collapse=""), "\n")
+cat("Detailed extrema counts by neighborhood size:\n")
+cat(sprintf("%-3s %-8s %-8s %-8s %-8s\n", "L", "obs_max", "obs_min", "fc_max", "fc_min"))
+cat(paste(rep("-", 40), collapse=""), "\n")
+for (L in names(slx_results)) {
+    r <- slx_results[[L]]
+    cat(sprintf("%-3s %-8d %-8d %-8d %-8d\n", L, r$n_obs_max, r$n_obs_min, r$n_fc_max, r$n_fc_min))
+}
+
+cat("\n")
+cat("Note: As neighborhood size L increases, fewer extrema are detected\n")
+cat("because larger neighborhoods smooth out local variations.\n")
