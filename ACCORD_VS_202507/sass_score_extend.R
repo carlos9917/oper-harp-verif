@@ -31,7 +31,7 @@ print("passed regridding fc")
 # VISUALIZATION 1: Plot original fields side by side
 cat("\n=== VISUALIZATION: Original Fields ===\n")
 par(mfrow = c(1, 2))
-print("before")
+print("before plotting ob precip field")
 # If you have a geogrid object (from harpIO::read_grid), use it directly:
 #plot_field(precip_ob, main = "Observed Precipitation", na_colour = "gray95", col = viridis::viridis(20))
 #plot_field(precip_ob,
@@ -41,21 +41,21 @@ print("before")
 #  na_colour = "gray95")
 
 
-plot_field(
-  precip_ob, 
-  palette = scico(256, palette = "cork"), 
-  breaks  = seq(0,15,2.5), 
-  title = "tot prec over Denmark",
-na_colour = "gray95"
-)
+#plot_field(
+#  precip_ob, 
+#  palette = scico(256, palette = "cork"), 
+#  breaks  = seq(0,15,2.5), 
+#  title = "tot prec over Denmark",
+#na_colour = "gray95"
+#)
 
-print("after")
-exit("test")
+#print("after")
+#exit("test")
 #plot_field(precip_fc_regrid, main = "Forecast Precipitation (Regridded)")
 #plot_field(precip_ob, main = "Observed Precipitation", legend_label = "Precipitation (mm/h)")
 #plot_field(precip_fc_regrid, main = "Forecast Precipitation (Regridded)", legend_label = "Precipitation (mm/h)")
 #plot_field(precip_fc, main = "Forecast Precipitation (Regridded)") #, legend_label = "Precipitation (mm/h)")
-plot_field(precip_fc, main = "Forecast Precipitation (Regridded)",
+plot_field(precip_fc, main = "Forecast Precipitation",
   legend_label = "Precipitation (mm/h)",
   col = viridis(20),
   na_colour = "gray95")
@@ -273,21 +273,21 @@ slx_results <- calculate_slx(obs_field, fc_field)
 
 # Display results
 cat("\nSLX Results (Sass 2021 Implementation):\n")
-cat(paste(rep("=", 70), collapse=""), "\\n")
-cat(sprintf("%-3s %-8s %-8s %-8s %-8s %-8s %-12s\\n", 
+cat(paste(rep("=", 70), collapse=""), "\n")
+cat(sprintf("%-3s %-8s %-8s %-8s %-8s %-8s %-12s\n", 
     "L", "SLX", "ob_max", "ob_min", "fc_max", "fc_min", "extrema_count"))
-cat(paste(rep("-", 70), collapse=""), "\\n")
+cat(paste(rep("-", 70), collapse=""), "\n")
 
 for (L in names(slx_results)) {
     r <- slx_results[[L]]
     total_extrema <- r$n_obs_max + r$n_obs_min + r$n_fc_max + r$n_fc_min
-    cat(sprintf("%-3s %-8.4f %-8.4f %-8.4f %-8.4f %-8.4f %-12d\\n",
+    cat(sprintf("%-3s %-8.4f %-8.4f %-8.4f %-8.4f %-8.4f %-12d\n",
     L, r$SLX, r$SLX_ob_max, r$SLX_ob_min, r$SLX_fc_max, r$SLX_fc_min, total_extrema))
 }
 
 cat("\n", paste(rep("=", 70), collapse=""), "\n")
 cat("Detailed extrema counts by neighborhood size:\n")
-cat(sprintf("%-3s %-8s %-8s %-8s %-8s\\n", "L", "obs_max", "obs_min", "fc_max", "fc_min"))
+cat(sprintf("%-3s %-8s %-8s %-8s %-8s\n", "L", "obs_max", "obs_min", "fc_max", "fc_min"))
 cat(paste(rep("-", 40), collapse=""), "\n")
 for (L in names(slx_results)) {
     r <- slx_results[[L]]
