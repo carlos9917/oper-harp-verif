@@ -1,19 +1,18 @@
 ---
-title: "SLX Verification of Precipitation Extremes"
+title: "Verification of Precipitation Extremes with the SLX score"
 subtitle: "Structure of Local eXtremes - Sass (2021)"
 format: html
 author: "Carlos Peralta"
-date: "17  June 2025"
+date: "14 July 2025"
 date-modified: last-modified
 lang: en
-
 ---
 
 ## Motivation
 
 Modern high-resolution NWP models provide detailed precipitation forecasts, but
 traditional verification suffers from the "double penalty" problem when extremes are slightly displaced.
-When it comes to precipitation **extremes**, typically what we want to know is
+When it comes to precipitation **extremes**, typically what we want to know is:
 
 - Where will the **heaviest rain** fall?
 - Where will it stay **completely dry**?
@@ -34,24 +33,59 @@ SLX computes four neighbourhood-based scores:
 | SLX_ob_min | How well forecast captures observed minima locations |
 | SLX_fc_min | How well observed field captures forecast minima locations |
 
+where the final score is defined as:
+
+
 $$\text{SLX} = \frac{1}{4}(\text{SLX}_{\text{ob\_max}} + \text{SLX}_{\text{fc\_max}} + \text{SLX}_{\text{ob\_min}} + \text{SLX}_{\text{fc\_min}})$$
 
 ---
 
-## Score Function
+## Algorithm Steps (Following Sass 2021)
 
-The similarity function S(φ, ob) compares forecast (φ) to observation (ob):
+### Step 1: Extrema Detection
+Local extremes are identified using a tolerance parameter $\delta$ (default $\delta \approx 0 kg/m²):
 
-$$S(\phi, \text{ob}) = \begin{cases}
-\frac{\phi}{\text{ob}-k}, & \phi < \text{ob}-k \\
-1, & \text{ob}-k \leq \phi \leq \text{ob} \\
-\max\left(1 - \frac{\phi-\text{ob}}{A \cdot \text{ob}}, 0\right), & \phi > \text{ob}
-\end{cases}$$
+- **obmax(K1)**: Observed local maximum points (M1 total)
+- **obmin(K2)**: Observed local minimum points (M2 total)  
+- **fcmax(K3)**: Forecast local maximum points (M3 total)
+- **fcmin(K4)**: Forecast local minimum points (M4 total)
 
-Default parameters: k = 0.1 mm, A = 4
+### Step 2: Neighbourhood Definition
+For each extreme point, define a square neighbourhood of width L:
+- Neighbourhood size: (2L + 1)² grid points
+- L = 0 means point-to-point comparison
+- Internal points only (boundary zone of width Lmax excluded)
 
-- Perfect match → S = 1
-- Severe over-forecast (>5×) → S = 0
+### Step 3: Neighbourhood Extrema Calculation
+For each observed/forecast extreme, find the corresponding extreme in the other field's neighbourhood:
+
+- φmax(L,K1) = Max{φ(i,j)} in forecast neighbourhood around obmax(K1)
+- φmin(L,K2) = Min{φ(i,j)} in forecast neighbourhood around obmin(K2)
+- Ψmax(L,K3) = Max{Ψ(i,j)} in observed neighbourhood around fcmax(K3)
+- Ψmin(L,K4) = Min{Ψ(i,j)} in observed neighbourhood around fcmin(K4)
+
+### Step 4: Score Function Application
+Apply the SLX score function S(φ, ob) with parameters k = 0.1 kg/m² and A = 4:
+
+**If ob > k:**
+- If φ < ob - k: S = φ/(ob - k)
+- If ob - k ≤ φ ≤ ob: S = 1
+- If φ > ob: S = Max{1 - (φ - ob)/(A × ob), 0}
+
+**If ob ≤ k:**
+- If φ ≤ k: S = 1
+- If φ > k: S = Max{1 - (φ - k)/(A × k), 0}
+
+### Step 5: Component Score Calculation
+Average individual scores for each component:
+
+$$\text{SLX}_{\text{ob\_max}} = \frac{1}{M1} \sum_{K1=1}^{M1} S_{\text{ob\_max}}(K1)$$
+
+$$\text{SLX}_{\text{ob\_min}} = \frac{1}{M2} \sum_{K2=1}^{M2} S_{\text{ob\_min}}(K2)$$
+
+$$\text{SLX}_{\text{fc\_max}} = \frac{1}{M3} \sum_{K3=1}^{M3} S_{\text{fc\_max}}(K3)$$
+
+$$\text{SLX}_{\text{fc\_min}} = \frac{1}{M4} \sum_{K4=1}^{M4} S_{\text{fc\_min}}(K4)$$
 
 ---
 
@@ -61,57 +95,75 @@ Default parameters: k = 0.1 mm, A = 4
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import maximum_filter, minimum_filter
-import xarray as xr
 
-def find_local_extrema(arr, mode='max', tolerance=0.0):
-    """Find local maxima or minima in 2D array"""
+def find_local_extrema_sass(arr, mode='max', tolerance=0.0):
+    """
+    Find local extrema exactly as described in Sass (2021)
+
+    Key points from paper:
+    - "Zero-valued dry areas will often exist... multiple points of zero value 
+      will be automatically selected as minima"
+    - Default tolerance δ = 0 kg/m²
+    - All selected points contribute with equal weight
+    """
     if mode == 'max':
+        # Local maxima: points that are >= all neighbors within tolerance
         filtered = maximum_filter(arr, size=3)
         mask = (arr >= filtered - tolerance) & (arr == filtered)
-    else:
+    else:  # mode == 'min'
+        # Local minima: points that are <= all neighbors within tolerance
+        # Paper explicitly states zeros are automatically selected as minima
         filtered = minimum_filter(arr, size=3)
         mask = (arr <= filtered + tolerance) & (arr == filtered)
 
     indices = np.where(mask)
     return [(i, j, arr[i, j]) for i, j in zip(indices[0], indices[1])]
 
-def score_function(phi, ob, k=0.1, A=4.0):
-    """SLX similarity function"""
-    if ob <= k:
-        if phi <= k:
-            return 1.0
-        else:
-            return max(1 - (phi - k) / (A * k), 0.0)
-    else:
+def score_function_sass(phi, ob, k=0.1, A=4.0):
+    """
+    Exact SLX similarity function from Sass (2021) equations (2a)-(2c), (3a)-(3b)
+    """
+    if ob > k:
         if phi < ob - k:
-            return phi / (ob - k)
+            return phi / (ob - k)  # Equation (2a)
         elif phi <= ob:
-            return 1.0
-        else:
-            return max(1 - (phi - ob) / (A * ob), 0.0)
+            return 1.0  # Equation (2b)
+        else:  # phi > ob
+            return max(1 - (phi - ob) / (A * ob), 0.0)  # Equation (2c)
+    else:  # ob <= k
+        if phi <= k:
+            return 1.0  # Equation (3a)
+        else:  # phi > k
+            return max(1 - (phi - k) / (A * k), 0.0)  # Equation (3b)
 
-def get_neighbourhood_extreme(arr, i, j, L, mode='max'):
-    """Get max/min value in L×L neighbourhood around point (i,j)"""
+def get_neighbourhood_extreme_sass(arr, i, j, L, mode='max'):
+    """
+    Get max/min value in (2L+1)×(2L+1) neighbourhood around point (i,j)
+    Following Sass (2021) equations (1a)-(1d)
+    """
+    # Define neighbourhood bounds: [i-L, i+L] × [j-L, j+L]
     i_min, i_max = max(0, i-L), min(arr.shape[0], i+L+1)
     j_min, j_max = max(0, j-L), min(arr.shape[1], j+L+1)
     neighbourhood = arr[i_min:i_max, j_min:j_max]
     return neighbourhood.max() if mode == 'max' else neighbourhood.min()
-```
 
----
+def calculate_slx_sass(obs, forecast, neighbourhood_sizes=[0, 1, 3, 5, 9], 
+                       tolerance=0.0, k=0.1, A=4.0):
+    """
+    Calculate SLX scores following Sass (2021) methodology
 
-## SLX Calculation Function
-
-```{python}
-def calculate_slx(obs, forecast, neighbourhood_sizes=[0, 3, 5, 9], k=0.1, A=4.0):
-    """Calculate SLX scores for different neighbourhood sizes"""
+    Parameters match paper specifications:
+    - tolerance: δ parameter (default ≈ 0 kg/m²)
+    - k: dry threshold (default 0.1 kg/m²)
+    - A: penalty parameter (default 4.0)
+    """
     results = {}
 
-    # Find local extrema
-    obs_maxima = find_local_extrema(obs, 'max')
-    obs_minima = find_local_extrema(obs, 'min')
-    fc_maxima = find_local_extrema(forecast, 'max')
-    fc_minima = find_local_extrema(forecast, 'min')
+    # Step 1: Find local extrema (following paper's approach)
+    obs_maxima = find_local_extrema_sass(obs, 'max', tolerance)
+    obs_minima = find_local_extrema_sass(obs, 'min', tolerance)
+    fc_maxima = find_local_extrema_sass(forecast, 'max', tolerance)
+    fc_minima = find_local_extrema_sass(forecast, 'min', tolerance)
 
     for L in neighbourhood_sizes:
         scores_ob_max = []
@@ -119,33 +171,35 @@ def calculate_slx(obs, forecast, neighbourhood_sizes=[0, 3, 5, 9], k=0.1, A=4.0)
         scores_fc_max = []
         scores_fc_min = []
 
-        # SLX_ob_max: observed maxima vs forecast neighbourhood maxima
+        # Step 2-4: Calculate component scores following equations (4)-(7)
+
+        # SLX_ob_max: Equation (4)
         for i, j, ob_val in obs_maxima:
-            fc_neighbourhood_max = get_neighbourhood_extreme(forecast, i, j, L, 'max')
-            scores_ob_max.append(score_function(fc_neighbourhood_max, ob_val, k, A))
+            fc_neighbourhood_max = get_neighbourhood_extreme_sass(forecast, i, j, L, 'max')
+            scores_ob_max.append(score_function_sass(fc_neighbourhood_max, ob_val, k, A))
 
-        # SLX_ob_min: observed minima vs forecast neighbourhood minima
+        # SLX_ob_min: Equation (5)
         for i, j, ob_val in obs_minima:
-            fc_neighbourhood_min = get_neighbourhood_extreme(forecast, i, j, L, 'min')
-            scores_ob_min.append(score_function(fc_neighbourhood_min, ob_val, k, A))
+            fc_neighbourhood_min = get_neighbourhood_extreme_sass(forecast, i, j, L, 'min')
+            scores_ob_min.append(score_function_sass(fc_neighbourhood_min, ob_val, k, A))
 
-        # SLX_fc_max: forecast maxima vs observed neighbourhood maxima
+        # SLX_fc_max: Equation (6)
         for i, j, fc_val in fc_maxima:
-            obs_neighbourhood_max = get_neighbourhood_extreme(obs, i, j, L, 'max')
-            scores_fc_max.append(score_function(fc_val, obs_neighbourhood_max, k, A))
+            obs_neighbourhood_max = get_neighbourhood_extreme_sass(obs, i, j, L, 'max')
+            scores_fc_max.append(score_function_sass(fc_val, obs_neighbourhood_max, k, A))
 
-        # SLX_fc_min: forecast minima vs observed neighbourhood minima
+        # SLX_fc_min: Equation (7)
         for i, j, fc_val in fc_minima:
-            obs_neighbourhood_min = get_neighbourhood_extreme(obs, i, j, L, 'min')
-            scores_fc_min.append(score_function(fc_val, obs_neighbourhood_min, k, A))
+            obs_neighbourhood_min = get_neighbourhood_extreme_sass(obs, i, j, L, 'min')
+            scores_fc_min.append(score_function_sass(fc_val, obs_neighbourhood_min, k, A))
 
-        # Calculate component scores
+        # Step 5: Calculate component averages
         slx_ob_max = np.mean(scores_ob_max) if scores_ob_max else 0.0
         slx_ob_min = np.mean(scores_ob_min) if scores_ob_min else 0.0
         slx_fc_max = np.mean(scores_fc_max) if scores_fc_max else 0.0
         slx_fc_min = np.mean(scores_fc_min) if scores_fc_min else 0.0
 
-        # Overall SLX score
+        # Overall SLX score: Equation (8)
         slx_total = 0.25 * (slx_ob_max + slx_ob_min + slx_fc_max + slx_fc_min)
 
         results[L] = {
@@ -165,7 +219,7 @@ def calculate_slx(obs, forecast, neighbourhood_sizes=[0, 3, 5, 9], k=0.1, A=4.0)
 
 ---
 
-## Creating Synthetic Observation Data
+## Creating Synthetic Test Data
 
 ```{python}
 def create_synthetic_radar_obs(nx=100, ny=100):
@@ -196,22 +250,8 @@ def create_synthetic_radar_obs(nx=100, ny=100):
 
     # Ensure non-negative values
     obs = np.maximum(obs, 0)
-
     return obs
 
-# Create synthetic observation
-obs_field = create_synthetic_radar_obs()
-print(f"Observation field shape: {obs_field.shape}")
-print(f"Max precipitation: {obs_field.max():.1f} mm")
-print(f"Min precipitation: {obs_field.min():.1f} mm")
-print(f"Fraction of dry points: {(obs_field == 0).mean():.2f}")
-```
-
----
-
-## Creating Synthetic Model Forecast
-
-```{python}
 def create_synthetic_model_forecast(obs_field, displacement=(3, 5), intensity_bias=0.9):
     """Create synthetic model forecast with displacement and bias"""
     ny, nx = obs_field.shape
@@ -219,14 +259,12 @@ def create_synthetic_model_forecast(obs_field, displacement=(3, 5), intensity_bi
 
     # Apply spatial displacement and intensity bias
     dy, dx = displacement
-
     for i in range(ny):
         for j in range(nx):
             if obs_field[i, j] > 0:
                 # Apply displacement
                 new_i = i + dy
                 new_j = j + dx
-
                 # Check bounds
                 if 0 <= new_i < ny and 0 <= new_j < nx:
                     # Apply intensity bias and some random noise
@@ -241,12 +279,18 @@ def create_synthetic_model_forecast(obs_field, displacement=(3, 5), intensity_bi
 
     # Ensure non-negative values
     forecast = np.maximum(forecast, 0)
-
     return forecast
 
-# Create synthetic forecast
+# Create synthetic observation and forecast fields
+obs_field = create_synthetic_radar_obs()
 fc_field = create_synthetic_model_forecast(obs_field)
-print(f"Forecast field shape: {fc_field.shape}")
+
+print(f"Observation field shape: {obs_field.shape}")
+print(f"Max precipitation: {obs_field.max():.1f} mm")
+print(f"Min precipitation: {obs_field.min():.1f} mm")
+print(f"Fraction of dry points: {(obs_field == 0).mean():.2f}")
+
+print(f"\nForecast field shape: {fc_field.shape}")
 print(f"Max precipitation: {fc_field.max():.1f} mm")
 print(f"Min precipitation: {fc_field.min():.1f} mm")
 print(f"Fraction of dry points: {(fc_field == 0).mean():.2f}")
@@ -254,90 +298,11 @@ print(f"Fraction of dry points: {(fc_field == 0).mean():.2f}")
 
 ---
 
-
-## Visualizing the Fields
-
-### Radar Observation
-
-```{python}
-#| fig-width: 8
-#| fig-height: 6
-import matplotlib.pyplot as plt
-import numpy as np
-
-# Create synthetic observation and forecast fields
-def create_synthetic_radar_obs(nx=100, ny=100):
-    np.random.seed(42)
-    obs = np.zeros((ny, nx))
-    obs[20:25, 30:35] = 12.0
-    obs[60:65, 70:75] = 8.0
-    obs[40:43, 15:18] = 4.0
-    for _ in range(20):
-        i, j = np.random.randint(10, ny-10), np.random.randint(10, nx-10)
-        if obs[i, j] == 0:
-            obs[i:i+3, j:j+3] = np.random.uniform(0.5, 2.0)
-    obs = np.maximum(obs, 0)
-    return obs
-
-obs_field = create_synthetic_radar_obs()
-
-fig, ax = plt.subplots(figsize=(8, 6))
-im = ax.imshow(obs_field, cmap='Blues', vmin=0, vmax=20)
-ax.set_title('Radar Observation')
-ax.set_xlabel('Grid X')
-ax.set_ylabel('Grid Y')
-plt.colorbar(im, ax=ax, label='Precipitation (mm)')
-plt.tight_layout()
-plt.show()
-```
-
-
-
-
-
 ## Visualizing the Fields
 
 ```{python}
-#| fig-width: 40
-#| fig-height: 10
-import matplotlib.pyplot as plt
-import numpy as np
-
-# Create synthetic observation and forecast fields
-def create_synthetic_radar_obs(nx=100, ny=100):
-    np.random.seed(42)
-    obs = np.zeros((ny, nx))
-    obs[20:25, 30:35] = 12.0
-    obs[60:65, 70:75] = 8.0
-    obs[40:43, 15:18] = 4.0
-    for _ in range(20):
-        i, j = np.random.randint(10, ny-10), np.random.randint(10, nx-10)
-        if obs[i, j] == 0:
-            obs[i:i+3, j:j+3] = np.random.uniform(0.5, 2.0)
-    obs = np.maximum(obs, 0)
-    return obs
-
-def create_synthetic_model_forecast(obs_field, displacement=(3, 5), intensity_bias=0.9):
-    ny, nx = obs_field.shape
-    forecast = np.zeros_like(obs_field)
-    dy, dx = displacement
-    for i in range(ny):
-        for j in range(nx):
-            if obs_field[i, j] > 0:
-                new_i = i + dy
-                new_j = j + dx
-                if 0 <= new_i < ny and 0 <= new_j < nx:
-                    forecast[new_i, new_j] = obs_field[i, j] * intensity_bias * np.random.uniform(0.8, 1.2)
-    np.random.seed(123)
-    for _ in range(5):
-        i, j = np.random.randint(10, ny-10), np.random.randint(10, nx-10)
-        if forecast[i, j] == 0:
-            forecast[i:i+2, j:j+2] = np.random.uniform(1.0, 4.0)
-    forecast = np.maximum(forecast, 0)
-    return forecast
-
-obs_field = create_synthetic_radar_obs()
-fc_field = create_synthetic_model_forecast(obs_field)
+#| fig-width: 15
+#| fig-height: 5
 
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 4))
 
@@ -369,31 +334,34 @@ plt.show()
 
 ---
 
-## Applying SLX Algorithm
+## Applying SLX Algorithm (Sass 2021 Method)
 
 ```{python}
-# Calculate SLX scores for different neighbourhood sizes
+# Calculate SLX scores using the Sass (2021) methodology
 neighbourhood_sizes = [0, 1, 3, 5, 7, 9]
-slx_results = calculate_slx(obs_field, fc_field, neighbourhood_sizes)
+slx_results = calculate_slx_sass(obs_field, fc_field, neighbourhood_sizes)
 
 # Display results
 print("SLX Results:")
-print("=" * 60)
+print("=" * 70)
 print(f"{'L':<3} {'SLX':<6} {'ob_max':<7} {'ob_min':<7} {'fc_max':<7} {'fc_min':<7}")
-print("-" * 60)
-
+print("-" * 70)
 for L in neighbourhood_sizes:
     r = slx_results[L]
     print(f"{L:<3} {r['SLX']:<6.3f} {r['SLX_ob_max']:<7.3f} {r['SLX_ob_min']:<7.3f} "
           f"{r['SLX_fc_max']:<7.3f} {r['SLX_fc_min']:<7.3f}")
 
-print("\n" + "=" * 60)
-print("Extrema counts:")
+print("\n" + "=" * 70)
+print("Extrema counts (following paper's detection method):")
 r = slx_results[0]  # Use L=0 for counts
 print(f"Observed maxima: {r['n_obs_max']}")
 print(f"Observed minima: {r['n_obs_min']}")
 print(f"Forecast maxima: {r['n_fc_max']}")
 print(f"Forecast minima: {r['n_fc_min']}")
+
+print("\nNote: High number of minima is expected per Sass (2021):")
+print("'Zero-valued dry areas... multiple points of zero value will be")
+print("automatically selected as minima for the verification process.'")
 ```
 
 ---
@@ -401,17 +369,10 @@ print(f"Forecast minima: {r['n_fc_min']}")
 ## Visualizing SLX Components
 
 ```{python}
-#| fig-width: 10
-#| fig-height: 4
-# Plot SLX components vs neighbourhood size
-import matplotlib.pyplot as plt
-import numpy as np
+#| fig-width: 12
+#| fig-height: 8
 
-# Calculate SLX scores for different neighbourhood sizes
-neighbourhood_sizes = [0, 1, 3, 5, 7, 9]
-slx_results = calculate_slx(obs_field, fc_field, neighbourhood_sizes)
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 
 # Extract data for plotting
 L_values = list(slx_results.keys())
@@ -422,24 +383,72 @@ slx_fc_max = [slx_results[L]['SLX_fc_max'] for L in L_values]
 slx_fc_min = [slx_results[L]['SLX_fc_min'] for L in L_values]
 
 # Plot individual components
-ax1.plot(L_values, slx_ob_max, 'o-', label='SLX_ob_max', linewidth=2)
-ax1.plot(L_values, slx_ob_min, 's-', label='SLX_ob_min', linewidth=2)
-ax1.plot(L_values, slx_fc_max, '^-', label='SLX_fc_max', linewidth=2)
-ax1.plot(L_values, slx_fc_min, 'd-', label='SLX_fc_min', linewidth=2)
-ax1.set_xlabel('Neighbourhood Size (L)')
-ax1.set_ylabel('Score')
-ax1.set_title('SLX Components')
-ax1.legend()
-ax1.grid(True, alpha=0.3)
-ax1.set_ylim(0, 1.1)
+axes[0,0].plot(L_values, slx_ob_max, 'o-', label='SLX_ob_max', linewidth=2)
+axes[0,0].plot(L_values, slx_ob_min, 's-', label='SLX_ob_min', linewidth=2)
+axes[0,0].plot(L_values, slx_fc_max, '^-', label='SLX_fc_max', linewidth=2)
+axes[0,0].plot(L_values, slx_fc_min, 'd-', label='SLX_fc_min', linewidth=2)
+axes[0,0].set_xlabel('Neighbourhood Size (L)')
+axes[0,0].set_ylabel('Score')
+axes[0,0].set_title('SLX Components (Sass 2021 Method)')
+axes[0,0].legend()
+axes[0,0].grid(True, alpha=0.3)
+axes[0,0].set_ylim(0, 1.1)
 
 # Plot total SLX
-ax2.plot(L_values, slx_total, 'ko-', linewidth=3, markersize=8)
-ax2.set_xlabel('Neighbourhood Size (L)')
-ax2.set_ylabel('SLX Score')
-ax2.set_title('Overall SLX Score')
-ax2.grid(True, alpha=0.3)
-ax2.set_ylim(0, 1.1)
+axes[0,1].plot(L_values, slx_total, 'ko-', linewidth=3, markersize=8)
+axes[0,1].set_xlabel('Neighbourhood Size (L)')
+axes[0,1].set_ylabel('SLX Score')
+axes[0,1].set_title('Overall SLX Score')
+axes[0,1].grid(True, alpha=0.3)
+axes[0,1].set_ylim(0, 1.1)
+
+# Add interpretation zones
+axes[0,1].axhspan(0.8, 1.0, alpha=0.2, color='green', label='Excellent (0.8-1.0)')
+axes[0,1].axhspan(0.6, 0.8, alpha=0.2, color='yellow', label='Good (0.6-0.8)')
+axes[0,1].axhspan(0.4, 0.6, alpha=0.2, color='orange', label='Moderate (0.4-0.6)')
+axes[0,1].axhspan(0.0, 0.4, alpha=0.2, color='red', label='Poor (0.0-0.4)')
+axes[0,1].legend(loc='lower right')
+
+# Show score function
+phi_range = np.linspace(0, 6, 200)
+ob_values = [0.05, 1.0, 2.0, 4.0]  # Include case where ob ≤ k
+colors = ['purple', 'blue', 'green', 'red']
+
+for ob_val, color in zip(ob_values, colors):
+    scores = [score_function_sass(phi, ob_val) for phi in phi_range]
+    axes[1,0].plot(phi_range, scores, color=color, linewidth=2, 
+                   label=f'obs = {ob_val:.2f}mm')
+
+axes[1,0].axvline(x=0.1, color='gray', linestyle='--', alpha=0.7, label='k = 0.1')
+axes[1,0].set_xlabel('Forecast Value (mm)')
+axes[1,0].set_ylabel('Score')
+axes[1,0].set_title('SLX Score Function (Sass 2021)')
+axes[1,0].legend()
+axes[1,0].grid(True, alpha=0.3)
+axes[1,0].set_ylim(0, 1.1)
+
+# Show extrema detection comparison
+axes[1,1].axis('off')
+summary_text = f"""
+SASS (2021) ALGORITHM IMPLEMENTATION
+
+Following original paper as close as possible:
+✓ Exact score function (Eqs. 2a-2c, 3a-3b)
+✓ All zeros selected as minima (as stated)
+✓ Tolerance parameter δ ≈ 0 (default)
+✓ Neighbourhood (2L+1)² definition
+✓ Component averaging (Eqs. 4-7)
+✓ Overall score (Eq. 8)
+
+Results from this implementation:
+• Found {r['n_obs_min']} observed minima
+• Found {r['n_fc_min']} forecast minima
+• Peak SLX at L={L_values[np.argmax(slx_total)]} ({max(slx_total):.3f})
+"""
+
+axes[1,1].text(0.05, 0.95, summary_text, transform=axes[1,1].transAxes, 
+               fontsize=10, verticalalignment='top', fontfamily='monospace',
+               bbox=dict(boxstyle="round,pad=0.5", facecolor='lightblue', alpha=0.8))
 
 plt.tight_layout()
 plt.show()
@@ -447,29 +456,6 @@ plt.show()
 
 ---
 
-## Interpretation Guidelines
-
-**SLX Score Ranges:**
-- **0.8 - 1.0**: Excellent placement of extremes
-
-- **0.6 - 0.8**: Good placement with minor displacement
-
-- **0.4 - 0.6**: Moderate skill, some extremes missed or displaced
-
-- **0.2 - 0.4**: Poor skill, many extremes missed
-
-- **0.0 - 0.2**: Very poor, extremes largely incorrect
-
-
-**Component Analysis:**
-
-- Low **SLX_ob_max/fc_max**: Model struggles with heavy precipitation placement
-
-- Low **SLX_ob_min/fc_min**: Model produces rain where it should be dry
-
-- Increasing scores with L: Extremes are displaced but within neighbourhood
-
----
 
 ## Practical Applications
 
