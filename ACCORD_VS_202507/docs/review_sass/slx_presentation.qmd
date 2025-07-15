@@ -457,34 +457,6 @@ plt.show()
 ---
 
 
-## Practical Applications
-
-**Operational Verification:**
-
-- Daily verification of high-resolution models
-
-- Identify systematic biases in extreme placement
-
-- Compare different model configurations
-
-**Case Studies:**
-
-- Analyze specific weather events
-
-- Understand model performance for different precipitation types
-
-- Guide model development priorities
-
-**Ensemble Applications:**
-
-- Apply to ensemble percentiles (e.g., 95th percentile)
-
-- Verify probabilistic extreme forecasts
-
-- Assess ensemble spread in extreme locations
-
----
-
 ## Key Advantages of SLX
 
 1. **Focuses on extremes** - useful for evaluating extreme events
