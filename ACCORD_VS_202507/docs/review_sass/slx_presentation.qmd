@@ -457,19 +457,44 @@ plt.show()
 ---
 
 
-## Key Advantages of SLX
 
-1. **Focuses on extremes** - useful for evaluating extreme events
+## Score Function Properties
 
-2. **Avoids double penalty** - using neighbourhood approach
+- **Perfect match** → S = 1
 
-3. **Symmetric treatment** - verifies both maxima and minima
+- **Severe over-forecast** (>5×) → S = 0  
 
-4. **Scale-aware** - tests multiple neighbourhood sizes
+- **Asymmetric**: Designed to avoid under-forecasting of warning conditions
 
-5. **Interpretable components** - diagnose specific issues
+- **Piecewise linear**: Simple but effective for operational use
 
-**Complements existing methods** like FSS (Fractions Skill Score) and SAL (Structure-Amplitude-Location)
+- **Uncertainty aware**: k parameter accounts for observation uncertainty
+
+## Advantages of SLX
+
+- ✓ **Extreme-focused**: Specifically designed for precipitation extremes
+
+- ✓ **Neighborhood-based**: Addresses double penalty problem
+
+- ✓ **Comprehensive**: Evaluates both maxima and minima
+
+- ✓ **Scale-aware**: Tests multiple neighborhood sizes 
+
+- ✓ **Operationally practical**: Fast computation, daily output
+
+- ✓ **Complements existing methods** like FSS (Fractions Skill Score) and SAL (Structure-Amplitude-Location)
+
+
+## Limitations of SLX
+
+- ✗ **Parameter sensitivity**: Results depend on k, A, δ, and L choices
+
+- ✗ **Score function complexity**: Piecewise linear function may need refinement
+
+- ✗ **Extreme definition**: Tolerance parameter δ affects extreme selection
+
+- ✗ **Computational scaling**: May need optimization for very large domains
+
 
 ---
 
