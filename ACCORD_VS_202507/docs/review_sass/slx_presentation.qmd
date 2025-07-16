@@ -487,7 +487,7 @@ plt.show()
 
 ## Limitations of SLX
 
-- ✗ **Parameter sensitivity**: Results depend on k, A, δ, and L choices
+- ✗ **Parameter sensitivity**: Results depend on k, A, $\delta$, and L choices
 
 - ✗ **Score function complexity**: Piecewise linear function may need refinement
 

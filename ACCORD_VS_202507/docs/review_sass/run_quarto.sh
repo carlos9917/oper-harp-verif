@@ -7,8 +7,7 @@ NBOOK=$1
 #quarto preview $NBOOK --no-browser --no-watch-inputs
 
 #can also use
-quarto render $NBOOK 
-exit
+#quarto render $NBOOK 
 quarto render $NBOOK --to pdf
 
 

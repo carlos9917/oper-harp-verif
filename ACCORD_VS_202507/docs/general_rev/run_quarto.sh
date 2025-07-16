@@ -7,9 +7,9 @@ NBOOK=$1
 #quarto preview $NBOOK --no-browser --no-watch-inputs
 
 #can also use
-quarto render $NBOOK 
+#quarto render $NBOOK 
 # to create pdf
-#quarto render $NBOOK --to pdf
+quarto render $NBOOK --to pdf
 
 
 #convert to ipynb
