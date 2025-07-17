@@ -645,20 +645,20 @@ axes[0,1].axhspan(0.0, 0.4, alpha=0.2, color='red', label='Poor (0.0-0.4)')
 axes[0,1].legend(loc='lower right')
 
 # Show score function
-phi_range = np.linspace(0, 6, 200)
-ob_values = [0.05, 1.0, 2.0, 4.0]  # Include case where ob ≤ k
-colors = ['purple', 'blue', 'green', 'red']
-for ob_val, color in zip(ob_values, colors):
-    scores = [score_function_sass(phi, ob_val) for phi in phi_range]
-    axes[0,2].plot(phi_range, scores, color=color, linewidth=2,
-                   label=f'obs = {ob_val:.2f}mm')
-axes[0,2].axvline(x=0.1, color='gray', linestyle='--', alpha=0.7, label='k = 0.1')
-axes[0,2].set_xlabel('Forecast Value (mm)')
-axes[0,2].set_ylabel('Score')
-axes[0,2].set_title('SLX Score Function')
-axes[0,2].legend()
-axes[0,2].grid(True, alpha=0.3)
-axes[0,2].set_ylim(0, 1.1)
+#phi_range = np.linspace(0, 6, 200)
+#ob_values = [0.05, 1.0, 2.0, 4.0]  # Include case where ob ≤ k
+#colors = ['purple', 'blue', 'green', 'red']
+#for ob_val, color in zip(ob_values, colors):
+#    scores = [score_function_sass(phi, ob_val) for phi in phi_range]
+#    axes[0,2].plot(phi_range, scores, color=color, linewidth=2,
+#                   label=f'obs = {ob_val:.2f}mm')
+#axes[0,2].axvline(x=0.1, color='gray', linestyle='--', alpha=0.7, label='k = 0.1')
+#axes[0,2].set_xlabel('Forecast Value (mm)')
+#axes[0,2].set_ylabel('Score')
+#axes[0,2].set_title('SLX Score Function')
+#axes[0,2].legend()
+#axes[0,2].grid(True, alpha=0.3)
+#axes[0,2].set_ylim(0, 1.1)
 
 # Show extrema locations
 axes[1,0].imshow(obs_field, cmap='Blues', vmin=0, vmax=20, alpha=0.7)
