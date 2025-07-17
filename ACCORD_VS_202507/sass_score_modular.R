@@ -10,10 +10,27 @@ library(gridExtra)
 library(viridis)
 library(scico)
 library(Rcpp)
+library(rlang)
 
 # File paths (adjust as needed)
-obs_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/radar_dmi/sqpe/kavrrad_1h/2025/07"
+ob_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/radar_dmi/sqpe/kavrrad_1h/2025/07"
 fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/dini_eps/2025070200"
+
+
+#local DMI data
+ob_file_path <- "/ec/res4/hpcperm/nhd/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/radar_dmi/sqpe/kavrrad_1h/2025/07"
+fc_file_path <- "/ec/res4/hpcperm/nhd/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/dini_eps/2025070200"
+
+fc_file <- paste0(fc_file_path,"/tp_ekmi_002_mbr001.grib2")
+ob_file <-  paste0(ob_file_path,"/202507020200.kavrRAD.01.h5")
+
+#INCA and CLAEF data
+ob_file_path <- "/hpcperm/kmek/obs/INCAPlus_1h/inca/2025/07/01"
+fc_file_path <- "/hpcperm/kmek/models/CLAEF1k/20250701/00"
+ob_file <- paste0(ob_file_path,"/INCAPlus_1h_RR_ANA_202507011600.nc")
+fc_file <- paste0(fc_file_path,"/CLAEF00+0016:00.grb")
+
+veri_time <- "202507011600"
 
 #### LOAD MODULAR C++ FUNCTIONS ####
 
@@ -52,15 +69,37 @@ cat(sprintf("Test successful: found %d extrema in test matrix\n", nrow(test_resu
 cat("=== STARTING DATA LOADING ===\n")
 cat("Loading forecast data...\n")
 # Read data
-precip_fc <- harpIO::read_grid(paste0(fc_file_path,"/tp_ekmi_002_mbr001.grib2"), "Pcp")
+#precip_fc <- harpIO::read_grid(paste0(fc_file_path,"/tp_ekmi_002_mbr001.grib2"), "Pcp")
+# DINI
+#precip_fc <- harpIO::read_grid(fc_file, "Pcp")
+
+# CLAEF
+fc_file_opts     <- grib_opts( param_find = setNames( list(list(key = 'indicatorOfParameter', value = 61)), "pcp"))  
+precip_fc <- read_grid(file_name=fc_file, parameter="pcp", dttm="20250701", file_format="grib", file_format_opts = fc_file_opts)
+
+
 dom_fc <- get_domain(precip_fc)
 cat("Forecast data loaded successfully\n")
 
 cat("Loading observation data...\n")
-precip_ob <- harpIO::read_grid(
-  paste0(obs_file_path,"/202507020200.kavrRAD.01.h5"),"Pcp",
-  hdf5_opts = hdf5_opts(data_path = "/pcp/data1/data", odim = FALSE, meta = TRUE)
-)
+
+############################ DMI radar obs
+#this works for DMI radar
+#precip_ob <- harpIO::read_grid(
+#  ob_file,"Pcp",
+#  hdf5_opts = hdf5_opts(data_path = "/pcp/data1/data", odim = FALSE, meta = TRUE)
+#)
+#############################################
+
+############################ INCA
+
+parameter_inca <- "acc1h"
+ob_file_opts     <- netcdf_opts(proj4_var  = "lambert_conformal_conic", param_find = list2(!!parameter_inca := "RR"))
+precip_ob <- read_grid(file_name=ob_file, parameter="RR", dttm=veri_time, file_format="netcdf", file_format_opts = ob_file_opts)
+
+
+#############################################
+
 dom_ob <- get_domain(precip_ob)
 cat("Observation data loaded successfully\n")
 
@@ -184,8 +223,8 @@ calculate_slx_sass_modular <- function(obs, forecast, neighbourhood_sizes=c(0, 1
     )
     #plot_field_with_extrema(L,obs, obs_maxima, obs_minima, 
     #                   "Observed Precipitation with Extrema")
-    plot_field_with_extrema(L,forecast, fc_maxima, fc_minima, 
-                       "Forecast Precipitation with Extrema")
+    #plot_field_with_extrema(L,forecast, fc_maxima, fc_minima, 
+    #                   "Forecast Precipitation with Extrema")
 
     #stop("exit here")
   }
@@ -259,15 +298,16 @@ for (L in names(slx_results)) {
 }
 
 cat("\n=== CREATING VISUALIZATIONS ===\n")
-# VISUALIZATION 1: Original fields with extrema (L=1)
-cat("Creating field plots with extrema...\n")
-par(mfrow = c(1, 2), mar = c(4, 4, 3, 6))
-
-L1_results <- slx_results[["1"]]
-plot_field_with_extrema(precip_ob, L1_results$obs_maxima, L1_results$obs_minima, 
-                       "Observed Precipitation with Extrema")
-plot_field_with_extrema(precip_fc_regrid, L1_results$fc_maxima, L1_results$fc_minima, 
-                       "Forecast Precipitation with Extrema")
+#currently not plotting symbols in right places
+## VISUALIZATION 1: Original fields with extrema (L=1)
+#cat("Creating field plots with extrema...\n")
+#par(mfrow = c(1, 2), mar = c(4, 4, 3, 6))
+#
+#L1_results <- slx_results[["1"]]
+#plot_field_with_extrema(precip_ob, L1_results$obs_maxima, L1_results$obs_minima, 
+#                       "Observed Precipitation with Extrema")
+#plot_field_with_extrema(precip_fc_regrid, L1_results$fc_maxima, L1_results$fc_minima, 
+#                       "Forecast Precipitation with Extrema")
 
 # VISUALIZATION 2: SLX component evolution
 cat("Creating SLX evolution plots...\n")
@@ -280,6 +320,7 @@ SLX_ob_min_vals <- sapply(slx_results, function(x) x$SLX_ob_min)
 SLX_fc_max_vals <- sapply(slx_results, function(x) x$SLX_fc_max)
 SLX_fc_min_vals <- sapply(slx_results, function(x) x$SLX_fc_min)
 
+png("slx_overall.png", width = 800, height = 600, res = 150)
 # Plot 1: Overall SLX score
 plot(L_vals, SLX_vals, type = "b", pch = 19, col = "darkgreen", lwd = 3,
      xlab = "Neighborhood size (L)", ylab = "SLX Score",
@@ -295,7 +336,10 @@ text(max(L_vals) * 0.7, 0.9, "Excellent", col = "green", cex = 0.8)
 text(max(L_vals) * 0.7, 0.7, "Good", col = "orange", cex = 0.8)
 text(max(L_vals) * 0.7, 0.5, "Moderate", col = "red", cex = 0.8)
 
+dev.off()
+
 # Plot 2: Component scores
+png("slx_compnents.png", width = 800, height = 600, res = 150)
 plot(L_vals, SLX_ob_max_vals, type = "b", pch = 19, col = "red", lwd = 2,
      xlab = "Neighborhood size (L)", ylab = "Component SLX Score",
      main = "SLX Component Scores",
@@ -308,6 +352,7 @@ legend("topright", legend = c("Obs Max", "Obs Min", "FC Max", "FC Min"),
        pch = c(19, 17, 15, 18), lwd = 2, cex = 0.7)
 grid(col = "gray", lty = 2)
 
+dev.off()
 # Plot 3: Extrema counts
 extrema_counts <- sapply(slx_results, function(x) x$n_obs_max + x$n_obs_min + x$n_fc_max + x$n_fc_min)
 plot(L_vals, extrema_counts, type = "b", pch = 19, col = "darkblue", lwd = 2,
@@ -315,31 +360,31 @@ plot(L_vals, extrema_counts, type = "b", pch = 19, col = "darkblue", lwd = 2,
      main = "Extrema Count vs Neighborhood Size")
 grid(col = "gray", lty = 2)
 
-# Plot 4: Score function visualization
-phi_range <- seq(0, 6, 0.1)
-ob_values <- c(0.05, 1.0, 2.0, 4.0)
-colors <- c("purple", "blue", "green", "red")
-
-plot(phi_range, sapply(phi_range, function(x) score_function_cpp(x, ob_values[1])), 
-     type = "l", col = colors[1], lwd = 2,
-     xlab = "Forecast Value (mm)", ylab = "Score",
-     main = "SLX Score Function", ylim = c(0, 1))
-
-for (i in 2:length(ob_values)) {
-  lines(phi_range, sapply(phi_range, function(x) score_function_cpp(x, ob_values[i])), 
-        col = colors[i], lwd = 2)
-}
-
-abline(v = 0.1, col = "gray", lty = 2, lwd = 1)
-legend("topright", 
-       legend = c(paste("obs =", ob_values), "k = 0.1"),
-       col = c(colors, "gray"), 
-       lty = c(rep(1, 4), 2), 
-       lwd = 2, cex = 0.7)
-grid(col = "gray", lty = 2)
-
-# Reset plotting parameters
-par(mfrow = c(1, 1), mar = c(5, 4, 4, 2))
+## Plot 4: Score function visualization
+#phi_range <- seq(0, 6, 0.1)
+#ob_values <- c(0.05, 1.0, 2.0, 4.0)
+#colors <- c("purple", "blue", "green", "red")
+#
+#plot(phi_range, sapply(phi_range, function(x) score_function_cpp(x, ob_values[1])), 
+#     type = "l", col = colors[1], lwd = 2,
+#     xlab = "Forecast Value (mm)", ylab = "Score",
+#     main = "SLX Score Function", ylim = c(0, 1))
+#
+#for (i in 2:length(ob_values)) {
+#  lines(phi_range, sapply(phi_range, function(x) score_function_cpp(x, ob_values[i])), 
+#        col = colors[i], lwd = 2)
+#}
+#
+#abline(v = 0.1, col = "gray", lty = 2, lwd = 1)
+#legend("topright", 
+#       legend = c(paste("obs =", ob_values), "k = 0.1"),
+#       col = c(colors, "gray"), 
+#       lty = c(rep(1, 4), 2), 
+#       lwd = 2, cex = 0.7)
+#grid(col = "gray", lty = 2)
+#
+## Reset plotting parameters
+#par(mfrow = c(1, 1), mar = c(5, 4, 4, 2))
 
 cat("\n=== ANALYSIS COMPLETE ===\n")
 cat("Key findings:\n")

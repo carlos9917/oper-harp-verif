@@ -59,16 +59,18 @@ module load R
 module load ecmwf-toolbox  # this one is necessary to install Rgrib2 dependencies
 module load proj
 module load hdf5
+module load netcdf4
 
-This gives the following default moduels (June 2024)
-R/4.3.3
-hdf5/1.14.3
-ecmwf-toolbox/2024.04.0.0
-proj/9.3.1
+This gives the following default moduels (July 2025)
+R/4.4.3
+hdf5/1.14.6
+ecmwf-toolbox/2025.04.0.0
+proj/9.5.1
+netcdf4/4.9.3
 ```
 
 **Using a conda environment** 
-(...to be tested...)
+(...to be tested and updated by Polly...)
 
 Use `conda_environment_R_4.3.3.txt` file to get conda environment.
 
@@ -95,7 +97,7 @@ cd <harp_local_installation>
 ```
 Start R session
 
-library(renv)
+library(renv, bare = TRUE)
 renv::init()
 Exit R (ctrl-D or exit)
 ```
@@ -108,6 +110,10 @@ to a local R installation and not the standard `$HOME/x86_64-pc-linux-gnu-librar
 ```
 
 Enter R and install the following libraries
+Note that we will be using some of the development versions here.
+`harpCore` development version is important to
+be able to read the INCA data.
+
 
 ```
 Start R session
@@ -115,28 +121,28 @@ Start R session
 install.packages("remotes")
 library(remotes)
 install_github("harphub/harp")
-install_github("carlos9917/harpIO", "hdf5-mod")
-install_github("pollyaschm/harpSpatial", "ACCORD_VS_202406")
+install_github("harphub/harpIO", "develop")
+install_github("harphub/harpSpatial", "develop")
+install_github("harpIO/harpCore","develop")
+
+###install_github("pollyaschm/harpSpatial", "ACCORD_VS_202406")
 ```
 **Note:**
 
-When installing install_github("pollyaschm/harpSpatial", "ACCORD_VS_202406"), do not update other packages (option 3: None) 
+When installing install_github("harphub/harpSpatial", "ACCORD_VS_202507"), do not update other packages (option 3: None) 
 
 ```
-Changes made in harpIO and harpSpatial
+Changes available in harpIO/develop
 
 harpIO:
 changes to read_hdf5()
- 
-harpSpatial:
-fc_param_defs input to read_grid()
-prm$basename input to read_grid()      
-prm$basename to force IR and WV satellite channels as the same parameter     
-return fields from verify_spatial()     
-adding scores in verify_spatial() (like RMSE, corr coef, percentage FSS)
+such that DMI data does not come out inverted
+
+harpSpatial (master)
+Now includes changes introduced by Polly in former VS
+Installing develop version here though...
 
 ```
-  For more details see [changes harpIO](https://github.com/pollyaschm/harpIO/tree/invert-hdf5-data) and [changes harpSpatial](https://github.com/pollyaschm/harpSpatial/tree/ACCORD_VS_202406)
 
 **Proceed with the installation of the remaining packages.**
 
