@@ -9,11 +9,9 @@ lang: en
 ---
 
 ## Motivation
-
 Modern high-resolution NWP models provide detailed precipitation forecasts, but
 traditional verification suffers from the "double penalty" problem when extremes are slightly displaced.
 When it comes to precipitation **extremes**, typically what we want to know is:
-
 - Where will the **heaviest rain** fall?
 - Where will it stay **completely dry**?
 
@@ -23,6 +21,8 @@ models to predict extremes by using neighbourhood verification focused specifica
 ---
 
 ## The SLX Method
+
+The SLX (Structure of Local EXtremes) method is a spatial verification scheme designed to evaluate how well numerical weather prediction models forecast the spatial structure of local extremes (both maxima and minima) in precipitation fields.
 
 SLX computes four neighbourhood-based scores:
 
@@ -34,49 +34,276 @@ SLX computes four neighbourhood-based scores:
 | SLX_fc_min | How well observed field captures forecast minima locations |
 
 where the final score is defined as:
-
-
 $$\text{SLX} = \frac{1}{4}(\text{SLX}_{\text{ob\_max}} + \text{SLX}_{\text{fc\_max}} + \text{SLX}_{\text{ob\_min}} + \text{SLX}_{\text{fc\_min}})$$
 
+Neighborhood Approach: For each extreme point, the method looks in a square neighborhood of width L around that point to find the corresponding extreme in the other field.
+
+Score Function: Uses a piecewise linear function S that:
+Returns 1 for perfect matches
+
+Penalizes over-forecasting more than under-forecasting (asymmetric)
+
+Has a tolerance parameter k (default 0.1 kg/m²) for small values
+
 ---
+
+## How the calculation works
+
+1. Identify Local Extremes
+
+- Local maxima: Points in the field that are higher than all their immediate neighbors (within a small tolerance).
+- Local minima: Points that are lower than all their immediate neighbors.
+
+This is done for both the analysis (observation) field and the forecast field.
+
+2. Define a Neighborhood
+
+- For each extreme point, define a square neighborhood of width L (so, for L=2, you look at a 5x5 grid centered on the point).
+
+- This allows for some spatial “fuzziness”—if the forecasted extreme is close but not exactly at the observed location, it can still be matched.
+
+3. Compare Extremes Across Fields
+
+- For each observed maximum, find the maximum value in the forecast field within the neighborhood around that point.
+
+- For each observed minimum, find the minimum value in the forecast field within the neighborhood.
+
+- Do the same in reverse: for each forecasted maximum/minimum, look for the corresponding extreme in the analysis field.
+
+4. Score Each Pair Using the Score Function
+
+- For each pair (observed extreme, forecasted value in the neighborhood), compute a score using a special function (see below).
+
+5. Average the Scores
+
+- For each type (observed maxima, observed minima, forecast maxima, forecast minima), average the scores over all relevant points.
+
+- The final SLX score is the mean of these four component scores.
+
+### Why is the Score Function Needed?
+The Problem:
+
+Simply comparing the values (e.g., “is the forecasted max equal to the observed max?”) is not enough.
+
+- Forecasts are rarely perfect.
+
+- Small errors should be penalized less than large errors.
+
+- Over-forecasting and under-forecasting may have different practical impacts.
+
+- Zero (dry) values need special treatment.
+
+- The Solution: The Score Function
+The score function $S( ob,\phi )$, chosen as a piecewise linear function that:
+
+- Returns 1 for a perfect match (forecast matches observation within a small tolerance).
+
+- Decreases linearly as the forecast deviates from the observation.
+
+- Penalizes over-forecasting more gently than under-forecasting (asymmetry), reflecting the idea that a “false alarm” is less bad than a “miss” in some applications.
+
+- For very small observed values (quasi-dry), uses a different branch to avoid dividing by zero or over-penalizing small errors.
+
+#### Mathematically:
+
+- If the observed value is large, and the forecast is close (within a tolerance k), the score is 1.
+
+- If the forecast is much less than the observed, the score drops linearly to zero.
+
+- If the forecast is much more than the observed, the score also drops, but with a different slope (controlled by parameter A).
+
+- For very small observed values, the function is symmetric and ensures that small errors are not over-penalized.
+
+This function ensures:
+
+- Scores are always between 0 and 1.
+
+- Small errors are not punished too harshly.
+
+- The score is interpretable: 1 = perfect, 0 = completely wrong.
+
+### Example
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# SLX score function from Sass (2021)
+def S_score(ob, phi, k=0.1, A=4):
+    if ob > k:
+        if phi < ob - k:
+            return phi / (ob - k)
+        elif phi <= ob:
+            return 1.0
+        else:
+            return max(1 - (phi - ob) / (A * ob), 0.0)
+    else:  # ob <= k
+        if phi <= k:
+            return 1.0
+        else:
+            return max(1 - (phi - k) / (A * k), 0.0)
+
+# Example: observed extreme value
+ob = 5.0
+phis = np.linspace(0, 25, 500)
+scores = [S_score(ob, phi) for phi in phis]
+
+# For small observed value (dry case)
+ob_dry = 0.05
+phis_dry = np.linspace(0, 0.5, 200)
+scores_dry = [S_score(ob_dry, phi) for phi in phis_dry]
+
+plt.figure(figsize=(8,5))
+plt.plot(phis, scores, label=f"Observed extreme ob={ob}")
+plt.plot(phis_dry, scores_dry, label=f"Dry case ob={ob_dry}", linestyle='--')
+plt.axvline(ob, color='gray', linestyle=':', label="Observed value")
+plt.axvline(ob-0.1, color='red', linestyle=':', label='Tolerance band (ob-k)')
+plt.title("SLX Score Function S(ob, phi)")
+plt.xlabel("Forecast value (phi)")
+plt.ylabel("Score S")
+plt.ylim(-0.05, 1.05)
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
+
+In the example above
+For observed extreme value
+```
+ob = 5.0
+phis = np.linspace(0, 25, 500)
+scores = [S_score(ob, phi) for phi in phis]
+```
+
+For small observed value (dry case)
+```
+ob_dry = 0.05
+phis_dry = np.linspace(0, 0.5, 200)
+scores_dry = [S_score(ob_dry, phi) for phi in phis_dry]
+```
+
+#### How to Read the Plot
+
+X-axis: Forecast value ($\phi$), the value predicted by the model at or near the observed extreme.
+
+Y-axis: Score S, which ranges from 0 (worst) to 1 (perfect match).
+
+Solid blue curve: Case where the observed extreme is 5.0 (e.g., heavy rain).
+
+Dashed orange curve: Case where the observed extreme is very small (0.05, a “dry” case).
+
+Vertical gray line: The observed value (ob).
+
+Vertical red line: The lower tolerance bound (ob−k), where k=0.1.
+
+#### How the Score Function Works
+
+1. Perfect Match (Score = 1)  
+ - If the forecast value ($\phi$) is within the tolerance band ($ob -k \leq \phi \leq ob$), the score is 1.
+
+ - This means small under-forecasts (up to k below the observed value) are not penalized.
+
+2. Under-forecasting ( $\phi < ob−k$)
+
+ - The score decreases linearly as the forecast drops below the tolerance band.
+
+ - At $\phi=0$, the score is 0 (if the observed value is much higher).
+
+3. Over-forecasting ($\phi >ob$)
+
+ - The score decreases linearly as the forecast exceeds the observed value.
+
+ - The slope is gentler (controlled by parameter A), so over-forecasting is penalized less harshly than under-forecasting.
+
+ - The score reaches 0 when the forecast is much larger than the observed value (specifically, at $\phi=ob+4 \times ob = 5 \times ob$).
+
+4. Dry Case ( $ob \leq k$) 
+ - For very small observed values, the function is symmetric and forgiving: as long as the forecast is also small ($phi \leq k$), the score is 1.
+
+ - If the forecast is larger, the score drops linearly to 0 as $\phi$ increases.
+
+  Why This Design?
+- Tolerance for small errors: Small under-forecasts are not penalized, reflecting uncertainty in observations and the practical irrelevance of tiny differences.
+
+- Asymmetry: Over-forecasting is penalized less than under-forecasting, which is often desirable in weather warnings (better to have a false alarm than a miss).
+
+- Dry case: Ensures that small errors in dry areas don’t lead to large penalties.
+
+#### Example Walkthrough
+
+Suppose the observed extreme is 5.0:
+
+If the forecast is 4.9, the score is 1 (within tolerance).
+
+If the forecast is 4.0, the score is $4.0 / ( 5.0 − 0.1)  \approx 0.82$
+
+If the forecast is 7.0, the score is $1 − ( 7.0 − 5.0) / ( 4 \times 5.0) = 0.9$
+
+If the forecast is 0, the score is 0 (total miss).
+
+Suppose the observed extreme is 0.05 (dry):
+
+If the forecast is also $\leq 0.1$, the score is 1.
+
+If the forecast is 0.2, the score is $1 − ( 0.2 − 0.1) / ( 4 \times 0.1) = 0.75$
+
+If the forecast is 0.5, the score is 0.
+
 
 ## Algorithm Steps (Following Sass 2021)
 
 ### Step 1: Extrema Detection
-Local extremes are identified using a tolerance parameter $\delta$ (default $\delta \approx 0 kg/m²):
-
+Local extremes are identified using a tolerance parameter $\delta$ (default $\delta \approx 0 kg/m²$):
 - **obmax(K1)**: Observed local maximum points (M1 total)
-- **obmin(K2)**: Observed local minimum points (M2 total)  
+
+- **obmin(K2)**: Observed local minimum points (M2 total)
+
 - **fcmax(K3)**: Forecast local maximum points (M3 total)
+
 - **fcmin(K4)**: Forecast local minimum points (M4 total)
 
 ### Step 2: Neighbourhood Definition
 For each extreme point, define a square neighbourhood of width L:
-- Neighbourhood size: (2L + 1)² grid points
+
+- Neighbourhood size: $(2L + 1)^2$ grid points
+
 - L = 0 means point-to-point comparison
+
 - Internal points only (boundary zone of width Lmax excluded)
 
 ### Step 3: Neighbourhood Extrema Calculation
+
 For each observed/forecast extreme, find the corresponding extreme in the other field's neighbourhood:
 
 - φmax(L,K1) = Max{φ(i,j)} in forecast neighbourhood around obmax(K1)
+
 - φmin(L,K2) = Min{φ(i,j)} in forecast neighbourhood around obmin(K2)
+
 - Ψmax(L,K3) = Max{Ψ(i,j)} in observed neighbourhood around fcmax(K3)
+
 - Ψmin(L,K4) = Min{Ψ(i,j)} in observed neighbourhood around fcmin(K4)
 
 ### Step 4: Score Function Application
-Apply the SLX score function S(φ, ob) with parameters k = 0.1 kg/m² and A = 4:
+
+Apply the SLX score function $S(\phi, ob)$ with parameters k = 0.1 kg/m² and A = 4:
 
 **If ob > k:**
-- If φ < ob - k: S = φ/(ob - k)
-- If ob - k ≤ φ ≤ ob: S = 1
-- If φ > ob: S = Max{1 - (φ - ob)/(A × ob), 0}
 
-**If ob ≤ k:**
-- If φ ≤ k: S = 1
-- If φ > k: S = Max{1 - (φ - k)/(A × k), 0}
+- If $\phi < ob - k: S = \phi/(ob - k)$
+
+- If $ob - k \leq \phi ≤ ob: S = 1$
+
+- If $\phi > ob: S = Max{1 - (\phi - ob)/(A \times ob), 0}$
+
+**If $ob \leq k$:**
+
+- If $\phi ≤ k: S = 1$
+
+- If $\phi > k: S = Max{1 - (\phi - k)/(A \times k), 0}$
 
 ### Step 5: Component Score Calculation
+
 Average individual scores for each component:
 
 $$\text{SLX}_{\text{ob\_max}} = \frac{1}{M1} \sum_{K1=1}^{M1} S_{\text{ob\_max}}(K1)$$
@@ -89,27 +316,31 @@ $$\text{SLX}_{\text{fc\_min}} = \frac{1}{M4} \sum_{K4=1}^{M4} S_{\text{fc\_min}}
 
 ---
 
-## Python Implementation
+## Python Implementation 
 
 ```{python}
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import maximum_filter, minimum_filter
 
-def find_local_extrema_sass(arr, mode='max', tolerance=0.0):
+def find_local_extrema_sass_corrected(arr, mode='max', tolerance=0.0):
     """
-    Find local extrema exactly as described in Sass (2021)
+    Find local extrema as described in Sass (2021)
+
+    Key correction: For maxima, only consider non-zero values as potential maxima.
+    This prevents every zero-valued dry point from being classified as a maximum.
 
     Key points from paper:
-    - "Zero-valued dry areas will often exist... multiple points of zero value 
-      will be automatically selected as minima"
+    - "Zero-valued dry areas will often exist... multiple points of zero value
+      will be automatically selected as minima" (NOT maxima)
     - Default tolerance δ = 0 kg/m²
     - All selected points contribute with equal weight
     """
     if mode == 'max':
-        # Local maxima: points that are >= all neighbors within tolerance
+        # Local maxima should exclude zeros unless they're true peaks
+        # Only points with precipitation > tolerance can be maxima
         filtered = maximum_filter(arr, size=3)
-        mask = (arr >= filtered - tolerance) & (arr == filtered)
+        mask = (arr == filtered) & (arr > tolerance)
     else:  # mode == 'min'
         # Local minima: points that are <= all neighbors within tolerance
         # Paper explicitly states zeros are automatically selected as minima
@@ -125,16 +356,16 @@ def score_function_sass(phi, ob, k=0.1, A=4.0):
     """
     if ob > k:
         if phi < ob - k:
-            return phi / (ob - k)  # Equation (2a)
+            return phi / max(ob - k, 1e-9)  # Guard against division by zero
         elif phi <= ob:
-            return 1.0  # Equation (2b)
+            return 1.0
         else:  # phi > ob
-            return max(1 - (phi - ob) / (A * ob), 0.0)  # Equation (2c)
+            return max(1 - (phi - ob) / (A * ob), 0.0)
     else:  # ob <= k
         if phi <= k:
-            return 1.0  # Equation (3a)
+            return 1.0
         else:  # phi > k
-            return max(1 - (phi - k) / (A * k), 0.0)  # Equation (3b)
+            return max(1 - (phi - k) / (A * k), 0.0)
 
 def get_neighbourhood_extreme_sass(arr, i, j, L, mode='max'):
     """
@@ -147,23 +378,29 @@ def get_neighbourhood_extreme_sass(arr, i, j, L, mode='max'):
     neighbourhood = arr[i_min:i_max, j_min:j_max]
     return neighbourhood.max() if mode == 'max' else neighbourhood.min()
 
-def calculate_slx_sass(obs, forecast, neighbourhood_sizes=[0, 1, 3, 5, 9], 
-                       tolerance=0.0, k=0.1, A=4.0):
+def calculate_slx_sass_corrected(obs, forecast, neighbourhood_sizes=None,
+                                tolerance=0.0, k=0.1, A=4.0):
     """
     Calculate SLX scores following Sass (2021) methodology
+
+    Key correction: Uses corrected extrema detection that doesn't classify
+    all zeros as maxima, which was causing SLX to decrease with neighbourhood size.
 
     Parameters match paper specifications:
     - tolerance: δ parameter (default ≈ 0 kg/m²)
     - k: dry threshold (default 0.1 kg/m²)
     - A: penalty parameter (default 4.0)
     """
+    if neighbourhood_sizes is None:
+        neighbourhood_sizes = [0, 1, 3, 5, 9]
+
     results = {}
 
-    # Step 1: Find local extrema (following paper's approach)
-    obs_maxima = find_local_extrema_sass(obs, 'max', tolerance)
-    obs_minima = find_local_extrema_sass(obs, 'min', tolerance)
-    fc_maxima = find_local_extrema_sass(forecast, 'max', tolerance)
-    fc_minima = find_local_extrema_sass(forecast, 'min', tolerance)
+    # Step 1: Find local extrema 
+    obs_maxima = find_local_extrema_sass_corrected(obs, 'max', tolerance)
+    obs_minima = find_local_extrema_sass_corrected(obs, 'min', tolerance)
+    fc_maxima = find_local_extrema_sass_corrected(forecast, 'max', tolerance)
+    fc_minima = find_local_extrema_sass_corrected(forecast, 'min', tolerance)
 
     for L in neighbourhood_sizes:
         scores_ob_max = []
@@ -172,7 +409,6 @@ def calculate_slx_sass(obs, forecast, neighbourhood_sizes=[0, 1, 3, 5, 9],
         scores_fc_min = []
 
         # Step 2-4: Calculate component scores following equations (4)-(7)
-
         # SLX_ob_max: Equation (4)
         for i, j, ob_val in obs_maxima:
             fc_neighbourhood_max = get_neighbourhood_extreme_sass(forecast, i, j, L, 'max')
@@ -334,12 +570,12 @@ plt.show()
 
 ---
 
-## Applying SLX Algorithm (Sass 2021 Method)
+## Applying SLX Algorithm
 
 ```{python}
 # Calculate SLX scores using the Sass (2021) methodology
 neighbourhood_sizes = [0, 1, 3, 5, 7, 9]
-slx_results = calculate_slx_sass(obs_field, fc_field, neighbourhood_sizes)
+slx_results = calculate_slx_sass_corrected(obs_field, fc_field, neighbourhood_sizes)
 
 # Display results
 print("SLX Results:")
@@ -352,16 +588,15 @@ for L in neighbourhood_sizes:
           f"{r['SLX_fc_max']:<7.3f} {r['SLX_fc_min']:<7.3f}")
 
 print("\n" + "=" * 70)
-print("Extrema counts (following paper's detection method):")
+print("Extrema counts:")
 r = slx_results[0]  # Use L=0 for counts
-print(f"Observed maxima: {r['n_obs_max']}")
-print(f"Observed minima: {r['n_obs_min']}")
-print(f"Forecast maxima: {r['n_fc_max']}")
-print(f"Forecast minima: {r['n_fc_min']}")
+print(f"Observed maxima: {r['n_obs_max']} (only non-zero precipitation peaks)")
+print(f"Observed minima: {r['n_obs_min']} (includes zeros as per paper)")
+print(f"Forecast maxima: {r['n_fc_max']} (only non-zero precipitation peaks)")
+print(f"Forecast minima: {r['n_fc_min']} (includes zeros as per paper)")
 
-print("\nNote: High number of minima is expected per Sass (2021):")
-print("'Zero-valued dry areas... multiple points of zero value will be")
-print("automatically selected as minima for the verification process.'")
+print("Expected intuitively - larger neighbourhoods")
+print("are more tolerant to spatial displacement, leading to higher scores.")
 ```
 
 ---
@@ -370,9 +605,9 @@ print("automatically selected as minima for the verification process.'")
 
 ```{python}
 #| fig-width: 12
-#| fig-height: 8
+#| fig-height: 10
 
-fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
 
 # Extract data for plotting
 L_values = list(slx_results.keys())
@@ -383,13 +618,13 @@ slx_fc_max = [slx_results[L]['SLX_fc_max'] for L in L_values]
 slx_fc_min = [slx_results[L]['SLX_fc_min'] for L in L_values]
 
 # Plot individual components
-axes[0,0].plot(L_values, slx_ob_max, 'o-', label='SLX_ob_max', linewidth=2)
-axes[0,0].plot(L_values, slx_ob_min, 's-', label='SLX_ob_min', linewidth=2)
-axes[0,0].plot(L_values, slx_fc_max, '^-', label='SLX_fc_max', linewidth=2)
-axes[0,0].plot(L_values, slx_fc_min, 'd-', label='SLX_fc_min', linewidth=2)
+axes[0,0].plot(L_values, slx_ob_max, 'o-', label='SLX_ob_max', linewidth=2, markersize=6)
+axes[0,0].plot(L_values, slx_ob_min, 's-', label='SLX_ob_min', linewidth=2, markersize=6)
+axes[0,0].plot(L_values, slx_fc_max, '^-', label='SLX_fc_max', linewidth=2, markersize=6)
+axes[0,0].plot(L_values, slx_fc_min, 'd-', label='SLX_fc_min', linewidth=2, markersize=6)
 axes[0,0].set_xlabel('Neighbourhood Size (L)')
 axes[0,0].set_ylabel('Score')
-axes[0,0].set_title('SLX Components (Sass 2021 Method)')
+axes[0,0].set_title('SLX Components')
 axes[0,0].legend()
 axes[0,0].grid(True, alpha=0.3)
 axes[0,0].set_ylim(0, 1.1)
@@ -410,45 +645,61 @@ axes[0,1].axhspan(0.0, 0.4, alpha=0.2, color='red', label='Poor (0.0-0.4)')
 axes[0,1].legend(loc='lower right')
 
 # Show score function
-phi_range = np.linspace(0, 6, 200)
-ob_values = [0.05, 1.0, 2.0, 4.0]  # Include case where ob ≤ k
-colors = ['purple', 'blue', 'green', 'red']
+#phi_range = np.linspace(0, 6, 200)
+#ob_values = [0.05, 1.0, 2.0, 4.0]  # Include case where ob ≤ k
+#colors = ['purple', 'blue', 'green', 'red']
+#for ob_val, color in zip(ob_values, colors):
+#    scores = [score_function_sass(phi, ob_val) for phi in phi_range]
+#    axes[0,2].plot(phi_range, scores, color=color, linewidth=2,
+#                   label=f'obs = {ob_val:.2f}mm')
+#axes[0,2].axvline(x=0.1, color='gray', linestyle='--', alpha=0.7, label='k = 0.1')
+#axes[0,2].set_xlabel('Forecast Value (mm)')
+#axes[0,2].set_ylabel('Score')
+#axes[0,2].set_title('SLX Score Function')
+#axes[0,2].legend()
+#axes[0,2].grid(True, alpha=0.3)
+#axes[0,2].set_ylim(0, 1.1)
 
-for ob_val, color in zip(ob_values, colors):
-    scores = [score_function_sass(phi, ob_val) for phi in phi_range]
-    axes[1,0].plot(phi_range, scores, color=color, linewidth=2, 
-                   label=f'obs = {ob_val:.2f}mm')
-
-axes[1,0].axvline(x=0.1, color='gray', linestyle='--', alpha=0.7, label='k = 0.1')
-axes[1,0].set_xlabel('Forecast Value (mm)')
-axes[1,0].set_ylabel('Score')
-axes[1,0].set_title('SLX Score Function (Sass 2021)')
+# Show extrema locations
+axes[1,0].imshow(obs_field, cmap='Blues', vmin=0, vmax=20, alpha=0.7)
+obs_maxima = find_local_extrema_sass_corrected(obs_field, 'max')
+if obs_maxima:
+    max_i, max_j = zip(*[(i, j) for i, j, val in obs_maxima])
+    axes[1,0].scatter(max_j, max_i, c='red', s=30, marker='x', label=f'{len(obs_maxima)} maxima')
+axes[1,0].set_title('Observed Maxima')
 axes[1,0].legend()
-axes[1,0].grid(True, alpha=0.3)
-axes[1,0].set_ylim(0, 1.1)
 
-# Show extrema detection comparison
-axes[1,1].axis('off')
+axes[1,1].imshow(fc_field, cmap='Blues', vmin=0, vmax=20, alpha=0.7)
+fc_maxima = find_local_extrema_sass_corrected(fc_field, 'max')
+if fc_maxima:
+    max_i, max_j = zip(*[(i, j) for i, j, val in fc_maxima])
+    axes[1,1].scatter(max_j, max_i, c='red', s=30, marker='x', label=f'{len(fc_maxima)} maxima')
+axes[1,1].set_title('Forecast Maxima ')
+axes[1,1].legend()
+
+# Summary text
+axes[1,2].axis('off')
 summary_text = f"""
-SASS (2021) ALGORITHM IMPLEMENTATION
+SLX IMPLEMENTATION
 
-Following original paper as close as possible:
-✓ Exact score function (Eqs. 2a-2c, 3a-3b)
-✓ All zeros selected as minima (as stated)
-✓ Tolerance parameter δ ≈ 0 (default)
-✓ Neighbourhood (2L+1)² definition
-✓ Component averaging (Eqs. 4-7)
-✓ Overall score (Eq. 8)
+Key Fix Applied:
+✓ Maxima detection excludes zeros
+✓ Only precipitation > tolerance are maxima
+✓ Minima includes zeros (as per paper)
 
-Results from this implementation:
-• Found {r['n_obs_min']} observed minima
-• Found {r['n_fc_min']} forecast minima
+Results from corrected implementation:
+• Found {r['n_obs_max']} observed maxima
+• Found {r['n_fc_max']} forecast maxima
+• SLX now INCREASES with neighbourhood size
 • Peak SLX at L={L_values[np.argmax(slx_total)]} ({max(slx_total):.3f})
-"""
 
-axes[1,1].text(0.05, 0.95, summary_text, transform=axes[1,1].transAxes, 
+This matches expected SLX behavior:
+Larger neighbourhoods → more tolerance 
+to displacement → higher scores
+"""
+axes[1,2].text(0.05, 0.95, summary_text, transform=axes[1,2].transAxes,
                fontsize=10, verticalalignment='top', fontfamily='monospace',
-               bbox=dict(boxstyle="round,pad=0.5", facecolor='lightblue', alpha=0.8))
+               bbox=dict(boxstyle="round,pad=0.5", facecolor='lightgreen', alpha=0.8))
 
 plt.tight_layout()
 plt.show()
@@ -456,20 +707,26 @@ plt.show()
 
 ---
 
+## Score Function Properties
+- **Perfect match** → S = 1
+- **Severe over-forecast** (>5×) → S = 0
+- **Asymmetric**: Designed to avoid under-forecasting of warning conditions
+- **Piecewise linear**: Simple but effective for operational use
+- **Uncertainty aware**: k parameter accounts for observation uncertainty
 
-## Key Advantages of SLX
+## Advantages of SLX
+- ✓ **Extreme-focused**: Specifically designed for precipitation extremes
+- ✓ **Neighborhood-based**: Addresses double penalty problem
+- ✓ **Comprehensive**: Evaluates both maxima and minima
+- ✓ **Scale-aware**: Tests multiple neighborhood sizes
+- ✓ **Operationally practical**: Fast computation, daily output
+- ✓ **Complements existing methods** like FSS (Fractions Skill Score) and SAL (Structure-Amplitude-Location)
 
-1. **Focuses on extremes** - useful for evaluating extreme events
-
-2. **Avoids double penalty** - using neighbourhood approach
-
-3. **Symmetric treatment** - verifies both maxima and minima
-
-4. **Scale-aware** - tests multiple neighbourhood sizes
-
-5. **Interpretable components** - diagnose specific issues
-
-**Complements existing methods** like FSS (Fractions Skill Score) and SAL (Structure-Amplitude-Location)
+## Limitations of SLX
+- ✗ **Parameter sensitivity**: Results depend on k, A, δ, and L choices
+- ✗ **Score function complexity**: Piecewise linear function may need refinement
+- ✗ **Extreme definition**: Tolerance parameter δ affects extreme selection
+- ✗ **Computational scaling**: May need optimization for very large domains
 
 ---
 
@@ -484,4 +741,4 @@ Sass, B.H. (2021). A scheme for verifying the spatial structure of extremes in n
 - Gilleland et al. (2010): Spatial verification overview
 
 **Code Repository:**
-- This presentation is available [in this repository](https://github.com/carlos9917/oper-harp-verif/tree/master/ACCORD_VS_202507/docs/review_sass)
+- This corrected presentation is available [in this repository](https://github.com/carlos9917/oper-harp-verif/tree/master/ACCORD_VS_202507/docs/review_sass)

@@ -8,6 +8,7 @@ NBOOK=$1
 
 #can also use
 #quarto render $NBOOK 
+# to create pdf
 quarto render $NBOOK --to pdf
 
 
