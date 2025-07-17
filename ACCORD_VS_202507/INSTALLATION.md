@@ -220,6 +220,12 @@ To update `renv.lock` after installation use:
 renv::settings$snapshot.type("all")
 renv::snapshot()
 ```
+If renv takes very long to start, avoid creating
+a sandbox using
+
+```
+export RENV_CONFIG_SANDBOX_ENABLED=FALSE
+```
 
 ## Additional dependencies 
 
