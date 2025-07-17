@@ -23,12 +23,27 @@ ob_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_20
 
 fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/CLAEF1k/20250701/00"
 fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/CLAEF1k/20250712/00"
+fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/CLAEF1k"
 
 ob_file <- paste0(ob_file_path,"/INCAPlus_1h_RR_ANA_202507011600.nc")
 fc_file <- paste0(fc_file_path,"/CLAEF00+0016:00.grb")
 
 ob_file <- paste0(ob_file_path,"/INCAPlus_1h_RR_ANA_202507121200.nc")
 fc_file <- paste0(fc_file_path,"/CLAEF00+0012:00.grb2")
+
+fc_file_template <- "{YYYY}{MM}{DD}/00/{det_model}+{LDT4}:00.grb2" #for the new files
+
+fcst_model <- "CLAEF00"
+
+fc_file_format = "grib"
+lead_time <- 12
+fc_dttm         <- strftime(strptime(veri_time, "%Y%m%d%H") - (lead_time * 3600), "%Y%m%d%H")
+fc_file_name <- generate_filenames(file_path     = fc_file_path,
+                                   file_date     = fc_dttm,
+                                   lead_time     = lead_time,
+                                   file_template = fc_file_template,
+                                   det_model     = fcst_model)
+
 
 # Load forecast data
 cat("Loading forecast data...\n")
@@ -40,7 +55,20 @@ fc_file_opts     <- grib_opts( param_find = setNames(list(use_grib_shortName('tp
 #precip_fc <- read_grid(file_name=fc_file, parameter="pcp", dttm="20250701", file_format="grib", file_format_opts = fc_file_opts)
 #precip_fc <- read_grid(file_name=fc_file, parameter="pcp", dttm=veri_time, file_format="grib", file_format_opts = fc_file_opts)
 #ignoring time to check only
-precip_fc <- read_grid(file_name=fc_file, parameter="pcp", file_format="grib", file_format_opts = fc_file_opts)
+#precip_fc <- read_grid(file_name=fc_file, parameter="pcp", file_format="grib", file_format_opts = fc_file_opts)
+
+
+#parameter <- "accrr1h"
+
+precip_fc <- read_grid(fc_file_name,
+                     parameter        = "pcp", #"accrr1h",
+                     is_forecast      = TRUE,
+                     dttm             = fc_dttm,
+                     file_format      = fc_file_format,
+                     file_format_opts = fc_file_opts,
+                     param_defs       = list(),
+                     lead_time        = lead_time)
+
 
 dom_fc <- get_domain(precip_fc)
 cat("Forecast data loaded successfully\n")
@@ -63,16 +91,23 @@ cat("Converting to arrays and handling NA values...\n")
 obs_field <- as.array(precip_ob)
 fc_field <- as.array(precip_fc_regrid)
 
+png("obs_field.png", width = 800, height = 600, res = 150)
+plot_field(obs_field)
+dev.off()
+png("fc_field.png", width = 800, height = 600, res = 150)
+plot_field(fc_field)
+dev.off()
+
 # Handle NA values
-obs_field[is.na(obs_field)] <- 0
-fc_field[is.na(fc_field)] <- 0
+#obs_field[is.na(obs_field)] <- 0
+#fc_field[is.na(fc_field)] <- 0
 
 cat(sprintf("Grid dimensions: %d x %d\n", nrow(obs_field), ncol(obs_field)))
 cat("Data preparation completed\n")
 
 #### SLX IMPLEMENTATION ####
 
-find_local_extrema_sass_corrected <- function(arr, mode="max", tolerance=0.0) {
+find_local_extrema_sass_corrected <- function(arr, mode="max", tolerance=0.01) {
   #"""
   #Find local extrema exactly as described in Sass (2021)
 
@@ -204,15 +239,27 @@ calculate_slx_sass_corrected <- function(obs, forecast, neighbourhood_sizes=c(0,
   # Step 1: Find local extrema 
   cat("Finding observed maxima...\n")
   obs_maxima <- find_local_extrema_sass_corrected(obs, "max", tolerance)
+  #png("obs_maxima.png", width = 800, height = 600, res = 150)
+  #plot_field_with_extrema_indices(obs,obs_maxima, "Obs maxima")
+  #dev.off()
 
   cat("Finding observed minima...\n")
   obs_minima <- find_local_extrema_sass_corrected(obs, "min", tolerance)
+  #png("obs_minima.png", width = 800, height = 600, res = 150)
+  #plot_field_with_extrema_indices(obs,obs_minima, "Obs minima")
+  #dev.off()
 
   cat("Finding forecast maxima...\n")
   fc_maxima <- find_local_extrema_sass_corrected(forecast, "max", tolerance)
+  #png("fcst_maxima.png", width = 800, height = 600, res = 150)
+  #plot_field_with_extrema_indices(forecast,fc_maxima, "Fcst maxima")
+  #dev.off()
 
   cat("Finding forecast minima...\n")
   fc_minima <- find_local_extrema_sass_corrected(forecast, "min", tolerance)
+  #png("fcst_minima.png", width = 800, height = 600, res = 150)
+  #plot_field_with_extrema_indices(forecast,fc_minima, "Fcst minima")
+  #dev.off()
 
   cat("\n Extrema detection results:\n")
   cat(sprintf("Observed maxima: %d (only non-zero precipitation peaks)\n", nrow(obs_maxima)))
@@ -247,6 +294,14 @@ calculate_slx_sass_corrected <- function(obs, forecast, neighbourhood_sizes=c(0,
         j <- obs_maxima[idx, "col"]
         ob_val <- obs_maxima[idx, "value"]
         fc_neighbourhood_max <- get_neighbourhood_extreme_sass(forecast, i, j, L, "max")
+        #if (!is.null(fc_neighbourhood_max)) {
+        #    if (NROW(fc_neighbourhood_max) > 1) {
+        #    print(fc_neighbourhood_max)
+        #    png("fc_max_inter.png", width = 800, height = 600, res = 150)
+        #    plot_field_with_extrema_indices(forecast, fc_neighbourhood_max, "FC maxima")
+        #    dev.off()
+        #      }
+        #  }
         score <- score_function_sass(fc_neighbourhood_max, ob_val, k, A)
         scores_ob_max <- c(scores_ob_max, score)
       }
@@ -436,14 +491,63 @@ plot_field_ggplot <- function(field_data, extrema_max, extrema_min, title,
 
 
 #############################
+
+plot_field_with_extrema_indices <- function(field_data, extrema, title, 
+                                            point_color = "red", 
+                                            point_pch = 3, 
+                                            point_cex = 1.5, 
+                                            point_lwd = 2) {
+  # Plot the field with image(), flipping y-axis to match matrix orientation
+  image(
+    1:ncol(field_data), 1:nrow(field_data), 
+    t(field_data)[, nrow(field_data):1], 
+    col = viridis::viridis(20), 
+    main = title, 
+    xlab = "Column", 
+    ylab = "Row", 
+    axes = TRUE
+  )
+  box()
+  
+  # Overlay extrema points, flipping the row index to match the image orientation
+  if (NROW(extrema) > 0) {
+    points(
+      extrema[, "col"], 
+      nrow(field_data) - extrema[, "row"] + 1, 
+      col = point_color, 
+      pch = point_pch, 
+      cex = point_cex, 
+      lwd = point_lwd
+    )
+  }
+}
+
+#plot_field_with_extrema_indices <- function(field_data, extrema, title, 
+#    color="red") {
+#  image(t(field_data[nrow(field_data):1, ]), col = viridis::viridis(20), 
+#        main = title, xlab = "Column", ylab = "Row", axes = FALSE)
+#  axis(1, at = seq(0, 1, length.out = ncol(field_data)), labels = 1:ncol(field_data))
+#  axis(2, at = seq(0, 1, length.out = nrow(field_data)), labels = nrow(field_data):1)
+#  box()
+#  if (nrow(extrema) > 0) {
+#    points((extrema[, "col"] - 1) / (ncol(field_data) - 1),
+#           1 - (extrema[, "row"] - 1) / (nrow(field_data) - 1),
+#           col = color, pch = 3, cex = 1.5, lwd = 3)
+#  }
+#
+#  #legend("topright", legend = c("Local Max", "Local Min"), 
+#  #       col = c(max_color, min_color), pch = c(3, 4), pt.cex = 1.5, pt.lwd = 3, bg = "white")
+#}
+
+
 plot_field_with_extrema <- function(field_data, extrema_max, extrema_min, title, 
                                    max_color="red", min_color="blue") {
   # Create base field plot
-  plot_field(field_data, 
-             main = title,
-             legend_label = "Precipitation (mm/h)",
-             col = viridis(20),
-             na_colour = "gray95")
+  #plot_field(field_data, 
+  #           main = title,
+  #           legend_label = "Precipitation (mm/h)",
+  #           col = viridis(20),
+  #           na_colour = "gray95")
 
   # Add extrema points if they exist
   if (nrow(extrema_max) > 0) {
@@ -467,8 +571,9 @@ plot_field_with_extrema <- function(field_data, extrema_max, extrema_min, title,
 }
 
 #### MAIN EXECUTION ####
-doms_to_check <-c(0,1) # 0,5,10,15,20
 doms_to_check <-c(0,1,3,5,7,10,15,20)
+doms_to_check <-c(0,1) # 0,5,10,15,20
+
 # Calculate SLX scores 
 cat("\n=== STARTING SLX CALCULATION ===\n")
 cat("Calculating SLX scores from Sass (2021) implementation...\n")
@@ -476,7 +581,7 @@ slx_results <- calculate_slx_sass_corrected(obs_field, fc_field,neighbourhood_si
                                        tolerance=0.01, k=0.1, A=4.0)
 
 # Validate the implementation
-validate_slx_behavior(slx_results)
+#validate_slx_behavior(slx_results)
 
 # Display results table
 cat("\n=== GENERATING RESULTS TABLE ===\n")
@@ -502,6 +607,9 @@ par(mfrow = c(1, 2), mar = c(4, 4, 3, 6))
 
 #png("fields_with_extrema_L1.png", width = 800, height = 600, res = 150)
 #L1_results <- slx_results[["1"]]
+#plot_field_with_extrema_indices(obs_field, L1_results$obs_maxima, L1_results$obs_minima, "Observed Precipitation with Extrema")
+#dev.off()
+
 
 #plot_field_ggplot(precip_ob, L1_results$obs_maxima, L1_results$obs_minima, 
 #                       "Observed Precipitation with Extrema")
@@ -594,5 +702,3 @@ cat("\n=== ANALYSIS COMPLETE ===\n")
 cat("Key findings:\n")
 cat(sprintf("- Peak SLX score: %.3f at L=%d\n", max(SLX_vals), L_vals[which.max(SLX_vals)]))
 cat(sprintf("- Score improvement from L=0 to optimal: %.3f\n", max(SLX_vals) - SLX_vals[1]))
-cat("- SLX now INCREASES with neighborhood size (as expected!)\n")
-cat("- This indicates the spatial tolerance that gives best verification performance\n")
