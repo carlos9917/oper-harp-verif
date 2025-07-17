@@ -1,5 +1,4 @@
-# Sass score using the python implementation exactly
-# SUPER SLOW
+# Sass score calculation
 library(harp)
 library(harpVis)
 library(harpIO)
@@ -10,23 +9,50 @@ library(ggplot2)
 library(gridExtra)
 library(viridis)
 library(scico)
-
+library(rlang)
 # File paths (adjust as needed)
-obs_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/radar_dmi/sqpe/kavrrad_1h/2025/07"
-fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/dini_eps/2025070200"
+#obs_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/radar_dmi/sqpe/kavrrad_1h/2025/07"
+#fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/dini_eps/2025070200"
+
+#INCA and CLAEF data
+#ob_file_path <- "/hpcperm/kmek/obs/INCAPlus_1h/inca/2025/07/01"
+#fc_file_path <- "/hpcperm/kmek/models/CLAEF1k/20250701/00"
+
+veri_time <- "202507011600"
+
+ob_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/INCAPlus_1h/inca/2025/07/01"
+fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/CLAEF1k/20250701/00"
+
+ob_file <- paste0(ob_file_path,"/INCAPlus_1h_RR_ANA_202507011600.nc")
+fc_file <- paste0(fc_file_path,"/CLAEF00+0016:00.grb")
 
 cat("=== STARTING DATA LOADING ===\\n")
 cat("Loading forecast data...\\n")
 # Read data
-precip_fc <- harpIO::read_grid(paste0(fc_file_path,"/tp_ekmi_002_mbr001.grib2"), "Pcp")
+#precip_fc <- harpIO::read_grid(paste0(fc_file_path,"/tp_ekmi_002_mbr001.grib2"), "Pcp")
+# CLAEF
+fc_file_opts     <- grib_opts( param_find = setNames( list(list(key = 'indicatorOfParameter', value = 61)), "pcp"))
+precip_fc <- read_grid(file_name=fc_file, parameter="pcp", dttm="20250701", file_format="grib", file_format_opts = fc_file_opts)
+
+
 dom_fc <- get_domain(precip_fc)
 cat("Forecast data loaded successfully\\n")
 
 cat("Loading observation data...\\n")
-precip_ob <- harpIO::read_grid(
-  paste0(obs_file_path,"/202507020200.kavrRAD.01.h5"),"Pcp",
-  hdf5_opts = hdf5_opts(data_path = "/pcp/data1/data", odim = FALSE, meta = TRUE)
-)
+
+
+#precip_ob <- harpIO::read_grid(
+#  paste0(obs_file_path,"/202507020200.kavrRAD.01.h5"),"Pcp",
+#  hdf5_opts = hdf5_opts(data_path = "/pcp/data1/data", odim = FALSE, meta = TRUE)
+#)
+
+parameter_inca <- "acc1h"
+ob_file_opts     <- netcdf_opts(proj4_var  = "lambert_conformal_conic", param_find = list2(!!parameter_inca := "RR"))
+precip_ob <- read_grid(file_name=ob_file, parameter="RR", dttm=veri_time, file_format="netcdf", file_format_opts = ob_file_opts)
+
+
+
+
 dom_ob <- get_domain(precip_ob)
 cat("Observation data loaded successfully\\n")
 
@@ -48,13 +74,13 @@ cat("Data preparation completed\\n")
 
 #### CORRECTED SLX IMPLEMENTATION ####
 
-# Corrected extrema detection following Sass (2021)
+# Extrema detection following Sass (2021)
 find_local_extrema_sass <- function(arr, mode="max", tolerance=0.0) {
   rows <- nrow(arr)
   cols <- ncol(arr)
   extrema <- matrix(numeric(0), 0, 3, dimnames=list(NULL, c("row", "col", "value")))
   
-  cat(sprintf("  Scanning %d x %d grid for %s extrema...\\n", rows, cols, mode))
+  cat(sprintf("  Scanning %d x %d grid for %s extrema...\n", rows, cols, mode))
   
   # Progress tracking
   total_points <- (rows-2) * (cols-2)
@@ -69,7 +95,7 @@ find_local_extrema_sass <- function(arr, mode="max", tolerance=0.0) {
       # Show progress every 5%
       if (points_processed %% progress_interval == 0) {
         progress_pct <- round(100 * points_processed / total_points)
-        cat(sprintf("    Progress: %d%% (%d/%d points)\\r", progress_pct, points_processed, total_points))
+        cat(sprintf("    Progress: %d%% (%d/%d points)\r", progress_pct, points_processed, total_points))
         flush.console()
       }
       
@@ -100,7 +126,7 @@ find_local_extrema_sass <- function(arr, mode="max", tolerance=0.0) {
   return(extrema)
 }
 
-# Corrected neighborhood extreme calculation
+# Neighborhood extreme calculation
 get_neighbourhood_extreme_sass <- function(arr, i, j, L, mode="max") {
   rows <- nrow(arr)
   cols <- ncol(arr)
@@ -120,7 +146,7 @@ get_neighbourhood_extreme_sass <- function(arr, i, j, L, mode="max") {
   }
 }
 
-# Corrected score function (exact from Sass 2021)
+# Score function (from Sass 2021)
 score_function_sass <- function(phi, ob, k=0.1, A=4.0) {
   if (is.na(phi) || is.na(ob)) return(NA)
   
@@ -145,33 +171,33 @@ score_function_sass <- function(phi, ob, k=0.1, A=4.0) {
 calculate_slx_sass <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 7, 9), 
                               tolerance=0.0, k=0.1, A=4.0) {
   
-  cat("\\n=== FINDING LOCAL EXTREMA ===\\n")
+  cat("\n=== FINDING LOCAL EXTREMA ===\n")
   
-  # Find local extrema using corrected method
-  cat("Finding observed maxima...\\n")
+  # Find local extrema 
+  cat("Finding observed maxima...\n")
   obs_maxima <- find_local_extrema_sass(obs, "max", tolerance)
   
-  cat("Finding observed minima...\\n")
+  cat("Finding observed minima...\n")
   obs_minima <- find_local_extrema_sass(obs, "min", tolerance)
   
-  cat("Finding forecast maxima...\\n")
+  cat("Finding forecast maxima...\n")
   fc_maxima <- find_local_extrema_sass(forecast, "max", tolerance)
   
-  cat("Finding forecast minima...\\n")
+  cat("Finding forecast minima...\n")
   fc_minima <- find_local_extrema_sass(forecast, "min", tolerance)
   
-  cat("\\nExtrema detection results:\\n")
-  cat(sprintf("Observed maxima: %d\\n", nrow(obs_maxima)))
-  cat(sprintf("Observed minima: %d\\n", nrow(obs_minima)))
-  cat(sprintf("Forecast maxima: %d\\n", nrow(fc_maxima)))
-  cat(sprintf("Forecast minima: %d\\n", nrow(fc_minima)))
+  cat("\\nExtrema detection results:\n")
+  cat(sprintf("Observed maxima: %d\n", nrow(obs_maxima)))
+  cat(sprintf("Observed minima: %d\n", nrow(obs_minima)))
+  cat(sprintf("Forecast maxima: %d\n", nrow(fc_maxima)))
+  cat(sprintf("Forecast minima: %d\n", nrow(fc_minima)))
   
   results <- list()
   
-  cat("\\n=== CALCULATING SLX SCORES FOR DIFFERENT NEIGHBORHOOD SIZES ===\\n")
+  cat("\n=== CALCULATING SLX SCORES FOR DIFFERENT NEIGHBORHOOD SIZES ===\n")
   
   for (L in neighbourhood_sizes) {
-    cat(sprintf("\\nProcessing neighborhood size L = %d\\n", L))
+    cat(sprintf("\nProcessing neighborhood size L = %d\n", L))
     
     # Calculate component scores
     scores_ob_max <- c()
@@ -181,10 +207,10 @@ calculate_slx_sass <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 
     
     # SLX_ob_max: How well forecast captures observed maxima
     if (nrow(obs_maxima) > 0) {
-      cat(sprintf("  Computing SLX_ob_max for %d observed maxima...\\n", nrow(obs_maxima)))
+      cat(sprintf("  Computing SLX_ob_max for %d observed maxima...\n", nrow(obs_maxima)))
       for (idx in 1:nrow(obs_maxima)) {
         if (idx %% max(1, floor(nrow(obs_maxima)/10)) == 0) {
-          cat(sprintf("    Processing observed maximum %d/%d\\r", idx, nrow(obs_maxima)))
+          cat(sprintf("    Processing observed maximum %d/%d\r", idx, nrow(obs_maxima)))
           flush.console()
         }
         i <- obs_maxima[idx, "row"]
@@ -199,10 +225,10 @@ calculate_slx_sass <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 
     
     # SLX_ob_min: How well forecast captures observed minima
     if (nrow(obs_minima) > 0) {
-      cat(sprintf("  Computing SLX_ob_min for %d observed minima...\\n", nrow(obs_minima)))
+      cat(sprintf("  Computing SLX_ob_min for %d observed minima...\n", nrow(obs_minima)))
       for (idx in 1:nrow(obs_minima)) {
         if (idx %% max(1, floor(nrow(obs_minima)/10)) == 0) {
-          cat(sprintf("    Processing observed minimum %d/%d\\r", idx, nrow(obs_minima)))
+          cat(sprintf("    Processing observed minimum %d/%d\r", idx, nrow(obs_minima)))
           flush.console()
         }
         i <- obs_minima[idx, "row"]
@@ -217,7 +243,7 @@ calculate_slx_sass <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 
     
     # SLX_fc_max: How well observed field captures forecast maxima
     if (nrow(fc_maxima) > 0) {
-      cat(sprintf("  Computing SLX_fc_max for %d forecast maxima...\\n", nrow(fc_maxima)))
+      cat(sprintf("  Computing SLX_fc_max for %d forecast maxima...\n", nrow(fc_maxima)))
       for (idx in 1:nrow(fc_maxima)) {
         if (idx %% max(1, floor(nrow(fc_maxima)/10)) == 0) {
           cat(sprintf("    Processing forecast maximum %d/%d\\r", idx, nrow(fc_maxima)))
@@ -235,10 +261,10 @@ calculate_slx_sass <- function(obs, forecast, neighbourhood_sizes=c(0, 1, 3, 5, 
     
     # SLX_fc_min: How well observed field captures forecast minima
     if (nrow(fc_minima) > 0) {
-      cat(sprintf("  Computing SLX_fc_min for %d forecast minima...\\n", nrow(fc_minima)))
+      cat(sprintf("  Computing SLX_fc_min for %d forecast minima...\n", nrow(fc_minima)))
       for (idx in 1:nrow(fc_minima)) {
         if (idx %% max(1, floor(nrow(fc_minima)/10)) == 0) {
-          cat(sprintf("    Processing forecast minimum %d/%d\\r", idx, nrow(fc_minima)))
+          cat(sprintf("    Processing forecast minimum %d/%d\r", idx, nrow(fc_minima)))
           flush.console()
         }
         i <- fc_minima[idx, "row"]
@@ -320,29 +346,29 @@ plot_field_with_extrema <- function(field_data, extrema_max, extrema_min, title,
 }
 
 # Calculate SLX scores
-cat("\\n=== STARTING SLX CALCULATION ===\\n")
-cat("Calculating SLX scores using corrected Sass (2021) implementation...\\n")
+cat("\n=== STARTING SLX CALCULATION ===\n")
+cat("Calculating SLX scores from Sass (2021) implementation...\n")
 slx_results <- calculate_slx_sass(obs_field, fc_field)
 
-cat("\\n=== GENERATING RESULTS TABLE ===\\n")
+cat("\\n=== GENERATING RESULTS TABLE ===\n")
 # Display results table
-cat("\\n", paste(rep("=", 80), collapse=""), "\\n")
-cat("SLX RESULTS (Corrected Sass 2021 Implementation)\\n")
-cat(paste(rep("=", 80), collapse=""), "\\n")
-cat(sprintf("%-3s %-8s %-8s %-8s %-8s %-8s %-12s\\n",
+cat("\\n", paste(rep("=", 80), collapse=""), "\n")
+cat("SLX RESULTS \n")
+cat(paste(rep("=", 80), collapse=""), "\n")
+cat(sprintf("%-3s %-8s %-8s %-8s %-8s %-8s %-12s\n",
            "L", "SLX", "ob_max", "ob_min", "fc_max", "fc_min", "total_extrema"))
-cat(paste(rep("-", 80), collapse=""), "\\n")
+cat(paste(rep("-", 80), collapse=""), "\n")
 
 for (L in names(slx_results)) {
   r <- slx_results[[L]]
   total_extrema <- r$n_obs_max + r$n_obs_min + r$n_fc_max + r$n_fc_min
-  cat(sprintf("%-3s %-8.4f %-8.4f %-8.4f %-8.4f %-8.4f %-12d\\n",
+  cat(sprintf("%-3s %-8.4f %-8.4f %-8.4f %-8.4f %-8.4f %-12d\n",
              L, r$SLX, r$SLX_ob_max, r$SLX_ob_min, r$SLX_fc_max, r$SLX_fc_min, total_extrema))
 }
 
-cat("\\n=== CREATING VISUALIZATIONS ===\\n")
+cat("\n=== CREATING VISUALIZATIONS ===\n")
 # VISUALIZATION 1: Original fields with extrema (L=1)
-cat("Creating field plots with extrema...\\n")
+cat("Creating field plots with extrema...\n")
 par(mfrow = c(1, 2), mar = c(4, 4, 3, 6))
 
 L1_results <- slx_results[["1"]]
@@ -352,7 +378,7 @@ plot_field_with_extrema(precip_fc_regrid, L1_results$fc_maxima, L1_results$fc_mi
                        "Forecast Precipitation with Extrema")
 
 # VISUALIZATION 2: SLX component evolution
-cat("Creating SLX evolution plots...\\n")
+cat("Creating SLX evolution plots...\n")
 par(mfrow = c(2, 2), mar = c(4, 4, 3, 2))
 
 L_vals <- as.numeric(names(slx_results))
@@ -423,8 +449,8 @@ grid(col = "gray", lty = 2)
 # Reset plotting parameters
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2))
 
-cat("\\n=== ANALYSIS COMPLETE ===\\n")
-cat("Key findings:\\n")
-cat(sprintf("- Peak SLX score: %.3f at L=%d\\n", max(SLX_vals), L_vals[which.max(SLX_vals)]))
-cat(sprintf("- Score improvement from L=0 to optimal: %.3f\\n", max(SLX_vals) - SLX_vals[1]))
-cat("- This indicates the spatial tolerance that gives best verification performance\\n")
+cat("\n=== ANALYSIS COMPLETE ===\n")
+cat("Key findings:\n")
+cat(sprintf("- Peak SLX score: %.3f at L=%d\n", max(SLX_vals), L_vals[which.max(SLX_vals)]))
+cat(sprintf("- Score improvement from L=0 to optimal: %.3f\n", max(SLX_vals) - SLX_vals[1]))
+cat("- This indicates the spatial tolerance that gives best verification performance\n")
