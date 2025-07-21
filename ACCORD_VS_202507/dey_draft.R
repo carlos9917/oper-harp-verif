@@ -12,6 +12,7 @@ library(gridExtra)
 library(viridis)
 library(scico)
 library(rlang)
+library(fields)
 
 #### DATA LOADING SECTION ####
 cat("=== STARTING DATA LOADING ===\n")
@@ -385,42 +386,75 @@ cat(sprintf("Standard deviation: %.1f grid points\n", sd(SA_fo, na.rm = TRUE)))
 #      xlab = "Grid X", ylab = "Grid Y")
 
 # Create visualization
-png("agreement_scales_dey2016.png", width = 1000, height = 800, res = 150)
-par(mfrow = c(2, 2), mar = c(4, 4, 3, 6))
-image(obs_field, 
-      col = viridis::viridis(100), 
-      main = "Observations", 
-      xlab = "Grid Y", 
-      ylab = "Grid X")
+# Note the usage of useRaster=TRUE in each image
+# The image() function in base R sometimes draws grid lines 
+# between columns when the matrix is not perfectly aligned with the pixel grid of the device.
+# This is especially common with image() and image.plot() when the matrix is large and the plot is resized or saved to a file.
 
 
-image(fc_field,
-      col = viridis::viridis(100), 
-      main = "Forecast", 
-      xlab = "Grid Y", 
-      ylab = "Grid X")
+png("agreement_scales_dey2016.png", width = 1200, height = 900, res = 150)
 
+# Define layout: 3 columns, 2 rows
+# The third column is only for the colorbar, and only the bottom left plot uses it
+layout_matrix <- matrix(c(1, 2, 0,
+                          3, 4, 5), nrow = 2, byrow = TRUE)
+layout(layout_matrix, widths = c(4, 4, 1), heights = c(4, 4))
 
-library(fields)
-image(SA_fo,
-      col = viridis::plasma(100), 
-      main = "Agreement Scales SA(fo)", 
-      xlab = "Grid Y", 
+# Plot 1: Observations
+par(mar = c(4, 4, 3, 2))
+image(obs_field,
+      col = viridis(100),
+      main = "Observations",
+      xlab = "Grid Y",
       ylab = "Grid X",
-     legend.lab = "Agreement Scale (grid points)")
+      useRaster=TRUE)
 
-# Add colorbar
-#image.plot(SA_fo,
-#           col = viridis::plasma(100),
-#           main = "Agreement Scales SA(fo)",
-#           xlab = "Grid Y",
-#           ylab = "Grid X",
-#           legend.lab = "Agreement Scale (grid points)")
+# Plot 2: Forecast
+par(mar = c(4, 4, 3, 2))
+image(fc_field,
+      col = viridis(100),
+      main = "Forecast",
+      xlab = "Grid Y",
+      ylab = "Grid X",
+      useRaster=TRUE)
 
-# Plot 4: Histogram of agreement scales
-hist(SA_fo, breaks = 50, col = "lightblue", 
-     main = "Distribution of Agreement Scales",
-     xlab = "Agreement Scale (grid points)", 
+# Plot 3: Agreement Scales (no colorbar here)
+#par(mar = c(4, 4, 3, 2))
+par(mar = c(4, 4, 3, 2)) # Extra space at bottom for colorbar
+image(SA_fo,
+      col = plasma(100),
+      main = "Agreement Scales SA(fo)",
+      #xlab = "Grid Y",
+      #ylab = "Grid X",
+      useRaster=TRUE)
+
+# Add colorbar on top of this plot
+par(usr = c(0, 1, 0, 1)) # Reset user coordinates
+image.plot(legend.only = TRUE,
+           zlim = range(SA_fo, na.rm = TRUE),
+           col = plasma(100),
+           legend.lab = "Agreement Scale (grid points)",
+           horizontal = TRUE,
+           legend.width = 1,
+           legend.shrink = 0.6,
+           legend.mar = 2,
+           add = TRUE)
+
+# Plot 5: Colorbar for agreement scales
+#par(mar = c(4, 2, 3, 6))
+
+#par(usr = c(0, 1, 0, 1)) # Reset user coordinates
+#image.plot(legend.only = TRUE,
+#           zlim = range(SA_fo, na.rm = TRUE),
+#           col = plasma(100),
+#           legend.lab = "Agreement Scale\n(grid points)",
+#           useRaster = TRUE)
+
+# Plot 4: Histogram
+par(mar = c(2, 8, 1, 0))
+hist(SA_fo, breaks = 50, col = "lightblue",
+     main = "Agreement Scales dist",
+     xlab = "Agreement Scale (grid points)",
      ylab = "Frequency")
 abline(v = mean(SA_fo, na.rm = TRUE), col = "red", lwd = 2, lty = 2)
 legend("topright", "Mean", col = "red", lty = 2, lwd = 2)
