@@ -91,7 +91,7 @@ cat("Regridding completed\n")
 cat("Converting to arrays and handling NA values...\n")
 obs_field <- as.array(precip_ob)
 fc_field <- as.array(precip_fc_regrid)
-browser()
+#browser()
 
 #png("obs_field.png", width = 800, height = 600, res = 150)
 #plot_field(obs_field)
@@ -260,7 +260,7 @@ agreement_scale_map <- function(f1, f2, alpha = 0.5, S_lim = 80L) {
     
     # Find points where agreement is achieved for the first time
     agreement_achieved <- (D <= D_crit) & !is.na(D)
-    browser()
+    #browser()
     first_agreement <- agreement_achieved & (SA == S_lim)
     
     # Update agreement scale for points achieving agreement for first time
@@ -358,9 +358,8 @@ cat("\n=== CALCULATING AGREEMENT SCALES (Dey et al. 2016) ===\n")
 # For single forecast vs observation (SA_mo equivalent)
 cat("Calculating agreement scales between forecast and observation...\n")
 SA_fo <- agreement_scale_map_corrected(fc_field, obs_field, alpha = alpha, S_lim = S_lim)
-print(SA_fo)
 
-browser()
+#browser()
 # Summary statistics
 cat("\n=== RESULTS SUMMARY ===\n")
 cat(sprintf("Domain-mean agreement scale: %.1f grid points\n", mean(SA_fo, na.rm = TRUE)))
@@ -368,27 +367,55 @@ cat(sprintf("Minimum agreement scale: %.1f grid points\n", min(SA_fo, na.rm = TR
 cat(sprintf("Maximum agreement scale: %.1f grid points\n", max(SA_fo, na.rm = TRUE)))
 cat(sprintf("Standard deviation: %.1f grid points\n", sd(SA_fo, na.rm = TRUE)))
 
+
+# Plot 1: Observations
+#image(t(obs_field[nrow(obs_field):1, ]), 
+#      col = viridis::viridis(100), 
+#      main = "Observations", 
+#      xlab = "Grid X", ylab = "Grid Y")
+# Plot 2: Forecast
+#image(t(fc_field[nrow(fc_field):1, ]), 
+#      col = viridis::viridis(100), 
+#      main = "Forecast", 
+#      xlab = "Grid X", ylab = "Grid Y")
+# Plot 3: Agreement scales
+#image(t(SA_fo[nrow(SA_fo):1, ]), 
+#      col = viridis::plasma(100), 
+#      main = "Agreement Scales SA(fo)", 
+#      xlab = "Grid X", ylab = "Grid Y")
+
 # Create visualization
 png("agreement_scales_dey2016.png", width = 1000, height = 800, res = 150)
 par(mfrow = c(2, 2), mar = c(4, 4, 3, 6))
-
-# Plot 1: Observations
-image(t(obs_field[nrow(obs_field):1, ]), 
+image(obs_field, 
       col = viridis::viridis(100), 
       main = "Observations", 
-      xlab = "Grid X", ylab = "Grid Y")
+      xlab = "Grid Y", 
+      ylab = "Grid X")
 
-# Plot 2: Forecast
-image(t(fc_field[nrow(fc_field):1, ]), 
+
+image(fc_field,
       col = viridis::viridis(100), 
       main = "Forecast", 
-      xlab = "Grid X", ylab = "Grid Y")
+      xlab = "Grid Y", 
+      ylab = "Grid X")
 
-# Plot 3: Agreement scales
-image(t(SA_fo[nrow(SA_fo):1, ]), 
+
+library(fields)
+image(SA_fo,
       col = viridis::plasma(100), 
       main = "Agreement Scales SA(fo)", 
-      xlab = "Grid X", ylab = "Grid Y")
+      xlab = "Grid Y", 
+      ylab = "Grid X",
+     legend.lab = "Agreement Scale (grid points)")
+
+# Add colorbar
+#image.plot(SA_fo,
+#           col = viridis::plasma(100),
+#           main = "Agreement Scales SA(fo)",
+#           xlab = "Grid Y",
+#           ylab = "Grid X",
+#           legend.lab = "Agreement Scale (grid points)")
 
 # Plot 4: Histogram of agreement scales
 hist(SA_fo, breaks = 50, col = "lightblue", 

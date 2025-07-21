@@ -64,6 +64,64 @@ window_mean <- function(mat, k) {
   return(result)
 }
 
+# Cumulative sum approach (integral image) - O(N*M) after preprocessing
+window_mean_cumsum <- function(mat, k) {
+  if (k == 0) return(mat)
+
+  ny <- nrow(mat)
+  nx <- ncol(mat)
+
+  # Handle NA values
+  mat_clean <- mat
+  na_mask <- is.na(mat)
+  mat_clean[na_mask] <- 0
+
+  # Create padded matrix for boundary handling
+  padded <- matrix(0, ny + 2*k, nx + 2*k)
+  padded[(k+1):(ny+k), (k+1):(nx+k)] <- mat_clean
+
+  # Calculate cumulative sum (integral image)
+  cumsum_mat <- matrix(0, ny + 2*k + 1, nx + 2*k + 1)
+
+  # Fill cumulative sum matrix
+  for (i in 2:(ny + 2*k + 1)) {
+    for (j in 2:(nx + 2*k + 1)) {
+      cumsum_mat[i, j] <- padded[i-1, j-1] + 
+                         cumsum_mat[i-1, j] + 
+                         cumsum_mat[i, j-1] - 
+                         cumsum_mat[i-1, j-1]
+    }
+  }
+
+  # Calculate window means using integral image
+  result <- matrix(NA, ny, nx)
+  window_area <- (2*k + 1)^2
+
+  for (i in 1:ny) {
+    for (j in 1:nx) {
+      # Calculate indices for integral image lookup
+      i1 <- i  # top-left corner in cumsum_mat coordinates
+      j1 <- j
+      i2 <- i + 2*k + 1  # bottom-right corner
+      j2 <- j + 2*k + 1
+
+      # Calculate sum using integral image formula
+      window_sum <- cumsum_mat[i2, j2] - 
+                   cumsum_mat[i1, j2] - 
+                   cumsum_mat[i2, j1] + 
+                   cumsum_mat[i1, j1]
+
+      result[i, j] <- window_sum / window_area
+    }
+  }
+
+  # Restore NA values where original data had NAs
+  result[na_mask] <- NA
+
+  return(result)
+}
+
+
 # Agreement scale calculation (corrected)
 agreement_scale_map_corrected <- function(f1, f2, alpha = 0.5, S_lim = 80L) {
   # Ensure we work with regular matrices, not geofield objects
@@ -93,9 +151,12 @@ agreement_scale_map_corrected <- function(f1, f2, alpha = 0.5, S_lim = 80L) {
     #original brute force implementation
     #f1_bar <- window_mean(f1, S)
     #f2_bar <- window_mean(f2, S)
+    # optimized
+    f1_bar <- window_mean_cumsum(f1, S)
+    f2_bar <- window_mean_cumsum(f2, S)
 
-    f1_bar <- cumsum_2d(f1, S)
-    f2_bar <- cumsum_2d(f2, S)
+    #f1_bar <- cumsum_2d(f1, S)
+    #f2_bar <- cumsum_2d(f2, S)
 
     # Calculate similarity measure D (Equation 1 from Dey et al. 2016)
     D <- similarity_D_corrected(f1_bar, f2_bar)
