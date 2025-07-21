@@ -41,13 +41,25 @@ similarity_D_corrected <- function(f1_bar, f2_bar) {
 }
 
 # Simple window mean function
-window_mean <- function(mat, k) {
-  if (k == 0) return(mat)
-
+window_mean_cumsum2d <- function(mat, k) {
+  if (k == 0L) return(mat)
+  
+  # Get dimensions
   ny <- nrow(mat)
   nx <- ncol(mat)
+  
+  # Handle NA values by setting them to 0 for cumsum calculation
+  mat_clean <- mat
+  na_mask <- is.na(mat)
+  mat_clean[na_mask] <- 0
+  
+  # Calculate cumulative sum using harpSpatial::cumsum_2d
+  cumsum_mat <- cumsum_2d(mat_clean)
+  
+  # Create output matrix
   result <- matrix(NA, ny, nx)
-
+  
+  # Calculate window means using integral image
   for (i in 1:ny) {
     for (j in 1:nx) {
       # Define window bounds
@@ -55,12 +67,32 @@ window_mean <- function(mat, k) {
       i_max <- min(ny, i + k)
       j_min <- max(1, j - k)
       j_max <- min(nx, j + k)
-
-      # Calculate mean over window
-      result[i, j] <- mean(mat[i_min:i_max, j_min:j_max], na.rm = TRUE)
+      
+      # Calculate sum using integral image
+      # Sum = cumsum[i_max, j_max] - cumsum[i_min-1, j_max] - cumsum[i_max, j_min-1] + cumsum[i_min-1, j_min-1]
+      sum_val <- cumsum_mat[i_max, j_max]
+      
+      if (i_min > 1) {
+        sum_val <- sum_val - cumsum_mat[i_min - 1, j_max]
+      }
+      if (j_min > 1) {
+        sum_val <- sum_val - cumsum_mat[i_max, j_min - 1]
+      }
+      if (i_min > 1 && j_min > 1) {
+        sum_val <- sum_val + cumsum_mat[i_min - 1, j_min - 1]
+      }
+      
+      # Calculate number of points in window
+      n_points <- (i_max - i_min + 1) * (j_max - j_min + 1)
+      
+      # Calculate mean
+      result[i, j] <- sum_val / n_points
     }
   }
-
+  
+  # Restore NA values where original data had NAs in the center point
+  result[na_mask] <- NA
+  
   return(result)
 }
 
@@ -91,11 +123,9 @@ agreement_scale_map_corrected <- function(f1, f2, alpha = 0.5, S_lim = 80L) {
     # Calculate neighborhood means
     #browser()
     #original brute force implementation
-    #f1_bar <- window_mean(f1, S)
-    #f2_bar <- window_mean(f2, S)
+    f1_bar <- window_mean_cumsum2d(f1, S)
+    f2_bar <- window_mean_cumsum2d(f2, S)
 
-    f1_bar <- cumsum_2d(f1, S)
-    f2_bar <- cumsum_2d(f2, S)
 
     # Calculate similarity measure D (Equation 1 from Dey et al. 2016)
     D <- similarity_D_corrected(f1_bar, f2_bar)
