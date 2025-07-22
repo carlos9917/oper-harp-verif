@@ -396,17 +396,17 @@ png("agreement_scales_dey2016.png", width = 1200, height = 900, res = 150)
 
 # Define layout: 3 columns, 2 rows
 # The third column is only for the colorbar, and only the bottom left plot uses it
-layout_matrix <- matrix(c(1, 2, 0,
-                          3, 4, 5), nrow = 2, byrow = TRUE)
-layout(layout_matrix, widths = c(4, 4, 1), heights = c(4, 4))
+layout_matrix <- matrix(c(1, 2,  #note, using 0 means there is no plot
+                          3, 4), nrow = 2, byrow = TRUE)
+layout(layout_matrix, widths = c(4, 4), heights = c(4, 4))
 
 # Plot 1: Observations
-par(mar = c(4, 4, 3, 2))
+par(mar = c(4, 4, 3, 2)) #margins: bottom, left. top, right
 image(obs_field,
       col = viridis(100),
       main = "Observations",
-      xlab = "Grid Y",
-      ylab = "Grid X",
+      xlab = "Grid X",
+      ylab = "Grid Y",
       useRaster=TRUE)
 
 # Plot 2: Forecast
@@ -414,15 +414,15 @@ par(mar = c(4, 4, 3, 2))
 image(fc_field,
       col = viridis(100),
       main = "Forecast",
-      xlab = "Grid Y",
-      ylab = "Grid X",
+      xlab = "Grid X",
+      ylab = "Grid Y",
       useRaster=TRUE)
 
 # Plot 3: Agreement Scales (no colorbar here)
 #par(mar = c(4, 4, 3, 2))
 par(mar = c(4, 4, 3, 2)) # Extra space at bottom for colorbar
 image(SA_fo,
-      col = plasma(100),
+      col = inferno(100), #plasma(100),
       main = "Agreement Scales SA(fo)",
       #xlab = "Grid Y",
       #ylab = "Grid X",
@@ -430,15 +430,39 @@ image(SA_fo,
 
 # Add colorbar on top of this plot
 par(usr = c(0, 1, 0, 1)) # Reset user coordinates
+#image.plot(legend.only = TRUE,
+#           zlim = range(SA_fo, na.rm = TRUE),
+#           col = plasma(100),
+#           legend.lab = "Agreement Scale (grid points)",
+#           horizontal = TRUE,
+#           legend.width = 1,
+#           legend.shrink = 0.6,
+#           legend.mar = 2,
+#           add = TRUE)
+
 image.plot(legend.only = TRUE,
            zlim = range(SA_fo, na.rm = TRUE),
-           col = plasma(100),
+           col = inferno(100), #plasma(100),
            legend.lab = "Agreement Scale (grid points)",
            horizontal = TRUE,
-           legend.width = 1,
-           legend.shrink = 0.6,
-           legend.mar = 2,
+           legend.width = 1.2,      # Adjust thickness
+           legend.shrink = 0.7,     # Adjust length
+           legend.mar = 3.1,        # Margin below colorbar for label
+           axis.args = list(
+             at = pretty(range(SA_fo, na.rm = TRUE), n = 5), # Tick positions
+             labels = pretty(range(SA_fo, na.rm = TRUE), n = 5), # Tick labels
+             cex.axis = 0.9,         # Axis label size
+             mgp = c(1.5, 0.5, 0)    # Label position
+           ),
+           legend.args = list(
+             text = "Agreement Scale (grid points)",
+             side = 1,               # Below the colorbar
+             line = 2,               # Distance from colorbar
+             cex = 1.1               # Label size
+           ),
            add = TRUE)
+
+
 
 # Plot 5: Colorbar for agreement scales
 #par(mar = c(4, 2, 3, 6))
