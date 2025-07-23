@@ -21,15 +21,20 @@ veri_time <- "202507121200"
 ob_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/INCAPlus_1h/inca/2025/07/01"
 ob_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/INCAPlus_1h/inca/2025/07/12"
 
+#local paths in my laptop
 fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/CLAEF1k/20250701/00"
 fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/CLAEF1k/20250712/00"
 fc_file_path <- "/media/cap/extra_work/verification/oper-harp-verif/ACCORD_VS_202507/sample_data/CLAEF1k"
 
+## paths in atos
+fc_file_path <- "/hpcperm/kmek/models/CLAEF1k"
+ob_file_path <- "/hpcperm/kmek/obs/INCAPlus_1h/inca/2025/07/12"
+
 ob_file <- paste0(ob_file_path,"/INCAPlus_1h_RR_ANA_202507011600.nc")
 fc_file <- paste0(fc_file_path,"/CLAEF00+0016:00.grb")
 
-ob_file <- paste0(ob_file_path,"/INCAPlus_1h_RR_ANA_202507121200.nc")
-fc_file <- paste0(fc_file_path,"/CLAEF00+0012:00.grb2")
+ob_file <- paste0(ob_file_path,"/INCAPlus_1h_RR_ANA_202507121200.nc") #note hardcoded date here, to change
+#fc_file <- paste0(fc_file_path,"/CLAEF00+0012:00.grb2") # using fc_file_name below
 
 fc_file_template <- "{YYYY}{MM}{DD}/00/{det_model}+{LDT4}:00.grb2" #for the new files
 
