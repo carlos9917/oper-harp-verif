@@ -2,8 +2,8 @@
 title: "Agreement Scales for Convective-Scale Ensemble Verification"
 subtitle: "Spatial Predictability Assessment - Dey et al. (2016)"
 format: html
-author: "Based on Dey et al. (2016) Methods"
-date: "18 June 2025"
+author: "Carlos Peralta"
+date: "23 July 2025"
 date-modified: last-modified
 lang: en
 ---
