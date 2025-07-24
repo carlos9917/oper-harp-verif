@@ -92,6 +92,8 @@ cat("Regridding forecast to observation domain...\n")
 precip_fc_regrid <- geo_regrid(precip_fc, dom_ob)
 cat("Regridding completed\n")
 
+
+browser()
 # Convert to arrays and handle NA values
 cat("Converting to arrays and handling NA values...\n")
 obs_field <- as.array(precip_ob)
@@ -113,8 +115,7 @@ cat(sprintf("Grid dimensions: %d x %d\n", nrow(obs_field), ncol(obs_field)))
 cat("Data preparation completed\n")
 
 
-#source("dey_functions.R")
-source(paste0(here::here(),"/ACCORD_VS_202507/scripts/dey_functions.R"))
+source(paste0(here::here(),"/ACCORD_VS_202507/scripts/fn_agreement_scales_fo.R"))
 
 ############################################################
 ## AGREEMENT-SCALES (Dey et al., 2016) – single pair      ##
