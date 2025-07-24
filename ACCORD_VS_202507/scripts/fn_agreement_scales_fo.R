@@ -3,11 +3,11 @@ library(harpSpatial)
 
 
 
-# CORRECTED Agreement Scales Implementation
+# Agreement Scales Implementation
 # Based on Dey et al. (2016) - Equations 1, 2, 3
 
 # Similarity measure D (Equation 1 from Dey et al. 2016)
-similarity_D_corrected <- function(f1_bar, f2_bar) {
+similarity_D <- function(f1_bar, f2_bar) {
   # Handle dimensions properly
   if (is.matrix(f1_bar) || is.array(f1_bar)) {
     f1 <- as.numeric(f1_bar)
@@ -122,8 +122,8 @@ window_mean_cumsum <- function(mat, k) {
 }
 
 
-# Agreement scale calculation (corrected)
-agreement_scale_map_corrected <- function(f1, f2, alpha = 0.5, S_lim = 80L) {
+# Agreement scale calculation 
+agreement_scale_map <- function(f1, f2, alpha = 0.5, S_lim = 80L) {
   # Ensure we work with regular matrices, not geofield objects
   if (inherits(f1, "geofield")) {
     f1 <- as.array(f1)
@@ -159,7 +159,7 @@ agreement_scale_map_corrected <- function(f1, f2, alpha = 0.5, S_lim = 80L) {
     #f2_bar <- cumsum_2d(f2, S)
 
     # Calculate similarity measure D (Equation 1 from Dey et al. 2016)
-    D <- similarity_D_corrected(f1_bar, f2_bar)
+    D <- similarity_D(f1_bar, f2_bar)
 
     # Calculate agreement criterion threshold (Equation 3 from Dey et al. 2016)
     D_crit <- alpha + (1 - alpha) * S / S_lim

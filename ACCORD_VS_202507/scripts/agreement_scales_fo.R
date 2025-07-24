@@ -1,5 +1,5 @@
 
-# CORRECTED SLX Implementation following Sass (2021)
+# Agreement Scales implementation following Dey et al  (2016)
 library(here)
 library(harp)
 library(harpVis)
@@ -13,6 +13,7 @@ library(viridis)
 library(scico)
 library(rlang)
 library(fields)
+library(RColorBrewer)
 
 #### DATA LOADING SECTION ####
 cat("=== STARTING DATA LOADING ===\n")
@@ -93,19 +94,27 @@ precip_fc_regrid <- geo_regrid(precip_fc, dom_ob)
 cat("Regridding completed\n")
 
 
-browser()
+#browser()
 # Convert to arrays and handle NA values
 cat("Converting to arrays and handling NA values...\n")
-obs_field <- as.array(precip_ob)
-fc_field <- as.array(precip_fc_regrid)
-#browser()
+#obs_field <- as.array(precip_ob)
+#fc_field <- as.array(precip_fc_regrid)
 
-#png("obs_field.png", width = 800, height = 600, res = 150)
-#plot_field(obs_field)
-#dev.off()
-#png("fc_field.png", width = 800, height = 600, res = 150)
-#plot_field(fc_field)
-#dev.off()
+# convert the geofields to simpla matrices
+n_rows <- dims[1]
+n_cols <- dims[2]
+# Extract as numeric vector and reshape
+obs_values <- as.numeric(precip_ob)
+obs_field <- matrix(obs_values, nrow = n_rows, ncol = n_cols)
+
+dims <- dim(precip_fc_regrid)
+n_rows <- dims[1]
+n_cols <- dims[2]
+# Extract as numeric vector and reshape
+fc_values <- as.numeric(precip_fc_regrid)
+fc_field <- matrix(fc_values, nrow = n_rows, ncol = n_cols)
+
+#browser()
 
 # Handle NA values
 #obs_field[is.na(obs_field)] <- 0
@@ -192,44 +201,24 @@ window_mean_cumsum2d <- function(mat, k) {
   return(result)
 }
 
-#--- Alternative: Direct harpSpatial approach (if available) ------------------
-# If harpSpatial has a direct window mean function, use this instead:
-# window_mean_harp <- function(mat, k) {
-#   if (k == 0L) return(mat)
-#   # Assuming harpSpatial has a function like this:
-#   # harpSpatial::field_window_mean(mat, k)
-# }
 
 #--- Similarity score D (from Dey et al. 2016, Equation 1) -------------------
 similarity_D <- function(a, b) {
   # Handle the case where both values are zero
   zero_both <- (a == 0 & b == 0)
-  print("in similarity") 
+  #print("in similarity") 
   # Calculate D for non-zero cases
-  #print(a)
-  #print(b)
-  print("before calculating D")
   # Extract numeric matrices from geofield objects
   a_mat <- as.matrix(a)
   b_mat <- as.matrix(b)
 
-#a_num <- a[["data"]]  # or a$data or a[["data"]] depending on the object structure
-#b_num <- b[["data"]]
-
-# Check class
-#print(class(a_num))  # should be "matrix" or "array"
-#print(class(b_num))
-
   # Now do the arithmetic
-# Compute numerator and denominator safely
-#print(class(a_mat))
-#print(class(b_mat))
-numerator <- (a_mat - b_mat)^2
-#denominator <- pmax(a_mat^2 + b_mat^2, 1e-12)
-denominator <- (a_mat^2 + b_mat^2)
-
-# Compute the expression element-wise
-D <- numerator / denominator
+  # Compute numerator and denominator
+  numerator <- (a_mat - b_mat)^2
+  denominator <- (a_mat^2 + b_mat^2)
+  
+  # Compute the expression element-wise
+  D <- numerator / denominator
   #D <- (a - b)^2 / pmax(a^2 + b^2, 1e-12)  # Small epsilon to avoid division by zero
 
   
@@ -257,12 +246,9 @@ agreement_scale_map <- function(f1, f2, alpha = 0.5, S_lim = 80L) {
     # Calculate neighborhood means efficiently using cumsum_2d
     f1_bar <- window_mean_cumsum2d(f1, S)
     f2_bar <- window_mean_cumsum2d(f2, S)
-    #print(f1_bar)
-    #print(f2_bar)
     
     # Calculate similarity measure D (Equation 1 from Dey et al. 2016)
     D <- similarity_D(f1_bar, f2_bar)
-    #print(D)
     # Calculate agreement criterion threshold (Equation 3 from Dey et al. 2016)
     D_crit <- alpha + (1 - alpha) * S / S_lim
     
@@ -308,7 +294,7 @@ calculate_SA_mm <- function(ensemble_fields, alpha = 0.5, S_lim = 80L) {
       pair_count <- pair_count + 1
       cat(sprintf("Processing member pair %d-%d (%d/%d)\n", i, j, pair_count, n_pairs))
       
-      scale_map <- agreement_scale_map_corrected(
+      scale_map <- agreement_scale_map(
         ensemble_fields[[i]], 
         ensemble_fields[[j]], 
         alpha = alpha, 
@@ -341,7 +327,7 @@ calculate_SA_mo <- function(ensemble_fields, observations, alpha = 0.5, S_lim = 
   for (i in 1:n_members) {
     cat(sprintf("Processing member %d/%d vs observations\n", i, n_members))
     
-    scale_map <- agreement_scale_map_corrected(
+    scale_map <- agreement_scale_map(
       ensemble_fields[[i]], 
       observations, 
       alpha = alpha, 
@@ -365,7 +351,7 @@ cat("\n=== CALCULATING AGREEMENT SCALES (Dey et al. 2016) ===\n")
 
 # For single forecast vs observation (SA_mo equivalent)
 cat("Calculating agreement scales between forecast and observation...\n")
-SA_fo <- agreement_scale_map_corrected(fc_field, obs_field, alpha = alpha, S_lim = S_lim)
+SA_fo <- agreement_scale_map(fc_field, obs_field, alpha = alpha, S_lim = S_lim)
 
 #browser()
 # Summary statistics
@@ -376,30 +362,29 @@ cat(sprintf("Maximum agreement scale: %.1f grid points\n", max(SA_fo, na.rm = TR
 cat(sprintf("Standard deviation: %.1f grid points\n", sd(SA_fo, na.rm = TRUE)))
 
 
-# Plot 1: Observations
-#image(t(obs_field[nrow(obs_field):1, ]), 
-#      col = viridis::viridis(100), 
-#      main = "Observations", 
-#      xlab = "Grid X", ylab = "Grid Y")
-# Plot 2: Forecast
-#image(t(fc_field[nrow(fc_field):1, ]), 
-#      col = viridis::viridis(100), 
-#      main = "Forecast", 
-#      xlab = "Grid X", ylab = "Grid Y")
-# Plot 3: Agreement scales
-#image(t(SA_fo[nrow(SA_fo):1, ]), 
-#      col = viridis::plasma(100), 
-#      main = "Agreement Scales SA(fo)", 
-#      xlab = "Grid X", ylab = "Grid Y")
-
 # Create visualization
 # Note the usage of useRaster=TRUE in each image
 # The image() function in base R sometimes draws grid lines 
 # between columns when the matrix is not perfectly aligned with the pixel grid of the device.
 # This is especially common with image() and image.plot() when the matrix is large and the plot is resized or saved to a file.
 
+#create a color scale that matches Dey 2016
 
-png("agreement_scales_dey2016.png", width = 1200, height = 900, res = 150)
+paper_colors <- c(
+  "#7B162B", # 0-10
+  "#C32F2F", # 10-20
+  "#E94B2A", # 20-30
+  "#F97B3B", # 30-40
+  "#FDBF5B", # 40-50
+  "#FEE89A", # 50-60
+  "#FEF6C7", # 60-70
+  "#FFFFE5"  # 70-80
+)
+
+breaks <- seq(0, 80, by = 10)
+
+
+png("agreement_scales_FO.png", width = 1200, height = 900, res = 150)
 
 # Define layout: 3 columns, 2 rows
 # The third column is only for the colorbar, and only the bottom left plot uses it
@@ -412,8 +397,8 @@ par(mar = c(4, 4, 3, 2)) #margins: bottom, left. top, right
 image(obs_field,
       col = viridis(100),
       main = "Observations",
-      xlab = "Grid X",
-      ylab = "Grid Y",
+      #xlab = "Grid X",
+      #ylab = "Grid Y",
       useRaster=TRUE)
 
 # Plot 2: Forecast
@@ -421,15 +406,15 @@ par(mar = c(4, 4, 3, 2))
 image(fc_field,
       col = viridis(100),
       main = "Forecast",
-      xlab = "Grid X",
-      ylab = "Grid Y",
+      #xlab = "Grid X",
+      #ylab = "Grid Y",
       useRaster=TRUE)
 
 # Plot 3: Agreement Scales (no colorbar here)
 #par(mar = c(4, 4, 3, 2))
 par(mar = c(4, 4, 3, 2)) # Extra space at bottom for colorbar
 image(SA_fo,
-      col = inferno(100), #plasma(100),
+      col = paper_colors, #inferno(100), #plasma(100),
       main = "Agreement Scales SA(fo)",
       #xlab = "Grid Y",
       #ylab = "Grid X",
@@ -437,19 +422,10 @@ image(SA_fo,
 
 # Add colorbar on top of this plot
 par(usr = c(0, 1, 0, 1)) # Reset user coordinates
-#image.plot(legend.only = TRUE,
-#           zlim = range(SA_fo, na.rm = TRUE),
-#           col = plasma(100),
-#           legend.lab = "Agreement Scale (grid points)",
-#           horizontal = TRUE,
-#           legend.width = 1,
-#           legend.shrink = 0.6,
-#           legend.mar = 2,
-#           add = TRUE)
 
 image.plot(legend.only = TRUE,
            zlim = range(SA_fo, na.rm = TRUE),
-           col = inferno(100), #plasma(100),
+           col = paper_colors, # inferno(100), #plasma(100),
            legend.lab = "Agreement Scale (grid points)",
            horizontal = TRUE,
            legend.width = 1.2,      # Adjust thickness
@@ -471,16 +447,6 @@ image.plot(legend.only = TRUE,
 
 
 
-# Plot 5: Colorbar for agreement scales
-#par(mar = c(4, 2, 3, 6))
-
-#par(usr = c(0, 1, 0, 1)) # Reset user coordinates
-#image.plot(legend.only = TRUE,
-#           zlim = range(SA_fo, na.rm = TRUE),
-#           col = plasma(100),
-#           legend.lab = "Agreement Scale\n(grid points)",
-#           useRaster = TRUE)
-
 # Plot 4: Histogram
 par(mar = c(2, 8, 1, 0))
 hist(SA_fo, breaks = 50, col = "lightblue",
@@ -492,23 +458,5 @@ legend("topright", "Mean", col = "red", lty = 2, lwd = 2)
 
 dev.off()
 
-cat("\nVisualization saved as 'agreement_scales_dey2016.png'\n")
-
-#--- Optional: For ensemble analysis (if ensemble data available) -------------
-# Uncomment and modify if you have ensemble data:
-#
-# # Convert single forecast to list format for ensemble functions
-# ensemble_fields <- list(fc_field)  # Add more members if available
-# 
-# # Calculate SA(mm) if you have multiple ensemble members
-# if (length(ensemble_fields) > 1) {
-#   SA_mm <- calculate_SA_mm(ensemble_fields, alpha = alpha, S_lim = S_lim)
-#   
-#   # Calculate SA(mo)
-#   SA_mo <- calculate_SA_mo(ensemble_fields, obs_field, alpha = alpha, S_lim = S_lim)
-#   
-#   # Spatial spread-skill analysis (as in Dey et al. 2016, Figure 13)
-#   # ... add binned scatter plot analysis here
-# }
-
+cat("\nVisualization saved as 'agreement_scales_FO.png'\n")
 cat("\n=== AGREEMENT SCALES ANALYSIS COMPLETE ===\n")
