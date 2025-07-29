@@ -41,6 +41,7 @@ fc_file_name <- generate_filenames(file_path     = fc_file_path,
                                    file_template = fc_file_template,
                                    det_model     = fcst_model)
 
+print(fc_file_name)
 
 # Load forecast data
 cat("Loading forecast data...\n")
