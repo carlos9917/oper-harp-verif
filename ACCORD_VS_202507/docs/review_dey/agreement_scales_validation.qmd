@@ -1,0 +1,46 @@
+---
+title: "Agreement Scales for Convective-Scale Ensemble Verification"
+subtitle: "Validation test case"
+format: html
+author: "Carlos Peralta"
+date: "24 July 2025"
+date-modified: last-modified
+lang: en
+---
+
+## Validation test case
+
+Section 4 of Dey et al (2016) discusses an idealized experiment to test the agreement scale for ensembles 
+forecast errors: displacement, amplitude, and structure errors, using synthetic fields.
+
+### Domain and Setup:
+The idealized experiment described in the paper uses a domain of 193 × 242 grid points, 
+with a 12-member ensemble. Each member contains a circular "rain blob" randomly placed within a specified area, matching the paper’s setup.
+An idealized observation field was generated with a rain blob of the same size and location as the ensemble's rain area, representing a "well-spread" case.
+The ensemble members are shown in the figure below.
+
+![Ensemble fields with 12 members](dey_all_members.png)
+
+### Agreement Scales Calculation:
+The validation case computes:
+
+- SA(mm): Gives the mean agreement scale between all unique pairs of ensemble members, as defined by Equation 6 in the paper.
+
+- SA(mo): Gives the mean agreement scale between each ensemble member and the observation, as defined by Equation 7.
+
+The plot below shows the SA(mm) field using the exact color palette and discrete bins (0–10, 10–20, ..., 70–80), directly reproducing the style and content of Figure 4.
+
+![Agreement scales for the idealized experiment, reproducing Fig 4 of the paper](dey_figure4_reproduction.png)
+
+The code is available in this repository under `ACCORD_VS_202507/scripts/dey_validation.R`.
+
+
+---
+
+## References & Resources
+
+**Primary References:**
+
+- Dey, S.R.A., et al. (2016). A new method for the characterization and verification of local spatial predictability for convective-scale ensembles. *Q.J.R. Meteorol. Soc.*, 142, 1982-1996.
+
+- Dey, S.R.A., et al. (2016). Assessing spatial precipitation uncertainties in a convective-scale ensemble. *Q.J.R. Meteorol. Soc.*, 142, 2935-2948.
