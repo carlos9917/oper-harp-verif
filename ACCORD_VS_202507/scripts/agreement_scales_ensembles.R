@@ -223,7 +223,7 @@ image(observation_field, col = c("white", "red"),
 # Reset plotting layout to default (optional)
 par(mfrow = c(1, 1))
 
-png("dey_figure4_validation.png", width = 1600, height = 1200, res = 150)
+png("agreement_members.png", width = 1600, height = 1200, res = 150)
 
 # Set up layout: 3 rows, 3 columns
 layout_matrix <- matrix(c(
@@ -293,7 +293,7 @@ legend("topleft", c("Binned Data", "Perfect Spread-Skill"),
 
 dev.off()
 
-cat("Visualization saved as: dey_figure4_validation.png\n")
+cat("Visualization saved as: agreement_summary.png\n")
 
 # Create a focused Figure 4 reproduction
 cat("\n=== CREATING FIGURE 4 REPRODUCTION ===\n")

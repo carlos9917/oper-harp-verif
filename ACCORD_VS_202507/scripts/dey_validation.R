@@ -88,11 +88,11 @@ cat("\n=== CREATING VISUALIZATION ===\n")
 
 
 # Plot the observation in the last slot
-image(observation_field, col = c("white", "red"),
-      main = "Observation", xlab = "Grid X", ylab = "Grid Y", useRaster = TRUE)
+#image(observation_field, col = c("white", "red"),
+#      main = "Observation", xlab = "Grid X", ylab = "Grid Y", useRaster = TRUE)
 
 # Reset plotting layout to default (optional)
-par(mfrow = c(1, 1))
+#par(mfrow = c(1, 1))
 
 png("dey_figure4_validation.png", width = 1600, height = 1200, res = 150)
 
