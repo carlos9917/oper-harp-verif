@@ -1,0 +1,6 @@
+scp hpc-login:/ec/res4/hpcperm/nhd/verification/oper-harp-verif/ACCORD_VS_202507/harp_spatial_slx_geosphere_2025072612_12.sqlite .
+
+scp hpc-login:/ec/res4/hpcperm/nhd/verification/oper-harp-verif/ACCORD_VS_202507/slx_overall_2025072612_3h.png .
+scp hpc-login:/ec/res4/hpcperm/nhd/verification/oper-harp-verif/ACCORD_VS_202507/slx_comps_2025072612_3h.png .
+scp hpc-login:/ec/res4/hpcperm/nhd/verification/oper-harp-verif/ACCORD_VS_202507/PLOTS/CLAEF1k.png .
+scp hpc-login:/ec/res4/hpcperm/nhd/verification/oper-harp-verif/ACCORD_VS_202507/PLOTS/INCAPlus.png .
