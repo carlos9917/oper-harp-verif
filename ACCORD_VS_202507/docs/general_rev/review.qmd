@@ -10,69 +10,247 @@ format:
     theme: cosmo
 jupyter: python3
 ---
-
 # Introduction
 
-Brief overview of the "double penalty problem" in traditional gridpoint-based verification and why spatial verification techniques are needed for high-resolution forecasts of extreme events.
+High-resolution numerical weather prediction (NWP) models require verification methods that go beyond traditional gridpoint-based metrics such as mean squared error (MSE) or equitable threat score (ETS). These methods often suffer from the **double penalty problem** (Anthes 1983): forecasts are penalized once for placing a feature in the wrong location, and again for missing the feature in the correct location. This can lead to misleadingly low scores even if the forecast has the right intensity, structure, or timing but a small displacement error.
 
-## The Double Penalty Problem
-- Traditional metrics penalize forecasts twice for spatial displacement
-- Example: correct intensity/timing but wrong location → poor scores
-- Need for spatial verification methods that don't require exact gridpoint matching
+The double penalty problem is particularly pronounced for **extreme events** such as intense precipitation, convection, or tropical cyclones, where small spatial shifts can result in large discrepancies at individual grid points. To address this, spatial verification techniques were developed that explicitly account for:
+
+- Field **spatial structures** and coherent features (Casati 2010)
+
+- **Displacement errors** vs. **intensity errors**
+
+- **Scale-dependent skill**, revealing performance over different spatial extents
+
+
+Following Gilleland et al. (2009) and recent developments (Casati et al. 2004; Davis et al. 2006; Wernli et al. 2008), spatial verification techniques can be grouped into four main categories.
 
 # Classification of Spatial Verification Techniques
 
-Based on Gilleland et al. (2009), spatial verification techniques fall into four main categories:
+## 1. Fuzzy / Neighborhood-Based Methods
 
-## 1. Fuzzy/Neighborhood Verification
-- **Concept**: Require approximate agreement in space, time, intensity
-- **Approach**: Measure strength of agreement as closeness requirements vary
-- **Examples**: 
-  - Neighborhood verification methods
-  - Fractions Skill Score (FSS)
-- **Pros**: 
-  - ✓ Intuitive and easy to implement
-- **Cons**: 
-  - ✗ May lose information about specific displacement patterns
+**Concept:**  
 
+Relax the requirement for exact gridpoint matching by allowing spatial (and sometimes temporal) tolerance. The idea is to assess agreement within a local neighborhood.
+
+**Approach:**  
+
+For each gridpoint in the forecast, a surrounding neighborhood is defined. The fraction of points within the neighborhood exceeding a threshold (e.g., rain > 1 mm/h) is compared between forecast and observation. 
+A classical example of this approach is the **Fractions Skill Score (FSS)** (Roberts & Lean 2008).
+
+**Examples:**
+
+- Fractions Skill Score (FSS) (Roberts & Lean 2008)
+
+- Spatial multi-event ROC curves (Atger 2001)
+
+- Distance-dependent POD and POFD (Tremblay et al. 1996)
+
+- Rank-based neighborhood RMSE (Rezacova & Sokol 2005)
+
+- Theis et al. (2005) probability-from-neighborhood approach
+
+- Structure of Local Extremes (SLX) (Sass, 2021)
+
+**Pros:**
+
+- Intuitive interpretation
+
+- Easy to implement for high-resolution fields
+
+- Naturally bridges deterministic and probabilistic verification
+
+**Cons:**
+
+- May smooth out displacement patterns
+
+- Loses information on exact positional errors
+
+**Applications for extremes:**  
+
+Used for precipitation verification in convection-permitting models, where exact positioning of convective cores is less important than capturing spatial coverage.
+
+---
 
 ## 2. Scale-Decomposition Techniques
-- **Concept**: Assess forecast skill at different spatial scales by filtering the fields.
-- **Approach**: Apply spatial filters (e.g., Fourier, wavelet) to separate and analyze features by scale.
-- **Examples**:
-  - Intensity-Scale technique (Casati et al. 2004)
-  - Wavelet-based verification methods
-- **Pros**:
-  - ✓ Reveals at which scales the model performs well or poorly
-  - ✓ Helps isolate errors in large-scale vs. small-scale features
-- **Cons**:
-  - ✗ Can be complex to interpret and implement
-  - ✗ May not directly address feature displacement
 
-## 3. Feature-Based/Object-Oriented Techniques
-- **Concept**: Identify and compare discrete weather features (objects) in forecasts and observations.
-- **Approach**: Detect, match, and analyze properties of corresponding features (e.g., location, size, intensity).
-- **Examples**:
-  - Ebert & McBride (2000) object-based method
-  - MODE (Method for Object-based Diagnostic Evaluation, Davis et al. 2006)
-  - SAL (Structure, Amplitude and Location, Wernli and Paulat 2008)
-- **Pros**:
-  - ✓ Intuitive and effective for well-defined features
-  - ✓ Provides detailed diagnostics on feature attributes
-- **Cons**:
-  - ✗ Challenging to define and match objects, especially in complex fields
-  - ✗ May struggle with overlapping or poorly defined features
+**Concept:**  
+Decompose the forecast and observed fields into components associated with different spatial scales, allowing verification per scale.
 
-## 4. Field Verification Techniques (Optical Flow)
-- **Concept**: Compare entire spatial fields directly, without decomposing into objects or scales.
-- **Approach**: Use algorithms (e.g., optical flow) to morph the forecast field to match the observation, quantifying displacement and amplitude errors.
-- **Examples**:
-  - Displacement and Amplitude Score (DAS, Keil & Craig 2009)
-  - Other optical flow-based methods
-- **Pros**:
-  - ✓ Avoids need for explicit feature identification or matching
-  - ✓ Captures both displacement and amplitude errors in a unified framework
-- **Cons**:
-  - ✗ Sensitive to algorithm parameters (e.g., search distance)
-  - ✗ Computationally intensive and may be less interpretable for complex cases
+**Approach:**  
+
+Apply transforms (wavelet, Fourier, discrete cosine) to separate large-scale and small-scale features. Compare components at each scale using continuous scores, categorical scores, or probabilistic measures.
+
+**Key methods:**
+
+- **Intensity-Scale Skill Score** (Casati et al. 2004): Uses 2D Haar wavelet decomposition of binary precipitation fields for multiple thresholds, computes skill at each combination of intensity and scale.
+
+- **Wavelet-based verification** (Briggs & Levine 1997; Casati & Wilson 2007)
+
+- Fourier/cosine decomposition for predictability studies (Denis et al. 2003)
+
+**Pros:**
+
+- Identifies scales where the model has/no skill
+
+- Links forecast errors to physical processes (e.g., missing mesoscale organization)
+
+- Useful for predictability analysis
+
+**Cons:**
+- Complex implementation and interpretation
+- Doesn't always explicitly separate displacement from amplitude errors
+
+**Applications for extremes:**  
+
+Rainfall intensity–scale diagrams help assess the model's ability to reproduce convective vs stratiform components of extreme precipitation.
+
+---
+
+## 3. Feature-Based / Object-Oriented Techniques
+
+**Concept:**  
+Identify discrete meteorological features (objects) in both forecast and observed fields, then compare their properties.
+
+**Approach:**
+
+1. Apply a threshold to define objects (e.g., contiguous areas of rain > X mm/h).
+
+2. Match forecast and observed objects using distance and overlap criteria.
+
+3. Compare attributes: centroid location, area, orientation, intensity.
+
+**Examples:**
+
+- **Ebert & McBride (2000)** object matching for precipitation systems
+
+- **MODE** (Davis et al. 2006) – filters, identifies, matches objects
+
+- **SAL score** (Wernli et al. 2008) – compares Structure, Amplitude, Location
+
+- Cluster analysis (Marzban & Sandgathe 2006)
+
+**Pros:**
+
+- Physically interpretable diagnostics (size, shape, displacement)
+
+- Allows event-based verification
+
+**Cons:**
+
+- Sensitive to object identification parameters (threshold, smoothing)
+
+- Difficult for diffuse or overlapping features
+
+**Applications for extremes:**  
+
+Identification and verification of mesoscale convective systems (MCSs) in warm-season extreme rainfall forecasts.
+
+---
+
+## 4. Field Deformation / Displacement–Amplitude Approaches
+
+**Concept:**  
+Rather than isolating features or scales, treat the entire field as a continuous pattern. Estimate the transformation (shift, rotation, stretching) that best aligns the forecast with observations.
+
+**Approach:**  
+
+- Optical flow or variational matching is used to morph the forecast field into the observation.
+
+- The transformation encodes **displacement errors**, and residual intensities after correction represent **amplitude errors** (Hoffman et al. 1995; Keil & Craig 2009).
+
+**Examples:**
+
+- Displacement–Amplitude Score (DAS, Keil & Craig 2009)
+
+- Field alignment methods for radar nowcasting
+
+**Pros:**
+
+- Captures spatial and amplitude errors jointly
+
+- Avoids explicit object definition
+
+**Cons:**
+
+- Computationally intensive
+
+- Interpretation can be less intuitive for end-users
+
+---
+
+## Other Relevant Techniques
+
+### Distance Metrics for Binary Images
+Quantify positional errors between binary feature masks:
+
+- **Hausdorff distance**
+
+- **Baddeley’s Δ metric** (Baddeley 1992)
+
+- **Pratt’s figure of merit**
+
+These metrics account for both feature shape and location differences and can complement categorical scores (Venugopal et al. 2005; Gilleland et al. 2006).
+
+---
+
+## Observational Challenges in Spatial Verification
+
+Casati’s work highlights that spatial verification performance depends critically on observational coverage:
+
+- **Gauge networks**: sparse coverage limits ability to verify small-scale features.
+
+- **Radars**: subject to biases in quantitative precipitation estimation (QPE), incomplete domain coverage.
+
+- **Satellites**: high coverage but uncertain for precipitation intensity.
+
+**Wavelet-based observation reconstruction** (Casati 2010): reconstructs a gridded precipitation field from sparse gauges using Haar wavelets, preserving known values at gauges and inferring large-scale structure.
+
+---
+
+# Conclusion and Future Directions
+
+Spatial verification has matured into a diverse toolkit, each method suited to particular forecast types and user needs:
+
+- Neighborhood methods excel for general spatial coverage evaluation.
+
+- Scale separation is key for model development and process studies.
+
+- Object methods are best for event-focused studies.
+
+- Field deformation captures displacement dynamics.
+
+**Future priorities:**
+
+- Hybrid approaches combining scale/object/displacement aspects
+
+- Verification metrics tailored for impact forecasting
+
+- Integration of uncertainty (probabilistic forecasts, ensemble verification)
+
+- Machine learning for feature detection and verification automation
+
+---
+
+# References
+
+- Anthes, R. A. (1983). Regional models of the atmosphere in middle latitudes. *Mon. Wea. Rev.*, 111, 1306–1335.
+- Atger, F. (2001). Verification of intense precipitation forecasts from single models and ensemble prediction systems. *Nonlinear Processes in Geophysics*, 8, 401–417.
+- Baddeley, A. (1992). An error metric for binary images. In *Robotics and Automation, 1992. Proceedings.*, vol. 1, 172–178.
+- Briggs, W. M., & Levine, R. A. (1997). Wavelets and field forecast verification. *Mon. Wea. Rev.*, 125, 1329–1341.
+- Casati, B., et al. (2004). A new intensity-scale approach for the verification of spatial precipitation forecasts. *Meteorological Applications*, 11(2), 141–154.
+- Casati, B., & Wilson, L. J. (2007). A new spatial–scale decomposition approach to forecast verification. *Mon. Wea. Rev.*, 135, 1829–1849.
+- Davis, C., Brown, B., & Bullock, R. (2006). Object-based verification of precipitation forecasts. *Mon. Wea. Rev.*, 134, 1772–1784.
+- Denis, B., et al. (2003). Downscaling ability of one-way nested regional climate models. *Clim. Dyn.*, 21, 501–516.
+- Gilleland, E., et al. (2006). Spatial forecast verification: Image warping. *Wea. Forecasting*, 21, 757–766.
+- Gilleland, E., Ahijevych, D., Brown, B. G., Casati, B., & Ebert, E. E. (2009). Intercomparison of spatial forecast verification methods. *Wea. Forecasting*, 24, 1416–1430.
+- Hoffman, R. N., et al. (1995). The influence of data resolution on forecast skill. *Mon. Wea. Rev.*, 123, 2665–2681.
+- Keil, C., & Craig, G. C. (2009). A displacement and amplitude score employing an optical flow technique. *Wea. Forecasting*, 24, 1297–1308.
+- Marzban, C., & Sandgathe, S. (2006). Cluster analysis for verification. *Wea. Forecasting*, 21, 824–838.
+- Roberts, N., & Lean, H. W. (2008). Scale-selective verification of rainfall accumulations from high-resolution forecasts. *Mon. Wea. Rev.*, 136, 78–97.
+- Sass, B. H. (2021) A scheme for verifying the spatial structure of extremes in numerical weather prediction: Exemplified for precipitation. *Meteorol Appl.* 2021;28:e2015.
+- Venugopal, V., et al. (2005). Scaling relations and self-similarity in rainfall. *J. Geophys. Res.*, 110, D14102.
+- Wernli, H., Paulat, M., Hagen, M., & Frei, C. (2008). SAL—A novel quality measure for the verification of quantitative precipitation forecasts. *Mon. Wea. Rev.*, 136, 4470–4487.
+```
+
 

@@ -48,17 +48,21 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
-  <ul class="collapse">
-  <li><a href="#the-double-penalty-problem" id="toc-the-double-penalty-problem" class="nav-link" data-scroll-target="#the-double-penalty-problem">The Double Penalty Problem</a></li>
-  </ul></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#classification-of-spatial-verification-techniques" id="toc-classification-of-spatial-verification-techniques" class="nav-link" data-scroll-target="#classification-of-spatial-verification-techniques">Classification of Spatial Verification Techniques</a>
   <ul class="collapse">
-  <li><a href="#fuzzyneighborhood-verification" id="toc-fuzzyneighborhood-verification" class="nav-link" data-scroll-target="#fuzzyneighborhood-verification">1. Fuzzy/Neighborhood Verification</a></li>
+  <li><a href="#fuzzy-neighborhood-based-methods" id="toc-fuzzy-neighborhood-based-methods" class="nav-link" data-scroll-target="#fuzzy-neighborhood-based-methods">1. Fuzzy / Neighborhood-Based Methods</a></li>
   <li><a href="#scale-decomposition-techniques" id="toc-scale-decomposition-techniques" class="nav-link" data-scroll-target="#scale-decomposition-techniques">2. Scale-Decomposition Techniques</a></li>
-  <li><a href="#feature-basedobject-oriented-techniques" id="toc-feature-basedobject-oriented-techniques" class="nav-link" data-scroll-target="#feature-basedobject-oriented-techniques">3. Feature-Based/Object-Oriented Techniques</a></li>
-  <li><a href="#field-verification-techniques-optical-flow" id="toc-field-verification-techniques-optical-flow" class="nav-link" data-scroll-target="#field-verification-techniques-optical-flow">4. Field Verification Techniques (Optical Flow)</a></li>
+  <li><a href="#feature-based-object-oriented-techniques" id="toc-feature-based-object-oriented-techniques" class="nav-link" data-scroll-target="#feature-based-object-oriented-techniques">3. Feature-Based / Object-Oriented Techniques</a></li>
+  <li><a href="#field-deformation-displacementamplitude-approaches" id="toc-field-deformation-displacementamplitude-approaches" class="nav-link" data-scroll-target="#field-deformation-displacementamplitude-approaches">4. Field Deformation / Displacement–Amplitude Approaches</a></li>
+  <li><a href="#other-relevant-techniques" id="toc-other-relevant-techniques" class="nav-link" data-scroll-target="#other-relevant-techniques">Other Relevant Techniques</a>
+  <ul class="collapse">
+  <li><a href="#distance-metrics-for-binary-images" id="toc-distance-metrics-for-binary-images" class="nav-link" data-scroll-target="#distance-metrics-for-binary-images">Distance Metrics for Binary Images</a></li>
   </ul></li>
+  <li><a href="#observational-challenges-in-spatial-verification" id="toc-observational-challenges-in-spatial-verification" class="nav-link" data-scroll-target="#observational-challenges-in-spatial-verification">Observational Challenges in Spatial Verification</a></li>
+  </ul></li>
+  <li><a href="#conclusion-and-future-directions" id="toc-conclusion-and-future-directions" class="nav-link" data-scroll-target="#conclusion-and-future-directions">Conclusion and Future Directions</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
 </div>
@@ -97,106 +101,192 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>Brief overview of the “double penalty problem” in traditional gridpoint-based verification and why spatial verification techniques are needed for high-resolution forecasts of extreme events.</p>
-<section id="the-double-penalty-problem" class="level2">
-<h2 class="anchored" data-anchor-id="the-double-penalty-problem">The Double Penalty Problem</h2>
+<p>High-resolution numerical weather prediction (NWP) models require verification methods that go beyond traditional gridpoint-based metrics such as mean squared error (MSE) or equitable threat score (ETS). These methods often suffer from the <strong>double penalty problem</strong> (Anthes 1983): forecasts are penalized once for placing a feature in the wrong location, and again for missing the feature in the correct location. This can lead to misleadingly low scores even if the forecast has the right intensity, structure, or timing but a small displacement error.</p>
+<p>The double penalty problem is particularly pronounced for <strong>extreme events</strong> such as intense precipitation, convection, or tropical cyclones, where small spatial shifts can result in large discrepancies at individual grid points. To address this, spatial verification techniques were developed that explicitly account for:</p>
 <ul>
-<li>Traditional metrics penalize forecasts twice for spatial displacement</li>
-<li>Example: correct intensity/timing but wrong location → poor scores</li>
-<li>Need for spatial verification methods that don’t require exact gridpoint matching</li>
+<li><p>Field <strong>spatial structures</strong> and coherent features (Casati 2010)</p></li>
+<li><p><strong>Displacement errors</strong> vs.&nbsp;<strong>intensity errors</strong></p></li>
+<li><p><strong>Scale-dependent skill</strong>, revealing performance over different spatial extents</p></li>
 </ul>
-</section>
+<p>Following Gilleland et al.&nbsp;(2009) and recent developments (Casati et al.&nbsp;2004; Davis et al.&nbsp;2006; Wernli et al.&nbsp;2008), spatial verification techniques can be grouped into four main categories.</p>
 </section>
 <section id="classification-of-spatial-verification-techniques" class="level1">
 <h1>Classification of Spatial Verification Techniques</h1>
-<p>Based on Gilleland et al.&nbsp;(2009), spatial verification techniques fall into four main categories:</p>
-<section id="fuzzyneighborhood-verification" class="level2">
-<h2 class="anchored" data-anchor-id="fuzzyneighborhood-verification">1. Fuzzy/Neighborhood Verification</h2>
+<section id="fuzzy-neighborhood-based-methods" class="level2">
+<h2 class="anchored" data-anchor-id="fuzzy-neighborhood-based-methods">1. Fuzzy / Neighborhood-Based Methods</h2>
+<p><strong>Concept:</strong></p>
+<p>Relax the requirement for exact gridpoint matching by allowing spatial (and sometimes temporal) tolerance. The idea is to assess agreement within a local neighborhood.</p>
+<p><strong>Approach:</strong></p>
+<p>For each gridpoint in the forecast, a surrounding neighborhood is defined. The fraction of points within the neighborhood exceeding a threshold (e.g., rain &gt; 1 mm/h) is compared between forecast and observation. A classical example of this approach is the <strong>Fractions Skill Score (FSS)</strong> (Roberts &amp; Lean 2008).</p>
+<p><strong>Examples:</strong></p>
 <ul>
-<li><strong>Concept</strong>: Require approximate agreement in space, time, intensity</li>
-<li><strong>Approach</strong>: Measure strength of agreement as closeness requirements vary</li>
-<li><strong>Examples</strong>:
-<ul>
-<li>Neighborhood verification methods</li>
-<li>Fractions Skill Score (FSS)</li>
-</ul></li>
-<li><strong>Pros</strong>:
-<ul>
-<li>✓ Intuitive and easy to implement</li>
-</ul></li>
-<li><strong>Cons</strong>:
-<ul>
-<li>✗ May lose information about specific displacement patterns</li>
-</ul></li>
+<li><p>Fractions Skill Score (FSS) (Roberts &amp; Lean 2008)</p></li>
+<li><p>Spatial multi-event ROC curves (Atger 2001)</p></li>
+<li><p>Distance-dependent POD and POFD (Tremblay et al.&nbsp;1996)</p></li>
+<li><p>Rank-based neighborhood RMSE (Rezacova &amp; Sokol 2005)</p></li>
+<li><p>Theis et al.&nbsp;(2005) probability-from-neighborhood approach</p></li>
+<li><p>Structure of Local Extremes (SLX) (Sass, 2021)</p></li>
 </ul>
+<p><strong>Pros:</strong></p>
+<ul>
+<li><p>Intuitive interpretation</p></li>
+<li><p>Easy to implement for high-resolution fields</p></li>
+<li><p>Naturally bridges deterministic and probabilistic verification</p></li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li><p>May smooth out displacement patterns</p></li>
+<li><p>Loses information on exact positional errors</p></li>
+</ul>
+<p><strong>Applications for extremes:</strong></p>
+<p>Used for precipitation verification in convection-permitting models, where exact positioning of convective cores is less important than capturing spatial coverage.</p>
+<hr>
 </section>
 <section id="scale-decomposition-techniques" class="level2">
 <h2 class="anchored" data-anchor-id="scale-decomposition-techniques">2. Scale-Decomposition Techniques</h2>
+<p><strong>Concept:</strong><br>
+Decompose the forecast and observed fields into components associated with different spatial scales, allowing verification per scale.</p>
+<p><strong>Approach:</strong></p>
+<p>Apply transforms (wavelet, Fourier, discrete cosine) to separate large-scale and small-scale features. Compare components at each scale using continuous scores, categorical scores, or probabilistic measures.</p>
+<p><strong>Key methods:</strong></p>
 <ul>
-<li><strong>Concept</strong>: Assess forecast skill at different spatial scales by filtering the fields.</li>
-<li><strong>Approach</strong>: Apply spatial filters (e.g., Fourier, wavelet) to separate and analyze features by scale.</li>
-<li><strong>Examples</strong>:
-<ul>
-<li>Intensity-Scale technique (Casati et al.&nbsp;2004)</li>
-<li>Wavelet-based verification methods</li>
-</ul></li>
-<li><strong>Pros</strong>:
-<ul>
-<li>✓ Reveals at which scales the model performs well or poorly</li>
-<li>✓ Helps isolate errors in large-scale vs.&nbsp;small-scale features</li>
-</ul></li>
-<li><strong>Cons</strong>:
-<ul>
-<li>✗ Can be complex to interpret and implement</li>
-<li>✗ May not directly address feature displacement</li>
-</ul></li>
+<li><p><strong>Intensity-Scale Skill Score</strong> (Casati et al.&nbsp;2004): Uses 2D Haar wavelet decomposition of binary precipitation fields for multiple thresholds, computes skill at each combination of intensity and scale.</p></li>
+<li><p><strong>Wavelet-based verification</strong> (Briggs &amp; Levine 1997; Casati &amp; Wilson 2007)</p></li>
+<li><p>Fourier/cosine decomposition for predictability studies (Denis et al.&nbsp;2003)</p></li>
 </ul>
-</section>
-<section id="feature-basedobject-oriented-techniques" class="level2">
-<h2 class="anchored" data-anchor-id="feature-basedobject-oriented-techniques">3. Feature-Based/Object-Oriented Techniques</h2>
+<p><strong>Pros:</strong></p>
 <ul>
-<li><strong>Concept</strong>: Identify and compare discrete weather features (objects) in forecasts and observations.</li>
-<li><strong>Approach</strong>: Detect, match, and analyze properties of corresponding features (e.g., location, size, intensity).</li>
-<li><strong>Examples</strong>:
-<ul>
-<li>Ebert &amp; McBride (2000) object-based method</li>
-<li>MODE (Method for Object-based Diagnostic Evaluation, Davis et al.&nbsp;2006)</li>
-<li>SAL (Structure, Amplitude and Location, Wernli and Paulat 2008)</li>
-</ul></li>
-<li><strong>Pros</strong>:
-<ul>
-<li>✓ Intuitive and effective for well-defined features</li>
-<li>✓ Provides detailed diagnostics on feature attributes</li>
-</ul></li>
-<li><strong>Cons</strong>:
-<ul>
-<li>✗ Challenging to define and match objects, especially in complex fields</li>
-<li>✗ May struggle with overlapping or poorly defined features</li>
-</ul></li>
+<li><p>Identifies scales where the model has/no skill</p></li>
+<li><p>Links forecast errors to physical processes (e.g., missing mesoscale organization)</p></li>
+<li><p>Useful for predictability analysis</p></li>
 </ul>
+<p><strong>Cons:</strong> - Complex implementation and interpretation - Doesn’t always explicitly separate displacement from amplitude errors</p>
+<p><strong>Applications for extremes:</strong></p>
+<p>Rainfall intensity–scale diagrams help assess the model’s ability to reproduce convective vs stratiform components of extreme precipitation.</p>
+<hr>
 </section>
-<section id="field-verification-techniques-optical-flow" class="level2">
-<h2 class="anchored" data-anchor-id="field-verification-techniques-optical-flow">4. Field Verification Techniques (Optical Flow)</h2>
+<section id="feature-based-object-oriented-techniques" class="level2">
+<h2 class="anchored" data-anchor-id="feature-based-object-oriented-techniques">3. Feature-Based / Object-Oriented Techniques</h2>
+<p><strong>Concept:</strong><br>
+Identify discrete meteorological features (objects) in both forecast and observed fields, then compare their properties.</p>
+<p><strong>Approach:</strong></p>
+<ol type="1">
+<li><p>Apply a threshold to define objects (e.g., contiguous areas of rain &gt; X mm/h).</p></li>
+<li><p>Match forecast and observed objects using distance and overlap criteria.</p></li>
+<li><p>Compare attributes: centroid location, area, orientation, intensity.</p></li>
+</ol>
+<p><strong>Examples:</strong></p>
 <ul>
-<li><strong>Concept</strong>: Compare entire spatial fields directly, without decomposing into objects or scales.</li>
-<li><strong>Approach</strong>: Use algorithms (e.g., optical flow) to morph the forecast field to match the observation, quantifying displacement and amplitude errors.</li>
-<li><strong>Examples</strong>:
-<ul>
-<li>Displacement and Amplitude Score (DAS, Keil &amp; Craig 2009)</li>
-<li>Other optical flow-based methods</li>
-</ul></li>
-<li><strong>Pros</strong>:
-<ul>
-<li>✓ Avoids need for explicit feature identification or matching</li>
-<li>✓ Captures both displacement and amplitude errors in a unified framework</li>
-</ul></li>
-<li><strong>Cons</strong>:
-<ul>
-<li>✗ Sensitive to algorithm parameters (e.g., search distance)</li>
-<li>✗ Computationally intensive and may be less interpretable for complex cases</li>
-</ul></li>
+<li><p><strong>Ebert &amp; McBride (2000)</strong> object matching for precipitation systems</p></li>
+<li><p><strong>MODE</strong> (Davis et al.&nbsp;2006) – filters, identifies, matches objects</p></li>
+<li><p><strong>SAL score</strong> (Wernli et al.&nbsp;2008) – compares Structure, Amplitude, Location</p></li>
+<li><p>Cluster analysis (Marzban &amp; Sandgathe 2006)</p></li>
 </ul>
+<p><strong>Pros:</strong></p>
+<ul>
+<li><p>Physically interpretable diagnostics (size, shape, displacement)</p></li>
+<li><p>Allows event-based verification</p></li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li><p>Sensitive to object identification parameters (threshold, smoothing)</p></li>
+<li><p>Difficult for diffuse or overlapping features</p></li>
+</ul>
+<p><strong>Applications for extremes:</strong></p>
+<p>Identification and verification of mesoscale convective systems (MCSs) in warm-season extreme rainfall forecasts.</p>
+<hr>
 </section>
+<section id="field-deformation-displacementamplitude-approaches" class="level2">
+<h2 class="anchored" data-anchor-id="field-deformation-displacementamplitude-approaches">4. Field Deformation / Displacement–Amplitude Approaches</h2>
+<p><strong>Concept:</strong><br>
+Rather than isolating features or scales, treat the entire field as a continuous pattern. Estimate the transformation (shift, rotation, stretching) that best aligns the forecast with observations.</p>
+<p><strong>Approach:</strong></p>
+<ul>
+<li><p>Optical flow or variational matching is used to morph the forecast field into the observation.</p></li>
+<li><p>The transformation encodes <strong>displacement errors</strong>, and residual intensities after correction represent <strong>amplitude errors</strong> (Hoffman et al.&nbsp;1995; Keil &amp; Craig 2009).</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul>
+<li><p>Displacement–Amplitude Score (DAS, Keil &amp; Craig 2009)</p></li>
+<li><p>Field alignment methods for radar nowcasting</p></li>
+</ul>
+<p><strong>Pros:</strong></p>
+<ul>
+<li><p>Captures spatial and amplitude errors jointly</p></li>
+<li><p>Avoids explicit object definition</p></li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li><p>Computationally intensive</p></li>
+<li><p>Interpretation can be less intuitive for end-users</p></li>
+</ul>
+<hr>
+</section>
+<section id="other-relevant-techniques" class="level2">
+<h2 class="anchored" data-anchor-id="other-relevant-techniques">Other Relevant Techniques</h2>
+<section id="distance-metrics-for-binary-images" class="level3">
+<h3 class="anchored" data-anchor-id="distance-metrics-for-binary-images">Distance Metrics for Binary Images</h3>
+<p>Quantify positional errors between binary feature masks:</p>
+<ul>
+<li><p><strong>Hausdorff distance</strong></p></li>
+<li><p><strong>Baddeley’s Δ metric</strong> (Baddeley 1992)</p></li>
+<li><p><strong>Pratt’s figure of merit</strong></p></li>
+</ul>
+<p>These metrics account for both feature shape and location differences and can complement categorical scores (Venugopal et al.&nbsp;2005; Gilleland et al.&nbsp;2006).</p>
+<hr>
+</section>
+</section>
+<section id="observational-challenges-in-spatial-verification" class="level2">
+<h2 class="anchored" data-anchor-id="observational-challenges-in-spatial-verification">Observational Challenges in Spatial Verification</h2>
+<p>Casati’s work highlights that spatial verification performance depends critically on observational coverage:</p>
+<ul>
+<li><p><strong>Gauge networks</strong>: sparse coverage limits ability to verify small-scale features.</p></li>
+<li><p><strong>Radars</strong>: subject to biases in quantitative precipitation estimation (QPE), incomplete domain coverage.</p></li>
+<li><p><strong>Satellites</strong>: high coverage but uncertain for precipitation intensity.</p></li>
+</ul>
+<p><strong>Wavelet-based observation reconstruction</strong> (Casati 2010): reconstructs a gridded precipitation field from sparse gauges using Haar wavelets, preserving known values at gauges and inferring large-scale structure.</p>
+<hr>
+</section>
+</section>
+<section id="conclusion-and-future-directions" class="level1">
+<h1>Conclusion and Future Directions</h1>
+<p>Spatial verification has matured into a diverse toolkit, each method suited to particular forecast types and user needs:</p>
+<ul>
+<li><p>Neighborhood methods excel for general spatial coverage evaluation.</p></li>
+<li><p>Scale separation is key for model development and process studies.</p></li>
+<li><p>Object methods are best for event-focused studies.</p></li>
+<li><p>Field deformation captures displacement dynamics.</p></li>
+</ul>
+<p><strong>Future priorities:</strong></p>
+<ul>
+<li><p>Hybrid approaches combining scale/object/displacement aspects</p></li>
+<li><p>Verification metrics tailored for impact forecasting</p></li>
+<li><p>Integration of uncertainty (probabilistic forecasts, ensemble verification)</p></li>
+<li><p>Machine learning for feature detection and verification automation</p></li>
+</ul>
+<hr>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<ul>
+<li>Anthes, R. A. (1983). Regional models of the atmosphere in middle latitudes. <em>Mon. Wea. Rev.</em>, 111, 1306–1335.</li>
+<li>Atger, F. (2001). Verification of intense precipitation forecasts from single models and ensemble prediction systems. <em>Nonlinear Processes in Geophysics</em>, 8, 401–417.</li>
+<li>Baddeley, A. (1992). An error metric for binary images. In <em>Robotics and Automation, 1992. Proceedings.</em>, vol.&nbsp;1, 172–178.</li>
+<li>Briggs, W. M., &amp; Levine, R. A. (1997). Wavelets and field forecast verification. <em>Mon. Wea. Rev.</em>, 125, 1329–1341.</li>
+<li>Casati, B., et al.&nbsp;(2004). A new intensity-scale approach for the verification of spatial precipitation forecasts. <em>Meteorological Applications</em>, 11(2), 141–154.</li>
+<li>Casati, B., &amp; Wilson, L. J. (2007). A new spatial–scale decomposition approach to forecast verification. <em>Mon. Wea. Rev.</em>, 135, 1829–1849.</li>
+<li>Davis, C., Brown, B., &amp; Bullock, R. (2006). Object-based verification of precipitation forecasts. <em>Mon. Wea. Rev.</em>, 134, 1772–1784.</li>
+<li>Denis, B., et al.&nbsp;(2003). Downscaling ability of one-way nested regional climate models. <em>Clim. Dyn.</em>, 21, 501–516.</li>
+<li>Gilleland, E., et al.&nbsp;(2006). Spatial forecast verification: Image warping. <em>Wea. Forecasting</em>, 21, 757–766.</li>
+<li>Gilleland, E., Ahijevych, D., Brown, B. G., Casati, B., &amp; Ebert, E. E. (2009). Intercomparison of spatial forecast verification methods. <em>Wea. Forecasting</em>, 24, 1416–1430.</li>
+<li>Hoffman, R. N., et al.&nbsp;(1995). The influence of data resolution on forecast skill. <em>Mon. Wea. Rev.</em>, 123, 2665–2681.</li>
+<li>Keil, C., &amp; Craig, G. C. (2009). A displacement and amplitude score employing an optical flow technique. <em>Wea. Forecasting</em>, 24, 1297–1308.</li>
+<li>Marzban, C., &amp; Sandgathe, S. (2006). Cluster analysis for verification. <em>Wea. Forecasting</em>, 21, 824–838.</li>
+<li>Roberts, N., &amp; Lean, H. W. (2008). Scale-selective verification of rainfall accumulations from high-resolution forecasts. <em>Mon. Wea. Rev.</em>, 136, 78–97.</li>
+<li>Sass, B. H. (2021) A scheme for verifying the spatial structure of extremes in numerical weather prediction: Exemplified for precipitation. <em>Meteorol Appl.</em> 2021;28:e2015.</li>
+<li>Venugopal, V., et al.&nbsp;(2005). Scaling relations and self-similarity in rainfall. <em>J. Geophys. Res.</em>, 110, D14102.</li>
+<li>Wernli, H., Paulat, M., Hagen, M., &amp; Frei, C. (2008). SAL—A novel quality measure for the verification of quantitative precipitation forecasts. <em>Mon. Wea. Rev.</em>, 136, 4470–4487. ```</li>
+</ul>
 </section>
 
 </main>
