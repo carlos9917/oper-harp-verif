@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Based on Keil &amp; Craig (2009) Methods">
+<meta name="dcterms.date" content="2025-06-18">
+
+<title>Displacement and Amplitude Score (DAS) for Precipitation Verification</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="keil_craig_das_presentation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="keil_craig_das_presentation_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="keil_craig_das_presentation_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="keil_craig_das_presentation_files/libs/quarto-html/popper.min.js"></script>
+<script src="keil_craig_das_presentation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="keil_craig_das_presentation_files/libs/quarto-html/anchor.min.js"></script>
+<link href="keil_craig_das_presentation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="keil_craig_das_presentation_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="keil_craig_das_presentation_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="keil_craig_das_presentation_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="keil_craig_das_presentation_files/libs/bootstrap/bootstrap-9810da5fa7c545808853ae26390bbe04.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Displacement and Amplitude Score (DAS) for Precipitation Verification</h1>
+<p class="subtitle lead">Optical Flow-Based Spatial Verification - Keil &amp; Craig (2009)</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Based on Keil &amp; Craig (2009) Methods </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 18, 2025</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">June 18, 2025</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p>Modern high-resolution numerical weather prediction models forecast weather with great detail, but traditional verification suffers from the <strong>“double penalty”</strong> problem.</p>
+<p>When convective precipitation is slightly displaced:</p>
+<ul>
+<li><p><strong>Traditional metrics</strong>: Poor categorical scores (many misses and false alarms)</p></li>
+<li><p><strong>Large RMSE</strong>: Even for correct intensity, size, and timing</p></li>
+<li><p><strong>Model value</strong>: Difficult to prove using gridpoint-based verification</p></li>
+</ul>
+<p><strong>What we need:</strong></p>
+<ul>
+<li><p>Separate <strong>displacement errors</strong> from <strong>amplitude errors</strong></p></li>
+<li><p>Account for <strong>spatial uncertainty</strong> in precipitation forecasts</p></li>
+<li><p>Provide <strong>meaningful verification</strong> for high-resolution models</p></li>
+</ul>
+<p><strong>Displacement and Amplitude Score (DAS)</strong> by Keil &amp; Craig (2009) uses optical flow techniques to quantify both location and intensity errors simultaneously.</p>
+<hr>
+</section>
+<section id="the-das-methodology" class="level2">
+<h2 class="anchored" data-anchor-id="the-das-methodology">The DAS Methodology</h2>
+<p>DAS combines distance and amplitude errors using an <strong>optical flow algorithm</strong> that morphs one field to match another:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>What it measures</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Displacement Error</strong></td>
+<td>Distance to corresponding forecast object</td>
+</tr>
+<tr class="even">
+<td><strong>Amplitude Error</strong></td>
+<td>Intensity difference after morphing</td>
+</tr>
+<tr class="odd">
+<td><strong>Optical Flow</strong></td>
+<td>Vector field that deforms forecast to match observations</td>
+</tr>
+<tr class="even">
+<td><strong>Pyramidal Matching</strong></td>
+<td>Multi-scale algorithm for robust feature matching</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Innovation:</strong></p>
+<ul>
+<li><p>Morphing in <strong>both directions</strong>: forecast→observation AND observation→forecast</p></li>
+<li><p>Handles <strong>false alarms</strong> and <strong>missed events</strong> properly</p></li>
+<li><p><strong>Maximum search distance</strong> parameter controls matching range</p></li>
+</ul>
+<hr>
+</section>
+<section id="optical-flow-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="optical-flow-algorithm">Optical Flow Algorithm</h2>
+<p>The pyramidal image-matching algorithm computes displacement vectors by minimizing amplitude differences:</p>
+<p><strong>Step 1: Multi-scale Decomposition</strong></p>
+<ul>
+<li><p>Apply spatial filtering at multiple resolutions</p></li>
+<li><p>Start with coarsest scale, refine progressively</p></li>
+<li><p>Each scale contributes to final displacement field</p></li>
+</ul>
+<p><strong>Step 2: Vector Field Computation</strong></p>
+<p><span class="math display">\[\vec{d}(x,y) = \text{argmin}_{\vec{d}} \sum |F(x+d_x, y+d_y) - O(x,y)|^2\]</span></p>
+<p><strong>Step 3: Morphing Process</strong></p>
+<ul>
+<li><p>Apply displacement vectors to deform fields</p></li>
+<li><p>Create morphed forecast: <span class="math inline">\(F'(x,y) = F(x+d_x, y+d_y)\)</span></p></li>
+<li><p>Calculate residual differences after morphing</p></li>
+</ul>
+<hr>
+</section>
+<section id="das-error-components" class="level2">
+<h2 class="anchored" data-anchor-id="das-error-components">DAS Error Components</h2>
+<p><strong>Observation Space Analysis</strong> (morphing forecast onto observation):</p>
+<p><span class="math display">\[DIS_{obs}(x,y) = |\vec{d}_{obs}(x,y)|\]</span></p>
+<p><span class="math display">\[AMP_{obs}(x,y) = \sqrt{(O(x,y) - F'(x,y))^2}\]</span></p>
+<p><strong>Forecast Space Analysis</strong> (morphing observation onto forecast):</p>
+<p><span class="math display">\[DIS_{fct}(x,y) = |\vec{d}_{fct}(x,y)|\]</span></p>
+<p><span class="math display">\[AMP_{fct}(x,y) = \sqrt{(F(x,y) - O'(x,y))^2}\]</span></p>
+<p><strong>Combined Metrics:</strong></p>
+<p><span class="math display">\[DIS = \frac{1}{n_{obs} + n_{fct}}(n_{obs} \cdot DIS_{obs} + n_{fct} \cdot DIS_{fct})\]</span></p>
+<p><span class="math display">\[AMP = \frac{1}{n_{obs} + n_{fct}}(n_{obs} \cdot AMP_{obs} + n_{fct} \cdot AMP_{fct})\]</span></p>
+<hr>
+</section>
+<section id="final-das-score" class="level2">
+<h2 class="anchored" data-anchor-id="final-das-score">Final DAS Score</h2>
+<p>The displacement and amplitude components are normalized and combined:</p>
+<p><span class="math display">\[DAS = \frac{DIS}{D_{max}} + \frac{AMP}{I_0}\]</span></p>
+<p><strong>Normalization Parameters:</strong></p>
+<ul>
+<li><p><span class="math inline">\(D_{max}\)</span>: Maximum search distance (e.g., 360 km)</p></li>
+<li><p><span class="math inline">\(I_0\)</span>: Characteristic intensity (RMS of observed precipitation)</p></li>
+</ul>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><p><strong>DAS = 0</strong>: Perfect forecast</p></li>
+<li><p><strong>DAS ≈ 1</strong>: Either displacement error = <span class="math inline">\(D_{max}\)</span> OR amplitude error = <span class="math inline">\(I_0\)</span></p></li>
+<li><p><strong>No upper limit</strong>: Combines both error types</p></li>
+</ul>
+<p><strong>Physical Meaning:</strong></p>
+<p>Displacement error of <span class="math inline">\(D_{max}\)</span> is equivalent to amplitude error from unmatched features (miss + false alarm).</p>
+<hr>
+</section>
+<section id="python-implementation" class="level2">
+<h2 class="anchored" data-anchor-id="python-implementation">Python Implementation</h2>
+<div id="8adf0a70" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.ndimage <span class="im">import</span> gaussian_filter</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pyramidal_optical_flow(forecast, observation, max_search_distance<span class="op">=</span><span class="dv">90</span>, levels<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Simplified pyramidal optical flow implementation</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ny, nx <span class="op">=</span> forecast.shape</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    displacement_field <span class="op">=</span> np.zeros((ny, nx, <span class="dv">2</span>))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Multi-scale processing</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> level <span class="kw">in</span> <span class="bu">range</span>(levels):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        scale_factor <span class="op">=</span> <span class="dv">2</span><span class="op">**</span>(levels <span class="op">-</span> level <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Downsample fields</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> scale_factor <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>            f_scaled <span class="op">=</span> gaussian_filter(forecast, sigma<span class="op">=</span>scale_factor)[::scale_factor, ::scale_factor]</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>            o_scaled <span class="op">=</span> gaussian_filter(observation, sigma<span class="op">=</span>scale_factor)[::scale_factor, ::scale_factor]</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>            f_scaled <span class="op">=</span> forecast.copy()</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            o_scaled <span class="op">=</span> observation.copy()</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Calculate displacement at this scale</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        level_displacement <span class="op">=</span> calculate_displacement_field(</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>            f_scaled, o_scaled, max_search_distance <span class="op">//</span> scale_factor</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Upsample and add to total displacement</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> scale_factor <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>            level_displacement <span class="op">=</span> np.repeat(np.repeat(level_displacement, scale_factor, axis<span class="op">=</span><span class="dv">0</span>), </span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                                         scale_factor, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>            level_displacement <span class="op">=</span> level_displacement[:ny, :nx] <span class="op">*</span> scale_factor</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        displacement_field <span class="op">+=</span> level_displacement</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> displacement_field</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_displacement_field(forecast, observation, max_search):</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate displacement field between two fields"""</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    ny, nx <span class="op">=</span> forecast.shape</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    displacement <span class="op">=</span> np.zeros((ny, nx, <span class="dv">2</span>))</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(ny):</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(nx):</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> observation[i, j] <span class="op">&gt;</span> <span class="dv">0</span>:  <span class="co"># Only calculate for precipitation areas</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>                best_match <span class="op">=</span> find_best_match(forecast, observation[i, j], i, j, max_search)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>                displacement[i, j] <span class="op">=</span> [best_match[<span class="dv">0</span>] <span class="op">-</span> i, best_match[<span class="dv">1</span>] <span class="op">-</span> j]</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> displacement</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_best_match(field, target_value, center_i, center_j, max_search):</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Find best matching location within search radius"""</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    ny, nx <span class="op">=</span> field.shape</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    best_error <span class="op">=</span> <span class="bu">float</span>(<span class="st">'inf'</span>)</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    best_location <span class="op">=</span> (center_i, center_j)</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> di <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>max_search, max_search <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> dj <span class="kw">in</span> <span class="bu">range</span>(<span class="op">-</span>max_search, max_search <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>            i, j <span class="op">=</span> center_i <span class="op">+</span> di, center_j <span class="op">+</span> dj</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="dv">0</span> <span class="op">&lt;=</span> i <span class="op">&lt;</span> ny <span class="kw">and</span> <span class="dv">0</span> <span class="op">&lt;=</span> j <span class="op">&lt;</span> nx:</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>                error <span class="op">=</span> <span class="bu">abs</span>(field[i, j] <span class="op">-</span> target_value)</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> error <span class="op">&lt;</span> best_error:</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>                    best_error <span class="op">=</span> error</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>                    best_location <span class="op">=</span> (i, j)</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> best_location</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="das-calculation-functions" class="level2">
+<h2 class="anchored" data-anchor-id="das-calculation-functions">DAS Calculation Functions</h2>
+<div id="b470174d" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apply_displacement_field(field, displacement_field):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Apply displacement field to morph a field"""</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    ny, nx <span class="op">=</span> field.shape</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    morphed_field <span class="op">=</span> np.zeros_like(field)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(ny):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(nx):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            di, dj <span class="op">=</span> displacement_field[i, j]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>            source_i <span class="op">=</span> <span class="bu">int</span>(i <span class="op">-</span> di)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            source_j <span class="op">=</span> <span class="bu">int</span>(j <span class="op">-</span> dj)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="dv">0</span> <span class="op">&lt;=</span> source_i <span class="op">&lt;</span> ny <span class="kw">and</span> <span class="dv">0</span> <span class="op">&lt;=</span> source_j <span class="op">&lt;</span> nx:</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                morphed_field[i, j] <span class="op">=</span> field[source_i, source_j]</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> morphed_field</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_das(forecast, observation, max_search_distance<span class="op">=</span><span class="dv">90</span>, threshold<span class="op">=</span><span class="fl">1.0</span>):</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">    Calculate Displacement and Amplitude Score (DAS)</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply threshold</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    forecast_thresh <span class="op">=</span> np.where(forecast <span class="op">&gt;</span> threshold, forecast, <span class="dv">0</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    observation_thresh <span class="op">=</span> np.where(observation <span class="op">&gt;</span> threshold, observation, <span class="dv">0</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate characteristic intensity</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    I0 <span class="op">=</span> np.sqrt(np.mean(observation_thresh[observation_thresh <span class="op">&gt;</span> <span class="dv">0</span>]<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Observation space: morph forecast onto observation</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    disp_field_obs <span class="op">=</span> pyramidal_optical_flow(forecast_thresh, observation_thresh, max_search_distance)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    morphed_forecast <span class="op">=</span> apply_displacement_field(forecast_thresh, disp_field_obs)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate errors in observation space</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    obs_mask <span class="op">=</span> observation_thresh <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    dis_obs <span class="op">=</span> np.sqrt(np.<span class="bu">sum</span>(disp_field_obs<span class="op">**</span><span class="dv">2</span>, axis<span class="op">=</span><span class="dv">2</span>))</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    dis_obs <span class="op">=</span> dis_obs <span class="op">*</span> obs_mask  <span class="co"># Only where observations exist</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    amp_obs <span class="op">=</span> np.<span class="bu">abs</span>(observation_thresh <span class="op">-</span> morphed_forecast) <span class="op">*</span> obs_mask</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Forecast space: morph observation onto forecast</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    disp_field_fct <span class="op">=</span> pyramidal_optical_flow(observation_thresh, forecast_thresh, max_search_distance)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    morphed_observation <span class="op">=</span> apply_displacement_field(observation_thresh, disp_field_fct)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate errors in forecast space</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    fct_mask <span class="op">=</span> forecast_thresh <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    dis_fct <span class="op">=</span> np.sqrt(np.<span class="bu">sum</span>(disp_field_fct<span class="op">**</span><span class="dv">2</span>, axis<span class="op">=</span><span class="dv">2</span>))</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    dis_fct <span class="op">=</span> dis_fct <span class="op">*</span> fct_mask  <span class="co"># Only where forecasts exist</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    amp_fct <span class="op">=</span> np.<span class="bu">abs</span>(forecast_thresh <span class="op">-</span> morphed_observation) <span class="op">*</span> fct_mask</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine observation and forecast space errors</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    n_obs <span class="op">=</span> np.<span class="bu">sum</span>(obs_mask)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    n_fct <span class="op">=</span> np.<span class="bu">sum</span>(fct_mask)</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n_obs <span class="op">+</span> n_fct <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>  <span class="co"># No precipitation in either field</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    DIS <span class="op">=</span> (n_obs <span class="op">*</span> np.mean(dis_obs[obs_mask]) <span class="op">+</span> n_fct <span class="op">*</span> np.mean(dis_fct[fct_mask])) <span class="op">/</span> (n_obs <span class="op">+</span> n_fct)</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    AMP <span class="op">=</span> (n_obs <span class="op">*</span> np.mean(amp_obs[obs_mask]) <span class="op">+</span> n_fct <span class="op">*</span> np.mean(amp_fct[fct_mask])) <span class="op">/</span> (n_obs <span class="op">+</span> n_fct)</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Normalize and combine</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    DIS_norm <span class="op">=</span> DIS <span class="op">/</span> max_search_distance</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    AMP_norm <span class="op">=</span> AMP <span class="op">/</span> I0 <span class="cf">if</span> I0 <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    DAS <span class="op">=</span> DIS_norm <span class="op">+</span> AMP_norm</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> DAS, DIS_norm, AMP_norm</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_synthetic_precipitation_case(case_type<span class="op">=</span><span class="st">"displacement"</span>, nx<span class="op">=</span><span class="dv">100</span>, ny<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Create synthetic test cases similar to ICP geometric cases"""</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create base elliptical precipitation feature</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    y_indices, x_indices <span class="op">=</span> np.ogrid[:ny, :nx]</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    center_y, center_x <span class="op">=</span> ny<span class="op">//</span><span class="dv">2</span>, nx<span class="op">//</span><span class="dv">2</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Elliptical feature (50x200 points as in paper)</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    a, b <span class="op">=</span> <span class="dv">25</span>, <span class="dv">10</span>  <span class="co"># Semi-major and semi-minor axes</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    ellipse <span class="op">=</span> ((x_indices <span class="op">-</span> center_x)<span class="op">/</span>a)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> ((y_indices <span class="op">-</span> center_y)<span class="op">/</span>b)<span class="op">**</span><span class="dv">2</span> <span class="op">&lt;=</span> <span class="dv">1</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create observation field</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    observation <span class="op">=</span> np.zeros((ny, nx))</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    observation[ellipse] <span class="op">=</span> <span class="fl">15.0</span>  <span class="co"># 15 mm/h intensity</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create forecast field based on case type</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    forecast <span class="op">=</span> np.zeros((ny, nx))</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> case_type <span class="op">==</span> <span class="st">"displacement"</span>:</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Pure displacement (50 points to the right)</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>        shifted_ellipse <span class="op">=</span> ((x_indices <span class="op">-</span> (center_x <span class="op">+</span> <span class="dv">20</span>))<span class="op">/</span>a)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> ((y_indices <span class="op">-</span> center_y)<span class="op">/</span>b)<span class="op">**</span><span class="dv">2</span> <span class="op">&lt;=</span> <span class="dv">1</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>        forecast[shifted_ellipse] <span class="op">=</span> <span class="fl">15.0</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> case_type <span class="op">==</span> <span class="st">"amplitude"</span>:</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Same location, different amplitude</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>        forecast[ellipse] <span class="op">=</span> <span class="fl">22.5</span>  <span class="co"># 50% higher intensity</span></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> case_type <span class="op">==</span> <span class="st">"mixed"</span>:</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Displacement + amplitude error</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>        shifted_ellipse <span class="op">=</span> ((x_indices <span class="op">-</span> (center_x <span class="op">+</span> <span class="dv">10</span>))<span class="op">/</span>a)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> ((y_indices <span class="op">-</span> center_y)<span class="op">/</span>b)<span class="op">**</span><span class="dv">2</span> <span class="op">&lt;=</span> <span class="dv">1</span></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>        forecast[shifted_ellipse] <span class="op">=</span> <span class="fl">22.5</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> forecast, observation</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="creating-test-cases" class="level2">
+<h2 class="anchored" data-anchor-id="creating-test-cases">Creating Test Cases</h2>
+<div id="3cd1211c" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create synthetic test cases</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>cases <span class="op">=</span> {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pure Displacement"</span>: create_synthetic_precipitation_case(<span class="st">"displacement"</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pure Amplitude"</span>: create_synthetic_precipitation_case(<span class="st">"amplitude"</span>), </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mixed Error"</span>: create_synthetic_precipitation_case(<span class="st">"mixed"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate DAS for each case</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> {}</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> case_name, (forecast, observation) <span class="kw">in</span> cases.items():</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    das, dis_norm, amp_norm <span class="op">=</span> calculate_das(forecast, observation, max_search_distance<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    results[case_name] <span class="op">=</span> {</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">'DAS'</span>: das,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">'DIS/Dmax'</span>: dis_norm,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">'AMP/I0'</span>: amp_norm</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Display results</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== DAS Results for Synthetic Cases ==="</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'Case'</span><span class="sc">:&lt;20}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'DAS'</span><span class="sc">:&lt;8}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'DIS/Dmax'</span><span class="sc">:&lt;10}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'AMP/I0'</span><span class="sc">:&lt;10}</span><span class="ss">"</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">50</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> case_name, metrics <span class="kw">in</span> results.items():</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>case_name<span class="sc">:&lt;20}</span><span class="ss"> </span><span class="sc">{</span>metrics[<span class="st">'DAS'</span>]<span class="sc">:&lt;8.3f}</span><span class="ss"> </span><span class="sc">{</span>metrics[<span class="st">'DIS/Dmax'</span>]<span class="sc">:&lt;10.3f}</span><span class="ss"> </span><span class="sc">{</span>metrics[<span class="st">'AMP/I0'</span>]<span class="sc">:&lt;10.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== DAS Results for Synthetic Cases ===
+Case                 DAS      DIS/Dmax   AMP/I0    
+--------------------------------------------------
+Pure Displacement    2.573    1.623      0.950     
+Pure Amplitude       2.341    1.103      1.237     
+Mixed Error          2.419    1.187      1.232     </code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="visualizing-test-cases" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-test-cases">Visualizing Test Cases</h2>
+<div id="7b85c227" class="cell" data-fig-height="10" data-fig-width="15" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">10</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>case_names <span class="op">=</span> <span class="bu">list</span>(cases.keys())</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, case_name <span class="kw">in</span> <span class="bu">enumerate</span>(case_names):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    forecast, observation <span class="op">=</span> cases[case_name]</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot observation</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    im1 <span class="op">=</span> axes[<span class="dv">0</span>, i].imshow(observation, cmap<span class="op">=</span><span class="st">'Blues'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">25</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>, i].set_title(<span class="ss">f'</span><span class="sc">{</span>case_name<span class="sc">}</span><span class="ch">\n</span><span class="ss">Observation'</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>, i].set_xlabel(<span class="st">'Grid X'</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>, i].set_ylabel(<span class="st">'Grid Y'</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    plt.colorbar(im1, ax<span class="op">=</span>axes[<span class="dv">0</span>, i], label<span class="op">=</span><span class="st">'Precipitation (mm/h)'</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot forecast</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    im2 <span class="op">=</span> axes[<span class="dv">1</span>, i].imshow(forecast, cmap<span class="op">=</span><span class="st">'Blues'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">25</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>, i].set_title(<span class="ss">f'Forecast</span><span class="ch">\n</span><span class="ss">DAS = </span><span class="sc">{</span>results[case_name][<span class="st">"DAS"</span>]<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>, i].set_xlabel(<span class="st">'Grid X'</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>, i].set_ylabel(<span class="st">'Grid Y'</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    plt.colorbar(im2, ax<span class="op">=</span>axes[<span class="dv">1</span>, i], label<span class="op">=</span><span class="st">'Precipitation (mm/h)'</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="keil_craig_das_presentation_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="real-case-application-spc2005" class="level2">
+<h2 class="anchored" data-anchor-id="real-case-application-spc2005">Real Case Application: SPC2005</h2>
+<p>The paper demonstrates DAS on real Weather Research and Forecasting (WRF) model forecasts from the 2005 Storm Prediction Center Spring Program:</p>
+<p><strong>Case Study: 13 May 2005</strong></p>
+<ul>
+<li><p><strong>Main Issue</strong>: Squall line with underestimated north-south extension</p></li>
+<li><p><strong>False Alarms</strong>: Spurious precipitation in southeast</p></li>
+<li><p><strong>DAS Components</strong>: Large amplitude error dominates displacement error</p></li>
+<li><p><strong>Expert Ranking</strong>: Correctly identified as worst among three model configurations</p></li>
+</ul>
+<p><strong>Key Findings:</strong></p>
+<ul>
+<li><p><strong>wrf4ncep</strong>: DAS = 1.38 (worst performance)</p></li>
+<li><p><strong>wrf4ncar</strong>: DAS = 1.12 (best performance)</p></li>
+<li><p><strong>wrf2caps</strong>: DAS = 1.18 (intermediate)</p></li>
+</ul>
+<p><strong>Comparison with Traditional Metrics:</strong></p>
+<ul>
+<li><p>DAS ranking agreed with expert subjective evaluation</p></li>
+<li><p>Traditional ETS and BIAS showed less consistent ranking</p></li>
+<li><p>DAS captured both displacement and amplitude errors effectively</p></li>
+</ul>
+<hr>
+</section>
+<section id="advantages-and-limitations" class="level2">
+<h2 class="anchored" data-anchor-id="advantages-and-limitations">Advantages and Limitations</h2>
+<p><strong>Advantages:</strong></p>
+<ol type="1">
+<li><p><strong>Separates error types</strong>: Distinguishes displacement from amplitude errors</p></li>
+<li><p><strong>Handles false alarms</strong>: Proper treatment through bidirectional morphing</p></li>
+<li><p><strong>Scale-aware</strong>: Pyramidal algorithm works across multiple scales</p></li>
+<li><p><strong>Physically meaningful</strong>: Relates to meteorological feature displacement</p></li>
+<li><p><strong>Computationally efficient</strong>: ~10 seconds per image pair</p></li>
+</ol>
+<p><strong>Limitations:</strong></p>
+<ol type="1">
+<li><p><strong>Complex field matching</strong>: Difficulty with overlapping or merging features</p></li>
+<li><p><strong>Parameter sensitivity</strong>: Maximum search distance affects results</p></li>
+<li><p><strong>Interpolation errors</strong>: Small residual errors from morphing process</p></li>
+<li><p><strong>Ambiguity</strong>: Complex fields may have multiple valid interpretations</p></li>
+<li><p><strong>Single time</strong>: Does not account for temporal displacement</p></li>
+</ol>
+<p><strong>Comparison with Other Methods:</strong></p>
+<ul>
+<li><p>More comprehensive than traditional categorical scores</p></li>
+<li><p>Complements object-based verification methods</p></li>
+<li><p>Less intuitive than feature-based approaches for complex cases</p></li>
+</ul>
+<hr>
+</section>
+<section id="parameter-selection-guidelines" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-selection-guidelines">Parameter Selection Guidelines</h2>
+<p><strong>Maximum Search Distance (Dmax):</strong></p>
+<ul>
+<li><p>Should reflect <strong>dynamical scales</strong> (e.g., radius of deformation)</p></li>
+<li><p>Typical values: 200-400 km for synoptic features</p></li>
+<li><p>Smaller values for convective-scale verification</p></li>
+<li><p>Too large: Everything gets matched (loses discrimination)</p></li>
+<li><p>Too small: Valid displacements treated as false alarms</p></li>
+</ul>
+<p><strong>Intensity Threshold:</strong></p>
+<ul>
+<li><p>Remove background noise and light precipitation</p></li>
+<li><p>Typical: 1 mm/h for precipitation verification</p></li>
+<li><p>Should match forecast system capabilities</p></li>
+<li><p>Affects both displacement and amplitude calculations</p></li>
+</ul>
+<p><strong>Characteristic Intensity (I0):</strong></p>
+<ul>
+<li><p>RMS of observed precipitation above threshold</p></li>
+<li><p>Can use climatological values for consistency</p></li>
+<li><p>Affects relative weighting of amplitude vs displacement errors</p></li>
+<li><p>Should represent typical precipitation intensities</p></li>
+</ul>
+<hr>
+</section>
+<section id="operational-applications" class="level2">
+<h2 class="anchored" data-anchor-id="operational-applications">Operational Applications</h2>
+<p><strong>Model Development:</strong></p>
+<ul>
+<li><p>Identify systematic displacement biases</p></li>
+<li><p>Evaluate impact of model changes on spatial accuracy</p></li>
+<li><p>Compare different physics parameterizations</p></li>
+<li><p>Assess ensemble member diversity</p></li>
+</ul>
+<p><strong>Forecast Verification:</strong></p>
+<ul>
+<li><p>Routine assessment of high-resolution model performance</p></li>
+<li><p>Complement traditional verification metrics</p></li>
+<li><p>Provide spatial error characteristics</p></li>
+<li><p>Support model ranking and selection</p></li>
+</ul>
+<p><strong>Research Applications:</strong></p>
+<ul>
+<li><p>Study predictability of different weather regimes</p></li>
+<li><p>Evaluate ensemble perturbation strategies</p></li>
+<li><p>Understand scale-dependent forecast errors</p></li>
+<li><p>Develop improved verification frameworks</p></li>
+</ul>
+<p><strong>Future Extensions:</strong></p>
+<ul>
+<li><p>Multi-time analysis for temporal displacement</p></li>
+<li><p>Application to other meteorological variables</p></li>
+<li><p>Integration with probabilistic verification</p></li>
+<li><p>Real-time forecast guidance systems</p></li>
+</ul>
+<hr>
+</section>
+<section id="key-insights-from-keil-craig-2009" class="level2">
+<h2 class="anchored" data-anchor-id="key-insights-from-keil-craig-2009">Key Insights from Keil &amp; Craig (2009)</h2>
+<p><strong>Methodological Contributions:</strong></p>
+<ol type="1">
+<li><p><strong>Optical flow adaptation</strong>: Successfully applied computer vision techniques to meteorology</p></li>
+<li><p><strong>Bidirectional morphing</strong>: Proper handling of false alarms and misses</p></li>
+<li><p><strong>Error decomposition</strong>: Meaningful separation of spatial and amplitude errors</p></li>
+<li><p><strong>Normalization scheme</strong>: Physically-based combination of error components</p></li>
+</ol>
+<hr>
+</section>
+<section id="references-resources" class="level2">
+<h2 class="anchored" data-anchor-id="references-resources">References &amp; Resources</h2>
+<p><strong>Primary Reference:</strong></p>
+<ul>
+<li>Keil, C., &amp; Craig, G. C. (2009). A displacement and amplitude score employing an optical flow technique. <em>Weather and Forecasting</em>, 24(5), 1297-1308.</li>
+</ul>
+<p><strong>Related Spatial Verification Methods:</strong></p>
+<ul>
+<li><p>Gilleland et al.&nbsp;(2009): Intercomparison of spatial forecast verification methods</p></li>
+<li><p>Davis et al.&nbsp;(2006): Object-based verification (MODE)</p></li>
+<li><p>Roberts &amp; Lean (2008): Fractions Skill Score (FSS)</p></li>
+<li><p>Ebert &amp; McBride (2000): Contiguous rain area analysis</p></li>
+</ul>
+<p><strong>Technical Background:</strong> - Zinner et al.&nbsp;(2008): Pyramidal image matching algorithm</p>
+<ul>
+<li><p>Marzban et al.&nbsp;(2008): Alternative optical flow applications</p></li>
+<li><p>Ahijevych et al.&nbsp;(2009): Spatial Verification Methods ICP</p></li>
+</ul>
+<p><strong>Applications:</strong></p>
+<ul>
+<li><p>Kain et al.&nbsp;(2008): SPC2005 Spring Program</p></li>
+<li><p>Various ensemble verification studies</p></li>
+<li><p>Operational model evaluation systems</p></li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
