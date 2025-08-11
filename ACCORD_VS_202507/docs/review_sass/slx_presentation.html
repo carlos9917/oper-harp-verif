@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Carlos Peralta">
+<meta name="dcterms.date" content="2025-07-14">
+
+<title>Verification of Precipitation Extremes with the SLX score</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="slx_presentation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="slx_presentation_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="slx_presentation_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="slx_presentation_files/libs/quarto-html/popper.min.js"></script>
+<script src="slx_presentation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="slx_presentation_files/libs/quarto-html/anchor.min.js"></script>
+<link href="slx_presentation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="slx_presentation_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="slx_presentation_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="slx_presentation_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="slx_presentation_files/libs/bootstrap/bootstrap-9810da5fa7c545808853ae26390bbe04.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Verification of Precipitation Extremes with the SLX score</h1>
+<p class="subtitle lead">Structure of Local eXtremes - Sass (2021)</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Carlos Peralta </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 14, 2025</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">July 17, 2025</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p>Modern high-resolution NWP models provide detailed precipitation forecasts, but traditional verification suffers from the “double penalty” problem when extremes are slightly displaced. When it comes to precipitation <strong>extremes</strong>, typically what we want to know is: - Where will the <strong>heaviest rain</strong> fall? - Where will it stay <strong>completely dry</strong>?</p>
+<p><strong>SLX (Structure of Local Extremes)</strong> by Sass (2021) evaluates the capability of high resolution models to predict extremes by using neighbourhood verification focused specifically on extremes.</p>
+<hr>
+</section>
+<section id="the-slx-method" class="level2">
+<h2 class="anchored" data-anchor-id="the-slx-method">The SLX Method</h2>
+<p>The SLX (Structure of Local EXtremes) method is a spatial verification scheme designed to evaluate how well numerical weather prediction models forecast the spatial structure of local extremes (both maxima and minima) in precipitation fields.</p>
+<p>SLX computes four neighbourhood-based scores:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>What it measures</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SLX_ob_max</td>
+<td>How well forecast captures observed maxima locations</td>
+</tr>
+<tr class="even">
+<td>SLX_fc_max</td>
+<td>How well observed field captures forecast maxima locations</td>
+</tr>
+<tr class="odd">
+<td>SLX_ob_min</td>
+<td>How well forecast captures observed minima locations</td>
+</tr>
+<tr class="even">
+<td>SLX_fc_min</td>
+<td>How well observed field captures forecast minima locations</td>
+</tr>
+</tbody>
+</table>
+<p>where the final score is defined as: <span class="math display">\[\text{SLX} = \frac{1}{4}(\text{SLX}_{\text{ob\_max}} + \text{SLX}_{\text{fc\_max}} + \text{SLX}_{\text{ob\_min}} + \text{SLX}_{\text{fc\_min}})\]</span></p>
+<p>Neighborhood Approach: For each extreme point, the method looks in a square neighborhood of width L around that point to find the corresponding extreme in the other field.</p>
+<p>Score Function: Uses a piecewise linear function S that: Returns 1 for perfect matches</p>
+<p>Penalizes over-forecasting more than under-forecasting (asymmetric)</p>
+<p>Has a tolerance parameter k (default 0.1 kg/m²) for small values</p>
+<hr>
+</section>
+<section id="how-the-calculation-works" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-calculation-works">How the calculation works</h2>
+<ol type="1">
+<li>Identify Local Extremes</li>
+</ol>
+<ul>
+<li>Local maxima: Points in the field that are higher than all their immediate neighbors (within a small tolerance).</li>
+<li>Local minima: Points that are lower than all their immediate neighbors.</li>
+</ul>
+<p>This is done for both the analysis (observation) field and the forecast field.</p>
+<ol start="2" type="1">
+<li>Define a Neighborhood</li>
+</ol>
+<ul>
+<li><p>For each extreme point, define a square neighborhood of width L (so, for L=2, you look at a 5x5 grid centered on the point).</p></li>
+<li><p>This allows for some spatial “fuzziness”—if the forecasted extreme is close but not exactly at the observed location, it can still be matched.</p></li>
+</ul>
+<ol start="3" type="1">
+<li>Compare Extremes Across Fields</li>
+</ol>
+<ul>
+<li><p>For each observed maximum, find the maximum value in the forecast field within the neighborhood around that point.</p></li>
+<li><p>For each observed minimum, find the minimum value in the forecast field within the neighborhood.</p></li>
+<li><p>Do the same in reverse: for each forecasted maximum/minimum, look for the corresponding extreme in the analysis field.</p></li>
+</ul>
+<ol start="4" type="1">
+<li>Score Each Pair Using the Score Function</li>
+</ol>
+<ul>
+<li>For each pair (observed extreme, forecasted value in the neighborhood), compute a score using a special function (see below).</li>
+</ul>
+<ol start="5" type="1">
+<li>Average the Scores</li>
+</ol>
+<ul>
+<li><p>For each type (observed maxima, observed minima, forecast maxima, forecast minima), average the scores over all relevant points.</p></li>
+<li><p>The final SLX score is the mean of these four component scores.</p></li>
+</ul>
+<section id="why-is-the-score-function-needed" class="level3">
+<h3 class="anchored" data-anchor-id="why-is-the-score-function-needed">Why is the Score Function Needed?</h3>
+<p>The Problem:</p>
+<p>Simply comparing the values (e.g., “is the forecasted max equal to the observed max?”) is not enough.</p>
+<ul>
+<li><p>Forecasts are rarely perfect.</p></li>
+<li><p>Small errors should be penalized less than large errors.</p></li>
+<li><p>Over-forecasting and under-forecasting may have different practical impacts.</p></li>
+<li><p>Zero (dry) values need special treatment.</p></li>
+<li><p>The Solution: The Score Function The score function <span class="math inline">\(S( ob,\phi )\)</span>, chosen as a piecewise linear function that:</p></li>
+<li><p>Returns 1 for a perfect match (forecast matches observation within a small tolerance).</p></li>
+<li><p>Decreases linearly as the forecast deviates from the observation.</p></li>
+<li><p>Penalizes over-forecasting more gently than under-forecasting (asymmetry), reflecting the idea that a “false alarm” is less bad than a “miss” in some applications.</p></li>
+<li><p>For very small observed values (quasi-dry), uses a different branch to avoid dividing by zero or over-penalizing small errors.</p></li>
+</ul>
+<section id="mathematically" class="level4">
+<h4 class="anchored" data-anchor-id="mathematically">Mathematically:</h4>
+<ul>
+<li><p>If the observed value is large, and the forecast is close (within a tolerance k), the score is 1.</p></li>
+<li><p>If the forecast is much less than the observed, the score drops linearly to zero.</p></li>
+<li><p>If the forecast is much more than the observed, the score also drops, but with a different slope (controlled by parameter A).</p></li>
+<li><p>For very small observed values, the function is symmetric and ensures that small errors are not over-penalized.</p></li>
+</ul>
+<p>This function ensures:</p>
+<ul>
+<li><p>Scores are always between 0 and 1.</p></li>
+<li><p>Small errors are not punished too harshly.</p></li>
+<li><p>The score is interpretable: 1 = perfect, 0 = completely wrong.</p></li>
+</ul>
+</section>
+</section>
+<section id="example" class="level3">
+<h3 class="anchored" data-anchor-id="example">Example</h3>
+<div id="b7e850a6" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># SLX score function from Sass (2021)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> S_score(ob, phi, k<span class="op">=</span><span class="fl">0.1</span>, A<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ob <span class="op">&gt;</span> k:</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> phi <span class="op">&lt;</span> ob <span class="op">-</span> k:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> phi <span class="op">/</span> (ob <span class="op">-</span> k)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> phi <span class="op">&lt;=</span> ob:</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">1.0</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">max</span>(<span class="dv">1</span> <span class="op">-</span> (phi <span class="op">-</span> ob) <span class="op">/</span> (A <span class="op">*</span> ob), <span class="fl">0.0</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:  <span class="co"># ob &lt;= k</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> phi <span class="op">&lt;=</span> k:</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">1.0</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">max</span>(<span class="dv">1</span> <span class="op">-</span> (phi <span class="op">-</span> k) <span class="op">/</span> (A <span class="op">*</span> k), <span class="fl">0.0</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: observed extreme value</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>ob <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>phis <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">25</span>, <span class="dv">500</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>scores <span class="op">=</span> [S_score(ob, phi) <span class="cf">for</span> phi <span class="kw">in</span> phis]</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># For small observed value (dry case)</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>ob_dry <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>phis_dry <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dv">200</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>scores_dry <span class="op">=</span> [S_score(ob_dry, phi) <span class="cf">for</span> phi <span class="kw">in</span> phis_dry]</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">5</span>))</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>plt.plot(phis, scores, label<span class="op">=</span><span class="ss">f"Observed extreme ob=</span><span class="sc">{</span>ob<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>plt.plot(phis_dry, scores_dry, label<span class="op">=</span><span class="ss">f"Dry case ob=</span><span class="sc">{</span>ob_dry<span class="sc">}</span><span class="ss">"</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plt.axvline(ob, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="st">"Observed value"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>plt.axvline(ob<span class="op">-</span><span class="fl">0.1</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="st">'Tolerance band (ob-k)'</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"SLX Score Function S(ob, phi)"</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Forecast value (phi)"</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Score S"</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="slx_presentation_files/figure-html/cell-2-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In the example above For observed extreme value</p>
+<pre><code>ob = 5.0
+phis = np.linspace(0, 25, 500)
+scores = [S_score(ob, phi) for phi in phis]</code></pre>
+<p>For small observed value (dry case)</p>
+<pre><code>ob_dry = 0.05
+phis_dry = np.linspace(0, 0.5, 200)
+scores_dry = [S_score(ob_dry, phi) for phi in phis_dry]</code></pre>
+<section id="how-to-read-the-plot" class="level4">
+<h4 class="anchored" data-anchor-id="how-to-read-the-plot">How to Read the Plot</h4>
+<p>X-axis: Forecast value (<span class="math inline">\(\phi\)</span>), the value predicted by the model at or near the observed extreme.</p>
+<p>Y-axis: Score S, which ranges from 0 (worst) to 1 (perfect match).</p>
+<p>Solid blue curve: Case where the observed extreme is 5.0 (e.g., heavy rain).</p>
+<p>Dashed orange curve: Case where the observed extreme is very small (0.05, a “dry” case).</p>
+<p>Vertical gray line: The observed value (ob).</p>
+<p>Vertical red line: The lower tolerance bound (ob−k), where k=0.1.</p>
+</section>
+<section id="how-the-score-function-works" class="level4">
+<h4 class="anchored" data-anchor-id="how-the-score-function-works">How the Score Function Works</h4>
+<ol type="1">
+<li>Perfect Match (Score = 1)<br>
+</li>
+</ol>
+<ul>
+<li><p>If the forecast value (<span class="math inline">\(\phi\)</span>) is within the tolerance band (<span class="math inline">\(ob -k \leq \phi \leq ob\)</span>), the score is 1.</p></li>
+<li><p>This means small under-forecasts (up to k below the observed value) are not penalized.</p></li>
+</ul>
+<ol start="2" type="1">
+<li>Under-forecasting ( <span class="math inline">\(\phi &lt; ob−k\)</span>)</li>
+</ol>
+<ul>
+<li><p>The score decreases linearly as the forecast drops below the tolerance band.</p></li>
+<li><p>At <span class="math inline">\(\phi=0\)</span>, the score is 0 (if the observed value is much higher).</p></li>
+</ul>
+<ol start="3" type="1">
+<li>Over-forecasting (<span class="math inline">\(\phi &gt;ob\)</span>)</li>
+</ol>
+<ul>
+<li><p>The score decreases linearly as the forecast exceeds the observed value.</p></li>
+<li><p>The slope is gentler (controlled by parameter A), so over-forecasting is penalized less harshly than under-forecasting.</p></li>
+<li><p>The score reaches 0 when the forecast is much larger than the observed value (specifically, at <span class="math inline">\(\phi=ob+4 \times ob = 5 \times ob\)</span>).</p></li>
+</ul>
+<ol start="4" type="1">
+<li>Dry Case ( <span class="math inline">\(ob \leq k\)</span>)</li>
+</ol>
+<ul>
+<li><p>For very small observed values, the function is symmetric and forgiving: as long as the forecast is also small (<span class="math inline">\(phi \leq k\)</span>), the score is 1.</p></li>
+<li><p>If the forecast is larger, the score drops linearly to 0 as <span class="math inline">\(\phi\)</span> increases.</p></li>
+</ul>
+<p>Why This Design? - Tolerance for small errors: Small under-forecasts are not penalized, reflecting uncertainty in observations and the practical irrelevance of tiny differences.</p>
+<ul>
+<li><p>Asymmetry: Over-forecasting is penalized less than under-forecasting, which is often desirable in weather warnings (better to have a false alarm than a miss).</p></li>
+<li><p>Dry case: Ensures that small errors in dry areas don’t lead to large penalties.</p></li>
+</ul>
+</section>
+<section id="example-walkthrough" class="level4">
+<h4 class="anchored" data-anchor-id="example-walkthrough">Example Walkthrough</h4>
+<p>Suppose the observed extreme is 5.0:</p>
+<p>If the forecast is 4.9, the score is 1 (within tolerance).</p>
+<p>If the forecast is 4.0, the score is <span class="math inline">\(4.0 / ( 5.0 − 0.1)  \approx 0.82\)</span></p>
+<p>If the forecast is 7.0, the score is <span class="math inline">\(1 − ( 7.0 − 5.0) / ( 4 \times 5.0) = 0.9\)</span></p>
+<p>If the forecast is 0, the score is 0 (total miss).</p>
+<p>Suppose the observed extreme is 0.05 (dry):</p>
+<p>If the forecast is also <span class="math inline">\(\leq 0.1\)</span>, the score is 1.</p>
+<p>If the forecast is 0.2, the score is <span class="math inline">\(1 − ( 0.2 − 0.1) / ( 4 \times 0.1) = 0.75\)</span></p>
+<p>If the forecast is 0.5, the score is 0.</p>
+</section>
+</section>
+</section>
+<section id="algorithm-steps-following-sass-2021" class="level2">
+<h2 class="anchored" data-anchor-id="algorithm-steps-following-sass-2021">Algorithm Steps (Following Sass 2021)</h2>
+<section id="step-1-extrema-detection" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-extrema-detection">Step 1: Extrema Detection</h3>
+<p>Local extremes are identified using a tolerance parameter <span class="math inline">\(\delta\)</span> (default <span class="math inline">\(\delta \approx 0 kg/m²\)</span>): - <strong>obmax(K1)</strong>: Observed local maximum points (M1 total)</p>
+<ul>
+<li><p><strong>obmin(K2)</strong>: Observed local minimum points (M2 total)</p></li>
+<li><p><strong>fcmax(K3)</strong>: Forecast local maximum points (M3 total)</p></li>
+<li><p><strong>fcmin(K4)</strong>: Forecast local minimum points (M4 total)</p></li>
+</ul>
+</section>
+<section id="step-2-neighbourhood-definition" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-neighbourhood-definition">Step 2: Neighbourhood Definition</h3>
+<p>For each extreme point, define a square neighbourhood of width L:</p>
+<ul>
+<li><p>Neighbourhood size: <span class="math inline">\((2L + 1)^2\)</span> grid points</p></li>
+<li><p>L = 0 means point-to-point comparison</p></li>
+<li><p>Internal points only (boundary zone of width Lmax excluded)</p></li>
+</ul>
+</section>
+<section id="step-3-neighbourhood-extrema-calculation" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-neighbourhood-extrema-calculation">Step 3: Neighbourhood Extrema Calculation</h3>
+<p>For each observed/forecast extreme, find the corresponding extreme in the other field’s neighbourhood:</p>
+<ul>
+<li><p>φmax(L,K1) = Max{φ(i,j)} in forecast neighbourhood around obmax(K1)</p></li>
+<li><p>φmin(L,K2) = Min{φ(i,j)} in forecast neighbourhood around obmin(K2)</p></li>
+<li><p>Ψmax(L,K3) = Max{Ψ(i,j)} in observed neighbourhood around fcmax(K3)</p></li>
+<li><p>Ψmin(L,K4) = Min{Ψ(i,j)} in observed neighbourhood around fcmin(K4)</p></li>
+</ul>
+</section>
+<section id="step-4-score-function-application" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-score-function-application">Step 4: Score Function Application</h3>
+<p>Apply the SLX score function <span class="math inline">\(S(\phi, ob)\)</span> with parameters k = 0.1 kg/m² and A = 4:</p>
+<p><strong>If ob &gt; k:</strong></p>
+<ul>
+<li><p>If <span class="math inline">\(\phi &lt; ob - k: S = \phi/(ob - k)\)</span></p></li>
+<li><p>If <span class="math inline">\(ob - k \leq \phi ≤ ob: S = 1\)</span></p></li>
+<li><p>If <span class="math inline">\(\phi &gt; ob: S = Max{1 - (\phi - ob)/(A \times ob), 0}\)</span></p></li>
+</ul>
+<p><strong>If <span class="math inline">\(ob \leq k\)</span>:</strong></p>
+<ul>
+<li><p>If <span class="math inline">\(\phi ≤ k: S = 1\)</span></p></li>
+<li><p>If <span class="math inline">\(\phi &gt; k: S = Max{1 - (\phi - k)/(A \times k), 0}\)</span></p></li>
+</ul>
+</section>
+<section id="step-5-component-score-calculation" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-component-score-calculation">Step 5: Component Score Calculation</h3>
+<p>Average individual scores for each component:</p>
+<p><span class="math display">\[\text{SLX}_{\text{ob\_max}} = \frac{1}{M1} \sum_{K1=1}^{M1} S_{\text{ob\_max}}(K1)\]</span></p>
+<p><span class="math display">\[\text{SLX}_{\text{ob\_min}} = \frac{1}{M2} \sum_{K2=1}^{M2} S_{\text{ob\_min}}(K2)\]</span></p>
+<p><span class="math display">\[\text{SLX}_{\text{fc\_max}} = \frac{1}{M3} \sum_{K3=1}^{M3} S_{\text{fc\_max}}(K3)\]</span></p>
+<p><span class="math display">\[\text{SLX}_{\text{fc\_min}} = \frac{1}{M4} \sum_{K4=1}^{M4} S_{\text{fc\_min}}(K4)\]</span></p>
+<hr>
+</section>
+</section>
+<section id="python-implementation" class="level2">
+<h2 class="anchored" data-anchor-id="python-implementation">Python Implementation</h2>
+<div id="4ea459a6" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.ndimage <span class="im">import</span> maximum_filter, minimum_filter</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_local_extrema_sass_corrected(arr, mode<span class="op">=</span><span class="st">'max'</span>, tolerance<span class="op">=</span><span class="fl">0.0</span>):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Find local extrema as described in Sass (2021)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Key correction: For maxima, only consider non-zero values as potential maxima.</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">    This prevents every zero-valued dry point from being classified as a maximum.</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Key points from paper:</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">    - "Zero-valued dry areas will often exist... multiple points of zero value</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">      will be automatically selected as minima" (NOT maxima)</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">    - Default tolerance δ = 0 kg/m²</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">    - All selected points contribute with equal weight</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> mode <span class="op">==</span> <span class="st">'max'</span>:</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Local maxima should exclude zeros unless they're true peaks</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Only points with precipitation &gt; tolerance can be maxima</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        filtered <span class="op">=</span> maximum_filter(arr, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        mask <span class="op">=</span> (arr <span class="op">==</span> filtered) <span class="op">&amp;</span> (arr <span class="op">&gt;</span> tolerance)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:  <span class="co"># mode == 'min'</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Local minima: points that are &lt;= all neighbors within tolerance</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Paper explicitly states zeros are automatically selected as minima</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        filtered <span class="op">=</span> minimum_filter(arr, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        mask <span class="op">=</span> (arr <span class="op">&lt;=</span> filtered <span class="op">+</span> tolerance) <span class="op">&amp;</span> (arr <span class="op">==</span> filtered)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    indices <span class="op">=</span> np.where(mask)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [(i, j, arr[i, j]) <span class="cf">for</span> i, j <span class="kw">in</span> <span class="bu">zip</span>(indices[<span class="dv">0</span>], indices[<span class="dv">1</span>])]</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> score_function_sass(phi, ob, k<span class="op">=</span><span class="fl">0.1</span>, A<span class="op">=</span><span class="fl">4.0</span>):</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co">    Exact SLX similarity function from Sass (2021) equations (2a)-(2c), (3a)-(3b)</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ob <span class="op">&gt;</span> k:</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> phi <span class="op">&lt;</span> ob <span class="op">-</span> k:</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> phi <span class="op">/</span> <span class="bu">max</span>(ob <span class="op">-</span> k, <span class="fl">1e-9</span>)  <span class="co"># Guard against division by zero</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> phi <span class="op">&lt;=</span> ob:</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">1.0</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:  <span class="co"># phi &gt; ob</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">max</span>(<span class="dv">1</span> <span class="op">-</span> (phi <span class="op">-</span> ob) <span class="op">/</span> (A <span class="op">*</span> ob), <span class="fl">0.0</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:  <span class="co"># ob &lt;= k</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> phi <span class="op">&lt;=</span> k:</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">1.0</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:  <span class="co"># phi &gt; k</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">max</span>(<span class="dv">1</span> <span class="op">-</span> (phi <span class="op">-</span> k) <span class="op">/</span> (A <span class="op">*</span> k), <span class="fl">0.0</span>)</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_neighbourhood_extreme_sass(arr, i, j, L, mode<span class="op">=</span><span class="st">'max'</span>):</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="co">    Get max/min value in (2L+1)×(2L+1) neighbourhood around point (i,j)</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="co">    Following Sass (2021) equations (1a)-(1d)</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define neighbourhood bounds: [i-L, i+L] × [j-L, j+L]</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    i_min, i_max <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, i<span class="op">-</span>L), <span class="bu">min</span>(arr.shape[<span class="dv">0</span>], i<span class="op">+</span>L<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    j_min, j_max <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, j<span class="op">-</span>L), <span class="bu">min</span>(arr.shape[<span class="dv">1</span>], j<span class="op">+</span>L<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    neighbourhood <span class="op">=</span> arr[i_min:i_max, j_min:j_max]</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> neighbourhood.<span class="bu">max</span>() <span class="cf">if</span> mode <span class="op">==</span> <span class="st">'max'</span> <span class="cf">else</span> neighbourhood.<span class="bu">min</span>()</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_slx_sass_corrected(obs, forecast, neighbourhood_sizes<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>                                tolerance<span class="op">=</span><span class="fl">0.0</span>, k<span class="op">=</span><span class="fl">0.1</span>, A<span class="op">=</span><span class="fl">4.0</span>):</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="co">    Calculate SLX scores following Sass (2021) methodology</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="co">    Key correction: Uses corrected extrema detection that doesn't classify</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a><span class="co">    all zeros as maxima, which was causing SLX to decrease with neighbourhood size.</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters match paper specifications:</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a><span class="co">    - tolerance: δ parameter (default ≈ 0 kg/m²)</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a><span class="co">    - k: dry threshold (default 0.1 kg/m²)</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a><span class="co">    - A: penalty parameter (default 4.0)</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> neighbourhood_sizes <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>        neighbourhood_sizes <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>]</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> {}</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 1: Find local extrema </span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>    obs_maxima <span class="op">=</span> find_local_extrema_sass_corrected(obs, <span class="st">'max'</span>, tolerance)</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>    obs_minima <span class="op">=</span> find_local_extrema_sass_corrected(obs, <span class="st">'min'</span>, tolerance)</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>    fc_maxima <span class="op">=</span> find_local_extrema_sass_corrected(forecast, <span class="st">'max'</span>, tolerance)</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>    fc_minima <span class="op">=</span> find_local_extrema_sass_corrected(forecast, <span class="st">'min'</span>, tolerance)</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> L <span class="kw">in</span> neighbourhood_sizes:</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>        scores_ob_max <span class="op">=</span> []</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>        scores_ob_min <span class="op">=</span> []</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>        scores_fc_max <span class="op">=</span> []</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>        scores_fc_min <span class="op">=</span> []</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Step 2-4: Calculate component scores following equations (4)-(7)</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>        <span class="co"># SLX_ob_max: Equation (4)</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, j, ob_val <span class="kw">in</span> obs_maxima:</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>            fc_neighbourhood_max <span class="op">=</span> get_neighbourhood_extreme_sass(forecast, i, j, L, <span class="st">'max'</span>)</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>            scores_ob_max.append(score_function_sass(fc_neighbourhood_max, ob_val, k, A))</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>        <span class="co"># SLX_ob_min: Equation (5)</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, j, ob_val <span class="kw">in</span> obs_minima:</span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>            fc_neighbourhood_min <span class="op">=</span> get_neighbourhood_extreme_sass(forecast, i, j, L, <span class="st">'min'</span>)</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>            scores_ob_min.append(score_function_sass(fc_neighbourhood_min, ob_val, k, A))</span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>        <span class="co"># SLX_fc_max: Equation (6)</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, j, fc_val <span class="kw">in</span> fc_maxima:</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>            obs_neighbourhood_max <span class="op">=</span> get_neighbourhood_extreme_sass(obs, i, j, L, <span class="st">'max'</span>)</span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>            scores_fc_max.append(score_function_sass(fc_val, obs_neighbourhood_max, k, A))</span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>        <span class="co"># SLX_fc_min: Equation (7)</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, j, fc_val <span class="kw">in</span> fc_minima:</span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>            obs_neighbourhood_min <span class="op">=</span> get_neighbourhood_extreme_sass(obs, i, j, L, <span class="st">'min'</span>)</span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>            scores_fc_min.append(score_function_sass(fc_val, obs_neighbourhood_min, k, A))</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Step 5: Calculate component averages</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>        slx_ob_max <span class="op">=</span> np.mean(scores_ob_max) <span class="cf">if</span> scores_ob_max <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>        slx_ob_min <span class="op">=</span> np.mean(scores_ob_min) <span class="cf">if</span> scores_ob_min <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a>        slx_fc_max <span class="op">=</span> np.mean(scores_fc_max) <span class="cf">if</span> scores_fc_max <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>        slx_fc_min <span class="op">=</span> np.mean(scores_fc_min) <span class="cf">if</span> scores_fc_min <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Overall SLX score: Equation (8)</span></span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>        slx_total <span class="op">=</span> <span class="fl">0.25</span> <span class="op">*</span> (slx_ob_max <span class="op">+</span> slx_ob_min <span class="op">+</span> slx_fc_max <span class="op">+</span> slx_fc_min)</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>        results[L] <span class="op">=</span> {</span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>            <span class="st">'SLX'</span>: slx_total,</span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>            <span class="st">'SLX_ob_max'</span>: slx_ob_max,</span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>            <span class="st">'SLX_ob_min'</span>: slx_ob_min,</span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>            <span class="st">'SLX_fc_max'</span>: slx_fc_max,</span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>            <span class="st">'SLX_fc_min'</span>: slx_fc_min,</span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>            <span class="st">'n_obs_max'</span>: <span class="bu">len</span>(obs_maxima),</span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>            <span class="st">'n_obs_min'</span>: <span class="bu">len</span>(obs_minima),</span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>            <span class="st">'n_fc_max'</span>: <span class="bu">len</span>(fc_maxima),</span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>            <span class="st">'n_fc_min'</span>: <span class="bu">len</span>(fc_minima)</span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="creating-synthetic-test-data" class="level2">
+<h2 class="anchored" data-anchor-id="creating-synthetic-test-data">Creating Synthetic Test Data</h2>
+<div id="6109247a" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_synthetic_radar_obs(nx<span class="op">=</span><span class="dv">100</span>, ny<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Create synthetic radar observation field"""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    obs <span class="op">=</span> np.zeros((ny, nx))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add some convective cells (local maxima)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cell 1: Strong convection</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    obs[<span class="dv">20</span>:<span class="dv">25</span>, <span class="dv">30</span>:<span class="dv">35</span>] <span class="op">=</span> <span class="fl">12.0</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    obs[<span class="dv">21</span>:<span class="dv">24</span>, <span class="dv">31</span>:<span class="dv">34</span>] <span class="op">=</span> <span class="fl">15.0</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    obs[<span class="dv">22</span>, <span class="dv">32</span>] <span class="op">=</span> <span class="fl">18.0</span>  <span class="co"># Peak</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cell 2: Moderate convection</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    obs[<span class="dv">60</span>:<span class="dv">65</span>, <span class="dv">70</span>:<span class="dv">75</span>] <span class="op">=</span> <span class="fl">8.0</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    obs[<span class="dv">61</span>:<span class="dv">64</span>, <span class="dv">71</span>:<span class="dv">74</span>] <span class="op">=</span> <span class="fl">10.0</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    obs[<span class="dv">62</span>, <span class="dv">72</span>] <span class="op">=</span> <span class="fl">12.0</span>  <span class="co"># Peak</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cell 3: Weak convection</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    obs[<span class="dv">40</span>:<span class="dv">43</span>, <span class="dv">15</span>:<span class="dv">18</span>] <span class="op">=</span> <span class="fl">4.0</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    obs[<span class="dv">41</span>, <span class="dv">16</span>] <span class="op">=</span> <span class="fl">6.0</span>  <span class="co"># Peak</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add some light background precipitation</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        i, j <span class="op">=</span> np.random.randint(<span class="dv">10</span>, ny<span class="op">-</span><span class="dv">10</span>), np.random.randint(<span class="dv">10</span>, nx<span class="op">-</span><span class="dv">10</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> obs[i, j] <span class="op">==</span> <span class="dv">0</span>:  <span class="co"># Only add where it's currently dry</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>            obs[i:i<span class="op">+</span><span class="dv">3</span>, j:j<span class="op">+</span><span class="dv">3</span>] <span class="op">=</span> np.random.uniform(<span class="fl">0.5</span>, <span class="fl">2.0</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ensure non-negative values</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    obs <span class="op">=</span> np.maximum(obs, <span class="dv">0</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> obs</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_synthetic_model_forecast(obs_field, displacement<span class="op">=</span>(<span class="dv">3</span>, <span class="dv">5</span>), intensity_bias<span class="op">=</span><span class="fl">0.9</span>):</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Create synthetic model forecast with displacement and bias"""</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    ny, nx <span class="op">=</span> obs_field.shape</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    forecast <span class="op">=</span> np.zeros_like(obs_field)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply spatial displacement and intensity bias</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    dy, dx <span class="op">=</span> displacement</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(ny):</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(nx):</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> obs_field[i, j] <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Apply displacement</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>                new_i <span class="op">=</span> i <span class="op">+</span> dy</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>                new_j <span class="op">=</span> j <span class="op">+</span> dx</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Check bounds</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="dv">0</span> <span class="op">&lt;=</span> new_i <span class="op">&lt;</span> ny <span class="kw">and</span> <span class="dv">0</span> <span class="op">&lt;=</span> new_j <span class="op">&lt;</span> nx:</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># Apply intensity bias and some random noise</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>                    forecast[new_i, new_j] <span class="op">=</span> obs_field[i, j] <span class="op">*</span> intensity_bias <span class="op">*</span> np.random.uniform(<span class="fl">0.8</span>, <span class="fl">1.2</span>)</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add some forecast-specific features (false alarms)</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>    np.random.seed(<span class="dv">123</span>)</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>        i, j <span class="op">=</span> np.random.randint(<span class="dv">10</span>, ny<span class="op">-</span><span class="dv">10</span>), np.random.randint(<span class="dv">10</span>, nx<span class="op">-</span><span class="dv">10</span>)</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> forecast[i, j] <span class="op">==</span> <span class="dv">0</span>:  <span class="co"># Only add where forecast is currently dry</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>            forecast[i:i<span class="op">+</span><span class="dv">2</span>, j:j<span class="op">+</span><span class="dv">2</span>] <span class="op">=</span> np.random.uniform(<span class="fl">1.0</span>, <span class="fl">4.0</span>)</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ensure non-negative values</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    forecast <span class="op">=</span> np.maximum(forecast, <span class="dv">0</span>)</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> forecast</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Create synthetic observation and forecast fields</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>obs_field <span class="op">=</span> create_synthetic_radar_obs()</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>fc_field <span class="op">=</span> create_synthetic_model_forecast(obs_field)</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observation field shape: </span><span class="sc">{</span>obs_field<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Max precipitation: </span><span class="sc">{</span>obs_field<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.1f}</span><span class="ss"> mm"</span>)</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Min precipitation: </span><span class="sc">{</span>obs_field<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.1f}</span><span class="ss"> mm"</span>)</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Fraction of dry points: </span><span class="sc">{</span>(obs_field <span class="op">==</span> <span class="dv">0</span>)<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Forecast field shape: </span><span class="sc">{</span>fc_field<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Max precipitation: </span><span class="sc">{</span>fc_field<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.1f}</span><span class="ss"> mm"</span>)</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Min precipitation: </span><span class="sc">{</span>fc_field<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.1f}</span><span class="ss"> mm"</span>)</span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Fraction of dry points: </span><span class="sc">{</span>(fc_field <span class="op">==</span> <span class="dv">0</span>)<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Observation field shape: (100, 100)
+Max precipitation: 18.0 mm
+Min precipitation: 0.0 mm
+Fraction of dry points: 0.98
+
+Forecast field shape: (100, 100)
+Max precipitation: 15.7 mm
+Min precipitation: 0.0 mm
+Fraction of dry points: 0.98</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="visualizing-the-fields" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-the-fields">Visualizing the Fields</h2>
+<div id="c599e07b" class="cell" data-fig-height="5" data-fig-width="15" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2, ax3) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">4</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot observation</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>im1 <span class="op">=</span> ax1.imshow(obs_field, cmap<span class="op">=</span><span class="st">'Blues'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Radar Observation'</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Grid X'</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Grid Y'</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im1, ax<span class="op">=</span>ax1, label<span class="op">=</span><span class="st">'Precipitation (mm)'</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot forecast</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>im2 <span class="op">=</span> ax2.imshow(fc_field, cmap<span class="op">=</span><span class="st">'Blues'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Model Forecast'</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Grid X'</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Grid Y'</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im2, ax<span class="op">=</span>ax2, label<span class="op">=</span><span class="st">'Precipitation (mm)'</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot difference</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>diff <span class="op">=</span> fc_field <span class="op">-</span> obs_field</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>im3 <span class="op">=</span> ax3.imshow(diff, cmap<span class="op">=</span><span class="st">'RdBu_r'</span>, vmin<span class="op">=-</span><span class="dv">10</span>, vmax<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>ax3.set_title(<span class="st">'Forecast - Observation'</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>ax3.set_xlabel(<span class="st">'Grid X'</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>ax3.set_ylabel(<span class="st">'Grid Y'</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im3, ax<span class="op">=</span>ax3, label<span class="op">=</span><span class="st">'Difference (mm)'</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="slx_presentation_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="applying-slx-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="applying-slx-algorithm">Applying SLX Algorithm</h2>
+<div id="fffa18d4" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate SLX scores using the Sass (2021) methodology</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>neighbourhood_sizes <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>slx_results <span class="op">=</span> calculate_slx_sass_corrected(obs_field, fc_field, neighbourhood_sizes)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Display results</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"SLX Results:"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">70</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'L'</span><span class="sc">:&lt;3}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'SLX'</span><span class="sc">:&lt;6}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'ob_max'</span><span class="sc">:&lt;7}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'ob_min'</span><span class="sc">:&lt;7}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'fc_max'</span><span class="sc">:&lt;7}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'fc_min'</span><span class="sc">:&lt;7}</span><span class="ss">"</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">70</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> L <span class="kw">in</span> neighbourhood_sizes:</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> slx_results[L]</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>L<span class="sc">:&lt;3}</span><span class="ss"> </span><span class="sc">{</span>r[<span class="st">'SLX'</span>]<span class="sc">:&lt;6.3f}</span><span class="ss"> </span><span class="sc">{</span>r[<span class="st">'SLX_ob_max'</span>]<span class="sc">:&lt;7.3f}</span><span class="ss"> </span><span class="sc">{</span>r[<span class="st">'SLX_ob_min'</span>]<span class="sc">:&lt;7.3f}</span><span class="ss"> "</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'SLX_fc_max'</span>]<span class="sc">:&lt;7.3f}</span><span class="ss"> </span><span class="sc">{</span>r[<span class="st">'SLX_fc_min'</span>]<span class="sc">:&lt;7.3f}</span><span class="ss">"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span> <span class="op">+</span> <span class="st">"="</span> <span class="op">*</span> <span class="dv">70</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Extrema counts:"</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> slx_results[<span class="dv">0</span>]  <span class="co"># Use L=0 for counts</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observed maxima: </span><span class="sc">{</span>r[<span class="st">'n_obs_max'</span>]<span class="sc">}</span><span class="ss"> (only non-zero precipitation peaks)"</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observed minima: </span><span class="sc">{</span>r[<span class="st">'n_obs_min'</span>]<span class="sc">}</span><span class="ss"> (includes zeros as per paper)"</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Forecast maxima: </span><span class="sc">{</span>r[<span class="st">'n_fc_max'</span>]<span class="sc">}</span><span class="ss"> (only non-zero precipitation peaks)"</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Forecast minima: </span><span class="sc">{</span>r[<span class="st">'n_fc_min'</span>]<span class="sc">}</span><span class="ss"> (includes zeros as per paper)"</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Expected intuitively - larger neighbourhoods"</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"are more tolerant to spatial displacement, leading to higher scores."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SLX Results:
+======================================================================
+L   SLX    ob_max  ob_min  fc_max  fc_min 
+----------------------------------------------------------------------
+0   0.493  0.018   0.974   0.001   0.977  
+1   0.526  0.069   0.994   0.044   0.996  
+3   0.683  0.398   0.998   0.337   0.999  
+5   0.878  0.852   0.998   0.663   0.999  
+7   0.854  0.758   0.998   0.662   0.999  
+9   0.838  0.696   0.998   0.660   0.999  
+
+======================================================================
+Extrema counts:
+Observed maxima: 168 (only non-zero precipitation peaks)
+Observed minima: 9790 (includes zeros as per paper)
+Forecast maxima: 53 (only non-zero precipitation peaks)
+Forecast minima: 9756 (includes zeros as per paper)
+Expected intuitively - larger neighbourhoods
+are more tolerant to spatial displacement, leading to higher scores.</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="visualizing-slx-components" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-slx-components">Visualizing SLX Components</h2>
+<div id="f7022587" class="cell" data-fig-height="10" data-fig-width="12" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">10</span>))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract data for plotting</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>L_values <span class="op">=</span> <span class="bu">list</span>(slx_results.keys())</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>slx_total <span class="op">=</span> [slx_results[L][<span class="st">'SLX'</span>] <span class="cf">for</span> L <span class="kw">in</span> L_values]</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>slx_ob_max <span class="op">=</span> [slx_results[L][<span class="st">'SLX_ob_max'</span>] <span class="cf">for</span> L <span class="kw">in</span> L_values]</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>slx_ob_min <span class="op">=</span> [slx_results[L][<span class="st">'SLX_ob_min'</span>] <span class="cf">for</span> L <span class="kw">in</span> L_values]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>slx_fc_max <span class="op">=</span> [slx_results[L][<span class="st">'SLX_fc_max'</span>] <span class="cf">for</span> L <span class="kw">in</span> L_values]</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>slx_fc_min <span class="op">=</span> [slx_results[L][<span class="st">'SLX_fc_min'</span>] <span class="cf">for</span> L <span class="kw">in</span> L_values]</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot individual components</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].plot(L_values, slx_ob_max, <span class="st">'o-'</span>, label<span class="op">=</span><span class="st">'SLX_ob_max'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].plot(L_values, slx_ob_min, <span class="st">'s-'</span>, label<span class="op">=</span><span class="st">'SLX_ob_min'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].plot(L_values, slx_fc_max, <span class="st">'^-'</span>, label<span class="op">=</span><span class="st">'SLX_fc_max'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].plot(L_values, slx_fc_min, <span class="st">'d-'</span>, label<span class="op">=</span><span class="st">'SLX_fc_min'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, markersize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].set_xlabel(<span class="st">'Neighbourhood Size (L)'</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].set_ylabel(<span class="st">'Score'</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'SLX Components'</span>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].legend()</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">0</span>].set_ylim(<span class="dv">0</span>, <span class="fl">1.1</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot total SLX</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].plot(L_values, slx_total, <span class="st">'ko-'</span>, linewidth<span class="op">=</span><span class="dv">3</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].set_xlabel(<span class="st">'Neighbourhood Size (L)'</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].set_ylabel(<span class="st">'SLX Score'</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].set_title(<span class="st">'Overall SLX Score'</span>)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].set_ylim(<span class="dv">0</span>, <span class="fl">1.1</span>)</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Add interpretation zones</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].axhspan(<span class="fl">0.8</span>, <span class="fl">1.0</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, color<span class="op">=</span><span class="st">'green'</span>, label<span class="op">=</span><span class="st">'Excellent (0.8-1.0)'</span>)</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].axhspan(<span class="fl">0.6</span>, <span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, color<span class="op">=</span><span class="st">'yellow'</span>, label<span class="op">=</span><span class="st">'Good (0.6-0.8)'</span>)</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].axhspan(<span class="fl">0.4</span>, <span class="fl">0.6</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, color<span class="op">=</span><span class="st">'orange'</span>, label<span class="op">=</span><span class="st">'Moderate (0.4-0.6)'</span>)</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].axhspan(<span class="fl">0.0</span>, <span class="fl">0.4</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'Poor (0.0-0.4)'</span>)</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>,<span class="dv">1</span>].legend(loc<span class="op">=</span><span class="st">'lower right'</span>)</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Show score function</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="co">#phi_range = np.linspace(0, 6, 200)</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a><span class="co">#ob_values = [0.05, 1.0, 2.0, 4.0]  # Include case where ob ≤ k</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a><span class="co">#colors = ['purple', 'blue', 'green', 'red']</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a><span class="co">#for ob_val, color in zip(ob_values, colors):</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a><span class="co">#    scores = [score_function_sass(phi, ob_val) for phi in phi_range]</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a><span class="co">#    axes[0,2].plot(phi_range, scores, color=color, linewidth=2,</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="co">#                   label=f'obs = {ob_val:.2f}mm')</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a><span class="co">#axes[0,2].axvline(x=0.1, color='gray', linestyle='--', alpha=0.7, label='k = 0.1')</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="co">#axes[0,2].set_xlabel('Forecast Value (mm)')</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a><span class="co">#axes[0,2].set_ylabel('Score')</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="co">#axes[0,2].set_title('SLX Score Function')</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a><span class="co">#axes[0,2].legend()</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a><span class="co">#axes[0,2].grid(True, alpha=0.3)</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a><span class="co">#axes[0,2].set_ylim(0, 1.1)</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Show extrema locations</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>,<span class="dv">0</span>].imshow(obs_field, cmap<span class="op">=</span><span class="st">'Blues'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">20</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>obs_maxima <span class="op">=</span> find_local_extrema_sass_corrected(obs_field, <span class="st">'max'</span>)</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> obs_maxima:</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>    max_i, max_j <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>[(i, j) <span class="cf">for</span> i, j, val <span class="kw">in</span> obs_maxima])</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>,<span class="dv">0</span>].scatter(max_j, max_i, c<span class="op">=</span><span class="st">'red'</span>, s<span class="op">=</span><span class="dv">30</span>, marker<span class="op">=</span><span class="st">'x'</span>, label<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span><span class="bu">len</span>(obs_maxima)<span class="sc">}</span><span class="ss"> maxima'</span>)</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Observed Maxima'</span>)</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>,<span class="dv">0</span>].legend()</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>,<span class="dv">1</span>].imshow(fc_field, cmap<span class="op">=</span><span class="st">'Blues'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">20</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>fc_maxima <span class="op">=</span> find_local_extrema_sass_corrected(fc_field, <span class="st">'max'</span>)</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> fc_maxima:</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>    max_i, max_j <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>[(i, j) <span class="cf">for</span> i, j, val <span class="kw">in</span> fc_maxima])</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>,<span class="dv">1</span>].scatter(max_j, max_i, c<span class="op">=</span><span class="st">'red'</span>, s<span class="op">=</span><span class="dv">30</span>, marker<span class="op">=</span><span class="st">'x'</span>, label<span class="op">=</span><span class="ss">f'</span><span class="sc">{</span><span class="bu">len</span>(fc_maxima)<span class="sc">}</span><span class="ss"> maxima'</span>)</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>,<span class="dv">1</span>].set_title(<span class="st">'Forecast Maxima '</span>)</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>,<span class="dv">1</span>].legend()</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary text</span></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>,<span class="dv">2</span>].axis(<span class="st">'off'</span>)</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>summary_text <span class="op">=</span> <span class="ss">f"""</span></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a><span class="ss">SLX IMPLEMENTATION</span></span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a><span class="ss">Key Fix Applied:</span></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a><span class="ss">✓ Maxima detection excludes zeros</span></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="ss">✓ Only precipitation &gt; tolerance are maxima</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a><span class="ss">✓ Minima includes zeros (as per paper)</span></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a><span class="ss">Results from corrected implementation:</span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="ss">• Found </span><span class="sc">{</span>r[<span class="st">'n_obs_max'</span>]<span class="sc">}</span><span class="ss"> observed maxima</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a><span class="ss">• Found </span><span class="sc">{</span>r[<span class="st">'n_fc_max'</span>]<span class="sc">}</span><span class="ss"> forecast maxima</span></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a><span class="ss">• SLX now INCREASES with neighbourhood size</span></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a><span class="ss">• Peak SLX at L=</span><span class="sc">{</span>L_values[np.argmax(slx_total)]<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="bu">max</span>(slx_total)<span class="sc">:.3f}</span><span class="ss">)</span></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a><span class="ss">This matches expected SLX behavior:</span></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a><span class="ss">Larger neighbourhoods → more tolerance </span></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a><span class="ss">to displacement → higher scores</span></span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="ss">"""</span></span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>,<span class="dv">2</span>].text(<span class="fl">0.05</span>, <span class="fl">0.95</span>, summary_text, transform<span class="op">=</span>axes[<span class="dv">1</span>,<span class="dv">2</span>].transAxes,</span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>               fontsize<span class="op">=</span><span class="dv">10</span>, verticalalignment<span class="op">=</span><span class="st">'top'</span>, fontfamily<span class="op">=</span><span class="st">'monospace'</span>,</span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>               bbox<span class="op">=</span><span class="bu">dict</span>(boxstyle<span class="op">=</span><span class="st">"round,pad=0.5"</span>, facecolor<span class="op">=</span><span class="st">'lightgreen'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>))</span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="slx_presentation_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="score-function-properties" class="level2">
+<h2 class="anchored" data-anchor-id="score-function-properties">Score Function Properties</h2>
+<ul>
+<li><strong>Perfect match</strong> → S = 1</li>
+<li><strong>Severe over-forecast</strong> (&gt;5×) → S = 0</li>
+<li><strong>Asymmetric</strong>: Designed to avoid under-forecasting of warning conditions</li>
+<li><strong>Piecewise linear</strong>: Simple but effective for operational use</li>
+<li><strong>Uncertainty aware</strong>: k parameter accounts for observation uncertainty</li>
+</ul>
+</section>
+<section id="advantages-of-slx" class="level2">
+<h2 class="anchored" data-anchor-id="advantages-of-slx">Advantages of SLX</h2>
+<ul>
+<li>✓ <strong>Extreme-focused</strong>: Specifically designed for precipitation extremes</li>
+<li>✓ <strong>Neighborhood-based</strong>: Addresses double penalty problem</li>
+<li>✓ <strong>Comprehensive</strong>: Evaluates both maxima and minima</li>
+<li>✓ <strong>Scale-aware</strong>: Tests multiple neighborhood sizes</li>
+<li>✓ <strong>Operationally practical</strong>: Fast computation, daily output</li>
+<li>✓ <strong>Complements existing methods</strong> like FSS (Fractions Skill Score) and SAL (Structure-Amplitude-Location)</li>
+</ul>
+</section>
+<section id="limitations-of-slx" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-of-slx">Limitations of SLX</h2>
+<ul>
+<li>✗ <strong>Parameter sensitivity</strong>: Results depend on k, A, δ, and L choices</li>
+<li>✗ <strong>Score function complexity</strong>: Piecewise linear function may need refinement</li>
+<li>✗ <strong>Extreme definition</strong>: Tolerance parameter δ affects extreme selection</li>
+<li>✗ <strong>Computational scaling</strong>: May need optimization for very large domains</li>
+</ul>
+<hr>
+</section>
+<section id="references-resources" class="level2">
+<h2 class="anchored" data-anchor-id="references-resources">References &amp; Resources</h2>
+<p><strong>Primary Reference:</strong> Sass, B.H. (2021). A scheme for verifying the spatial structure of extremes in numerical weather prediction: exemplified for precipitation. <em>Meteorological Applications</em>, 28, e2015.</p>
+<p><strong>Related Methods:</strong> - Roberts &amp; Lean (2008): Fractions Skill Score (FSS) - Wernli et al.&nbsp;(2008): SAL verification - Gilleland et al.&nbsp;(2010): Spatial verification overview</p>
+<p><strong>Code Repository:</strong> - This corrected presentation is available <a href="https://github.com/carlos9917/oper-harp-verif/tree/master/ACCORD_VS_202507/docs/review_sass">in this repository</a></p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
