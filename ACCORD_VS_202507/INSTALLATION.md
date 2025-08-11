@@ -1,6 +1,8 @@
 # Installation instructions to use the R and python libraries to be used during the ACCORD 2025 visit at GeoSphere
+
 Instructions below are focused on using the scripts
 in the ECMWF atos machine.
+
 Since the installation makes heavy use of github, it is
 a good idea to create a personal token in github. 
 
@@ -226,43 +228,4 @@ a sandbox using
 ```
 export RENV_CONFIG_SANDBOX_ENABLED=FALSE
 ```
-
-## Additional dependencies 
-
-### When using reticulate to interface with python
-(More info in reading_functions.py)
-
-We use:
-
-```
-module load python3 (python3/3.11.8-01)
-module load ecmwf-toolbox (ecmwf-toolbox/2024.04.0.0, to have available the python metview interface)  
-```
-
-We need a virtual enviroment where satpy is installed (satpy is used to ahndle MSG data)
-
-Install your own python env:
-
-```
-python -m venv satpy
-pip install satpy
-```
-
-or you might source /perm/miag/venvs/satpy/bin/python3 ('rx' permissions for accord group)
-
-The path to your python is explicitly mentioned in the definition files for reticulate examples.
-Change the path to python accordingly. 
-
-### Note on "non standard" grib parameters
-
-```
-When reading grib files which contain unknown parameters, as the precipitation parameters of DEODE:
-
-* Modify the ECCODE grib definitions accordingly (see definitions/).
-
-* Add ECCODE DEFINITION_PATH to your .bashrc:
-  export ECCODES_DEFINITION_PATH=<path_to_definitions>/definitions:ECCODES_DEFINITION_PATH
-```
-
-
 
