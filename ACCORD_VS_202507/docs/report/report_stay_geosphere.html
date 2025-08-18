@@ -219,7 +219,7 @@ div.csl-indent {
 <li><p>Looking at the individual components of SLX, the obs minima are very high (0.8–0.85), stable across scales. This means observed rainfall minima (dry areas) are consistently well represented in the forecast (little “false rain”).</p></li>
 <li><p>Observation Maxima are in the mid‑range (0.38–0.42 initially, decreasing slightly with scale). Observed maxima are only partly captured, and location/intensity mismatches with forecast hamper this component.</p></li>
 <li><p>Forecast minina starts lower (~0.3) but rises steadily with scale, reaching ~0.8. This shows that forecasted minima gradually find correspondence in observations once neighborhoods are widened.</p></li>
-<li><p>Forecast maxima show Very poor agreement (&lt;0.35 at L=0, dropping quickly towards ~0 by L=20). This indicates that forecast precipitation maxima do not collocate with observed maxima, even when neighborhoods are allowed. The model placed rain maxima, but not where reality did.</p></li>
+<li><p>Forecast maxima show very poor agreement (&lt;0.35 at L=0, dropping quickly towards ~0 by L=20). This indicates that forecast precipitation maxima do not collocate with observed maxima, even when neighborhoods are allowed. The model placed rain maxima, but not where reality did.</p></li>
 </ul>
 </section>
 <section id="summary-of-agrement-scales-for-the-convection-driven-case" class="level2">
@@ -233,6 +233,13 @@ div.csl-indent {
 </section>
 <section id="summary-of-slx-scores-for-the-orographically-driven-case" class="level2">
 <h2 class="anchored" data-anchor-id="summary-of-slx-scores-for-the-orographically-driven-case">Summary of SLX scores for the orographically driven case</h2>
+<ul>
+<li><p>Overall the SLX skill is highest at the grid scale and degrades as L increases: about 0.65 at L=0 (just at/above the “Good” threshold), then ~0.62 (L=5), ~0.55 (L=10), ~0.50 (L=15), and ~0.45 (L=20), which falls into “Moderate.” This monotonic decrease means most of the useful similarity is at fine scales; once you average over wider neighborhoods, the score is diluted. That is exactly what we expect when precipitation placement is terrain-locked and well aligned locally: the more you smooth, the more you mix matched peaks with surrounding mismatches and background, lowering the score.</p></li>
+<li><p>On the individual components side, both maxima components are relatively strong at small scales and only gently decline with L, while the minima components are weaker and degrade more.</p></li>
+<li><p>Observation and forecast maxima start around 0.65–0.70 at L=0 and remain comparatively high, ending roughly 0.55–0.60 by L=20. This says the model and observations share the same locations of intense orographic rainfall cores; peaks in the forecast collocate with peaks in the observations and vice versa. In other words, the event’s maxima are captured well.</p></li>
+<li><p>Observation minima declines markedly from about 0.55 at L=0 to ~0.25 by L=20. This asymmetry indicates that many observed dry areas are not dry in the forecast (false alarms/light-precip “fill-in”). It’s a signature of a wet bias or drizzle contamination in the forecast field, which becomes more apparent as neighborhoods grow.</p></li>
+<li><p>Forecast minima is moderate and fairly stable (roughly 0.55 down to ~0.45). Forecast dry zones find reasonable counterparts in the observations, but not as strongly as the maxima do.</p></li>
+</ul>
 </section>
 <section id="summary-of-agrement-scales-for-the-orographically-driven-case" class="level2">
 <h2 class="anchored" data-anchor-id="summary-of-agrement-scales-for-the-orographically-driven-case">Summary of agrement scales for the orographically driven case</h2>
