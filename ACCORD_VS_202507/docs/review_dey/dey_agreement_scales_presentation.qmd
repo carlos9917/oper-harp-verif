@@ -527,6 +527,22 @@ print(f"Coverage bias: {mean_ensemble_coverage - obs_coverage:.1f}%")
 
 **Addresses double penalty problem** through neighborhood-based approach
 
+## Differences between the Agreement Scales and the FSS
+
+### Fraction Skill Score (FSS)
+- *Purpose*: Quantifies the overall similarity between a forecast and an observation field, after both have been smoothed using a neighbourhood approach.
+
+- *How it works*: Both the forecast and observed fields are converted into binary maps (e.g., rainfall above/below a threshold). For each location, the fraction of points exceeding the threshold within a neighbourhood is computed. The FSS then measures the mean squared difference between these fractions for the forecast and observations, normalized so that a value of 1 represents perfect skill and 0 represents no skill.
+
+- *Interpretation*: FSS is domain-averaged, meaning it tells you how good your forecast is across the whole area at a given spatial scale. You can use FSS to determine the minimum scale at which the forecast is deemed "skillful" (typically when FSS > 0.5 or other empirical thresholds).
+
+### Agreement Scales Score
+- *Purpose*: Provides a location-specific measure of similarity between forecasts (or ensemble members) and observations, quantifying the spatial scale at which different fields agree.
+
+- *How it works*: For each grid point, the method finds the size of the square neighbourhood over which the forecast and observed fields meet a predefined similarity criterion (often based on their local agreement in binary precipitation features). The resulting "agreement scale" at each location tells you how large an area you’d need to average before the forecast and observation become "close enough" in that region.
+
+- *Interpretation*: Unlike the FSS, agreement scales allow you to see where in the domain agreement is better/worse, providing a map of local forecast reliability. This is valuable for diagnosing forecast skill and uncertainty at specific locations and for understanding how ensemble spread varies in space.
+
 ---
 
 ## References & Resources

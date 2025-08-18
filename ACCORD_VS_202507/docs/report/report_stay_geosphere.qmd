@@ -2,164 +2,129 @@
 title: "Report on ACCORD VS at GeoSphere"
 subtitle: "Implementation and Validation of Spatial Verification Methods for Extreme Events"
 author: "Carlos Peralta, Polly Schmederer and Philipp Scheffknecht"
-format: html
 date: "11 August 2025"
 date-modified: last-modified
-###bibliography: references.bib
+format:
+  html:
+    fig-align: center
+  pdf:
+    fig-align: center
 lang: en
+bibliography: references.bib
 ---
 
 # Introduction
 
-During a three-week scientific visit at GeoSphere, the main focus was the **implementation and validation of spatial verification methods** for high-impact meteorological forecast assessment, 
-particularly for extreme weather events. This work contributed to the ACCORD MQA initiative, targeting operational model evaluation and development.
+During a three-week scientific visit at GeoSphere, the main focus was the **implementation and validation of spatial verification methods** for high-impact meteorological forecast assessment, particularly for extreme weather events. This work contributed to the ACCORD MQA initiative, targeting operational model evaluation and development  using the `harp` package.
 
 # General Review of Verification Methods
 
-A comprehensive review of advanced spatial verification techniques set the context for evaluating high-resolution weather forecasts, especially regarding the challenge of location-dependent forecast errors and the "double penalty" effect. Classical scores were contrasted with neighborhood-based and feature-based metrics[^review]. [^review_online]
-
-- **Traditional metrics:** TS (Threat Score), ETS (Equitable Threat Score).
-- **Spatial metrics:** Address limitations of grid-point comparison and emphasize the importance of spatial structure[^review_online].
-
-[^review_online]: [review](https://carlos9917.github.io/oper-harp-verif/ACCORD_VS_202507/docs/general_rev/review.html).
-
-# Implementation of SLX Score
-
-## Overview
+A comprehensive review of advanced spatial verification techniques set the context for evaluating high-resolution weather forecasts, especially regarding the challenge of location-dependent forecast errors and the "double penalty" effect [@slx_presentation].
 
 ### SLX Score
 
-The **SLX score** was implemented to quantify the similarity between forecast and observed fields, systematically reducing penalties for small spatial displacement errors.
+## Method Summary
+
+The **SLX score** was implemented to quantify the similarity between forecast and observed fields, systematically reducing penalties for small spatial displacement errors [@slx_validation].
 
 - **Key properties:**
-  - Focuses on matching patterns and features within spatial neighborhoods.
-  - Sensitive to both the location and the structure of extreme events.
-  - Effective for high-resolution forecasts where traditional point-by-point metrics fail[^slx_presentation].
-
-### Agreement scales
-
-----------------------------------
-
-## Case studies
-
-- **Case 1: Convection driven event on July 28 2025  (Austria domain)**
-
-  *Figure 1.1: INCAPlus gridded data*
-  ![](../case_studies/geosphere/2025072815_convection_case/ob_accrr3h_202507281800_INCAPlus.png) <!-- Placeholder for second plot -->
-
-  *Figure 1.2: CLAEF 1km member 0*
-  ![](../case_studies/geosphere/2025072815_convection_case/fc_accrr1h_202507281800_3_CLAEF00.png) <!-- Placeholder for second plot -->
-
-
-- **Case 2: Orographic driven precipitation event on July 8 2025  (Austria domain)**
-
-  ![](../case_studies/geosphere/2025072815_convection_case/ob_accrr3h_202507281800_INCAPlus.png) <!-- Placeholder for second plot -->
-  *Figure 1: OVerall SLX scores*
-  
-  ![](../case_studies/geosphere/2025070800_orog_case/slx_overall_2025070800_3_accrr3h.png) <!-- Placeholder for actual output -->
-
-  *Figure 2: Individual SLX scores*
-  ![](../case_studies/geosphere/2025070800_orog_case/slx_comps_2025070800_3_accrr3h.png) <!-- Placeholder for actual output -->
-
-- **Case 2: Field comparison for ensemble spread**
-  *Figure 2: Histogram of SLX scores across ensemble members*
-
-
-*Findings:*  
-SLX score provided enhanced discrimination of location errors and improved assessment of feature matching for extremes, outperforming classical methods in both sensitivity and operational utility[^slx_validation].
-
-[^slx_presentation]: See `review_sass/slx_presentation.qmd`; `slx_presentation.pdf`
-[^slx_validation]: See `review_sass/slx_validation.qmd`; `slx_validation.pdf`
+- Focuses on matching patterns and features within spatial neighborhoods.
+- Sensitive to both the location and the structure of extreme events.
+- Effective for high-resolution forecasts where traditional point-by-point metrics fail.
 
 ### Agreement Scales Score (Dey Method)
 
 ## Method Summary
 
-The **Agreement Scales Score** identifies the smallest neighborhood size at which forecast and observation fields "agree", mapping scale-dependent skill and uncertainty.
+The **Agreement Scales Score** identifies the smallest neighborhood size at which forecast and observation fields "agree", mapping scale-dependent skill and uncertainty [@review_dey][@dey_validation].
 
 - **Key properties:**
-  - Produces spatial maps of agreement scale.
-  - Reveals local skill variations and ensemble spread.
-  - Enables targeted verification of prediction uncertainty for extremes[^dey_agreement_scales_presentation].
+- Produces spatial maps of agreement scale.
+- Reveals local skill variations and ensemble spread.
+- Enables targeted verification of prediction uncertainty for extremes.
 
-## Validation Example
+## Case studies
 
-- **Case: orographically driven test case on **
-  *Figure 3: Agreement scale map for ensemble forecasts of a convective event*
+### Case 1: Convection driven event on July 28 2025 (Austria domain)
 
-  ![](../case_studies/geosphere/2025070800_orog_case/fo_field_plots.png) <!-- Placeholder for actual output -->
+  ![3h accumulated precipitation from INCAPlus gridded data for the July 28 2025 event](../case_studies/geosphere/2025072815_convection_case/ob_accrr3h_202507281800_INCAPlus.png){fig-align="center" width=80%}
 
-*Interpretation:*  
-The agreement scale identified regions of both high and low skill, illustrating the method's capacity to diagnose event-localized ensemble forecast confidence[^agreement_scales_validation].
+  ![3h accumulated precipitation from CLAEF 1km member 0 for the July 28 2025 event](../case_studies/geosphere/2025072815_convection_case/fc_accrr1h_202507281800_3_CLAEF00.png){fig-align="center" width=80%}
 
-Top Panels: Observations vs Forecast
+  ![Overall SLX scores for the convection driven event](../case_studies/geosphere/2025072815_convection_case/slx_overall_2025072815_3_accrr3h.png){fig-align="center" width=80%}
 
-Observations (top left): Very sparse, localized precipitation
-Forecast (top right): Much more extensive precipitation coverage
+  ![Individual SLX scores for the convection driven event](../case_studies/geosphere/2025072815_convection_case/slx_comps_2025072815_3_accrr3h.png){fig-align="center" width=80%}
 
-Bottom Left: Agreement Scales SA(fo) Map
-Looking at the color bar correctly (0-35 scale, darker = smaller values, lighter = larger values):
-
-Dark red/purple areas (low values ~0-5 grid points): Good local agreement between forecast and observations - small neighborhoods needed
-Light/white areas (high values ~30-35 grid points): Poor agreement - large neighborhoods needed to find any similarity
-
-Bottom Right: Distribution
-The histogram shows:
-
-Massive peak at small scales (0-5 grid points): Most grid points show good local agreement
-Very few points at larger scales
-Mean very low (~2-3 grid points): Overall good forecast-observation agreement
-
-What This Actually Tells Us
-1. Good Spatial Agreement
-Most of the domain (the dark areas) shows small agreement scales, meaning the forecast and observations agree well at the grid scale or small neighborhoods.
-2. Limited Areas of Disagreement
-Only small portions of the domain (light areas) require large neighborhoods to find agreement between forecast and observations.
-3. Successful Forecast Performance
-This appears to be a case where:
-
-The forecast correctly predicted the dry areas (most of domain is dark = small agreement scales)
-There are only localized disagreements where precipitation occurred in forecast vs observations
-The SA(fo) method shows this is actually a reasonably good forecast when considering spatial uncertainty
+  ![Agreement scale map for forecast versus observation of a convective event](../case_studies/geosphere/2025072815_convection_case/fo_field_plots.png){fig-align="center" width=90%}
 
 
+### Case 2: Orographically driven precipitation event on July 8 2025 (Austria domain)
 
-[^dey_agreement_scales_presentation]: See `review_dey/dey_agreement_scales_presentation.qmd`; `dey_agreement_scales_presentation.pdf`
-[^agreement_scales_validation]: See `review_dey/agreement_scales_validation.qmd`; `agreement_scales_validation.pdf`
+  ![3h accumulated precipitation from INCAPlus gridded data for the July 8 2025 event](../case_studies/geosphere/2025070800_orog_case/ob_accrr3h_202507080300_INCAPlus.png){fig-align="center" width=80%}
 
-# Results and Implications for ACCORD VS
+  ![3h accumulated precipitation from CLAEF 1km member 0 for the July 8 2025 event](../case_studies/geosphere/2025070800_orog_case/fc_accrr3h_202507080300_3_CLAEF00.png){fig-align="center" width=80%}
 
-The applied methods (SLX and Agreement Scales) successfully highlighted:
+  ![Overall SLX scores for the orographic driven event](../case_studies/geosphere/2025070800_orog_case/slx_overall_2025070800_3_accrr3h.png){fig-align="center" width=80%}
 
-- Enhanced assessment of displacement and structure errors in extreme event forecasts.
-- Improved operational diagnostics for ensemble spread and model skill.
-- Practical, validated algorithms for routine use in operational forecast verification, supporting both feedback and model inter-comparison.
+  ![Individual SLX scores for the orographic driven event](../case_studies/geosphere/2025070800_orog_case/slx_comps_2025070800_3_accrr3h.png){fig-align="center" width=80%}
+
+  ![Agreement scale map for forecast versus observation of an orographically driven precipitation event](../case_studies/geosphere/2025070800_orog_case/fo_field_plots.png){fig-align="center" width=90%}
+
+# Summary of results
+
+  The two case studies illustrate the added value of the spatial verification methods implemented here. 
+
+## Summary of SLX scores for the convection-driven case
+
+- The combined SLX score starts around 0.45 at the grid scale (L=0).  With increasing neighborhood size (L=5–20), the score climbs gently, reaching ~0.52.
+
+- The forecasts remain in the moderate range throughout, but trending upward with smoothing. This means that, even at grid scale, the forecast has non‑zero pattern similarity, but it is clearly penalized for displacement errors. 
+As neighborhoods grow, SLX improves slightly, showing that the model has correct structures but shifted.  However, the fact that it does not enter the "Good" category suggests location errors are widespread enough to limit skill beyond moderate quality.
+
+- Looking at the individual components of SLX, the obs minima are very high (0.8–0.85), stable across scales.  This means observed rainfall minima (dry areas) are consistently well represented in the forecast (little "false rain").
+
+- Observation Maxima are in the mid‑range (0.38–0.42 initially, decreasing slightly with scale). Observed maxima are only partly captured, and location/intensity mismatches with forecast hamper this component.
+
+- Forecast minina starts lower (~0.3) but rises steadily with scale, reaching ~0.8. This shows that forecasted minima gradually find correspondence in observations once neighborhoods are widened.
+
+- Forecast maxima show Very poor agreement (<0.35 at L=0, dropping quickly towards ~0 by L=20). This indicates that forecast precipitation maxima do not collocate with observed maxima, even when neighborhoods are allowed. The model placed rain maxima, but not where reality did.
+
+## Summary of agrement scales for the convection-driven case
+
+- The field plots show that the forecast captures that a precipitation event occurred with similar spatial organization, but the location is shifted and fine-scale spatial detail is poorly aligned.
+
+- The agreement scales map shows the spatial field of the minimum neighborhood size (in grid points) needed for observations and forecast to "agree".  Darker reds (low values) are scarce — meaning only a few patches show agreement at very fine scales.  Yellows/whites (large scales) dominate in central and southern parts of the domain, implying that only when the comparison window is broadened substantially (40–60+ grid points) do forecast and observed fields match.
+
+-  The histogram shows a strong spike near zero indicates a subset of grid points with nearly perfect local agreement. That likely corresponds to regions with weak/no precipitation in both forecast and observation.  There is a deep between ~5–20 grid points,indicating fewer areas of small-scale agreement.  A secondary hump at ~60–70 grid points shows a significant fraction of the domain requires very broad neighborhoods before forecast and observed align — consistent with displaced but pattern‑similar rainfall.
+  Mean agreement scale (red dashed line): Around ~38 grid points. This is very large, implying that over much of the domain, useful forecast skill only appears when smoothed to a mesoscale scale.
+
+Summary: This analysis shows that while the event was well captured in a mesoscale sense, the model struggled with fine-scale localization — agreement only emerges at large neighborhood scales, consistent with systematic displacement along terrain.
+
+## Summary of SLX scores for the orographically driven case
+
+
+## Summary of agrement scales for the orographically driven case
+- The field plots show that precipitation is localized, with one strong maximum in the northwest corner and some weaker cores elsewhere. The model produces precipitation in broadly similar regions but introduces additional maxima, especially in the southeast, which were not observed.
+- The agreeent scales map shows mostly brown/red shades (small scales: 0–5 grid points), indicating that agreement is reached at very fine neighborhood sizes across much of the domain.  This implies that the forecast and observed precipitation structures align closely, and only minimal spatial tolerance is needed.  The small patches of lighter colors (10–20+) indicate localized zones where misplacement or wrong maxima reduce skill, requiring broader neighborhoods.
+
+- The histogram has an extremely sharp spike at very small scales (0–3 grid points).  Almost the entire distribution collapses there, with the mean (red dashed line) at a very low value (~2–3).  The long tail toward larger scales is negligible compared to the dominance at fine scales.
+
+Summary: The forecast does reproduce the existence of orographic rainfall features, but with notable misplacement and some spurious intensity peaks.
+This suggests that for this case, orographic forcing anchored precipitation so strongly to terrain features that the model reproduced it with high fidelity, unlike the convective case where displacement dominated.
 
 ## Summary Table: Core Methods
 
-| Method                    | Purpose                          | Key Benefit                                         |
-|---------------------------|----------------------------------|-----------------------------------------------------|
-| SLX Score                 | Spatial field pattern matching   | Less penalization for small shifts, robust for extremes|
-| Agreement Scales Score    | Scale-dependent skill mapping    | Local skill, uncertainty, ensemble spread visualization|
+| Method | Purpose | Key Benefit |
+|----|----|----|
+| SLX Score | Spatial field pattern matching | Less penalization for small shifts, robust for extremes|
+| Agreement Scales Score | Scale-dependent skill mapping | Local skill, uncertainty, ensemble spread visualization|
+
+## Future work
+
+Both SLX and the agreement scales between members and observations have been implemented as separate scores within the `verify_spatial` function in a dedicated branch of `harpSpatial`. 
+The agreement scales between ensemble member pairs have been implemented outside of `verify_spatial`, though they still make use of the full `harp` functionality.
+
+Further optimization is needed to improve computational efficiency. While the current implementation performs reasonably well in smaller model domains, such as the Austrian domain presented here, it becomes significantly slower in larger domains (e.g., the DINI domain used at DMI).
 
 # References
-
-Include all references from the documents. For external scientific background, see:
-- Skok, G., et al. "Spatial verification of global precipitation forecasts," arXiv (2025)[1].
-- Hutchison, K., et al. "Climate Cloud Model Forecast Verification—an Engineering Perspective," AEER (2020)[2].
-
-Further internal references are embedded in the notebook via in-text citations to your documentation:
-
-- ACCORD VS documentation:  
-  - `general_rev/review.qmd`
-  - `review_sass/slx_presentation.qmd` & `slx_validation.qmd`  
-  - `review_dey/dey_agreement_scales_presentation.qmd` & `agreement_scales_validation.qmd`  
-  - `case_studies/results.md`
-
----
-
-# Appendix
-
-## Plots and Code Snippets
-
 

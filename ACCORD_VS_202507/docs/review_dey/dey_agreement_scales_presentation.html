@@ -6,8 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Based on Dey et al.&nbsp;(2016) Methods">
-<meta name="dcterms.date" content="2025-06-18">
+<meta name="author" content="Carlos Peralta">
+<meta name="dcterms.date" content="2025-07-23">
 
 <title>Agreement Scales for Convective-Scale Ensemble Verification</title>
 <style>
@@ -123,21 +123,21 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Based on Dey et al.&nbsp;(2016) Methods </p>
+             <p>Carlos Peralta </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 18, 2025</p>
+      <p class="date">July 23, 2025</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">June 18, 2025</p>
+      <p class="date-modified">August 18, 2025</p>
     </div>
   </div>
     
@@ -205,7 +205,7 @@ window.Quarto = {
 </section>
 <section id="python-implementation" class="level2">
 <h2 class="anchored" data-anchor-id="python-implementation">Python Implementation</h2>
-<div id="2afbcac3" class="cell" data-execution_count="1">
+<div id="42f5fd12" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.ndimage <span class="im">import</span> maximum_filter, minimum_filter</span>
@@ -251,7 +251,7 @@ window.Quarto = {
 </section>
 <section id="agreement-scale-maps-function" class="level2">
 <h2 class="anchored" data-anchor-id="agreement-scale-maps-function">Agreement Scale Maps Function</h2>
-<div id="7814b48f" class="cell" data-execution_count="2">
+<div id="063c7cb9" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_agreement_scale_map(field1, field2, alpha<span class="op">=</span><span class="fl">0.5</span>, s_lim<span class="op">=</span><span class="dv">80</span>):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate agreement scale map between two precipitation fields"""</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    ny, nx <span class="op">=</span> field1.shape</span>
@@ -302,7 +302,7 @@ window.Quarto = {
 </section>
 <section id="creating-synthetic-ensemble-data" class="level2">
 <h2 class="anchored" data-anchor-id="creating-synthetic-ensemble-data">Creating Synthetic Ensemble Data</h2>
-<div id="6bb62ba9" class="cell" data-execution_count="3">
+<div id="53c8f2a5" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_synthetic_precipitation_ensemble(nx<span class="op">=</span><span class="dv">100</span>, ny<span class="op">=</span><span class="dv">100</span>, n_members<span class="op">=</span><span class="dv">12</span>):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Create synthetic ensemble precipitation fields"""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    np.random.seed(<span class="dv">42</span>)</span>
@@ -356,7 +356,7 @@ Field shape: (100, 100)</code></pre>
 </section>
 <section id="creating-synthetic-observations" class="level2">
 <h2 class="anchored" data-anchor-id="creating-synthetic-observations">Creating Synthetic Observations</h2>
-<div id="59526838" class="cell" data-execution_count="4">
+<div id="340ea5f5" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_synthetic_observations(nx<span class="op">=</span><span class="dv">100</span>, ny<span class="op">=</span><span class="dv">100</span>):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Create synthetic radar observations"""</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    np.random.seed(<span class="dv">123</span>)  <span class="co"># Different seed for observations</span></span>
@@ -391,7 +391,7 @@ Max precipitation: 12.0 mm/h</code></pre>
 </section>
 <section id="visualizing-ensemble-and-observations" class="level2">
 <h2 class="anchored" data-anchor-id="visualizing-ensemble-and-observations">Visualizing Ensemble and Observations</h2>
-<div id="7b0f77c2" class="cell" data-fig-height="10" data-fig-width="15" data-execution_count="5">
+<div id="13f3642e" class="cell" data-fig-height="10" data-fig-width="15" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">10</span>))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot first 3 ensemble members</span></span>
@@ -439,7 +439,7 @@ Max precipitation: 12.0 mm/h</code></pre>
 </section>
 <section id="calculating-agreement-scales" class="level2">
 <h2 class="anchored" data-anchor-id="calculating-agreement-scales">Calculating Agreement Scales</h2>
-<div id="2b71af25" class="cell" data-execution_count="6">
+<div id="94d111d1" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate SA(mm) - agreement between ensemble members</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Calculating SA(mm) - ensemble member agreement scales..."</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sa_mm <span class="op">=</span> calculate_ensemble_agreement_scales(ensemble_fields)</span>
@@ -467,7 +467,7 @@ Domain average SA(mo): 21.4 grid points</code></pre>
 </section>
 <section id="visualizing-agreement-scale-maps" class="level2">
 <h2 class="anchored" data-anchor-id="visualizing-agreement-scale-maps">Visualizing Agreement Scale Maps</h2>
-<div id="10df88e9" class="cell" data-fig-height="5" data-fig-width="12" data-execution_count="7">
+<div id="b1b18e98" class="cell" data-fig-height="5" data-fig-width="12" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2, ax3) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">4</span>))</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot SA(mm)</span></span>
@@ -506,7 +506,7 @@ Domain average SA(mo): 21.4 grid points</code></pre>
 </section>
 <section id="spatial-spread-skill-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="spatial-spread-skill-analysis">Spatial Spread-Skill Analysis</h2>
-<div id="f5f7964c" class="cell" data-execution_count="8">
+<div id="2931330c" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_binned_scatter_plot(sa_mm, sa_mo, bin_size<span class="op">=</span><span class="dv">5</span>):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Create binned scatter plot for spread-skill analysis"""</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Flatten arrays</span></span>
@@ -571,7 +571,7 @@ Domain average SA(mo): 21.4 grid points</code></pre>
 </section>
 <section id="statistical-summary" class="level2">
 <h2 class="anchored" data-anchor-id="statistical-summary">Statistical Summary</h2>
-<div id="de5a6680" class="cell" data-execution_count="9">
+<div id="61cea82d" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate domain statistics</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>domain_sa_mm <span class="op">=</span> np.mean(sa_mm)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>domain_sa_mo <span class="op">=</span> np.mean(sa_mo)</span>
@@ -692,7 +692,26 @@ Coverage bias: 0.3%</code></pre>
 </ol>
 <p><strong>Complements existing methods</strong> like FSS (Fractions Skill Score) and traditional ensemble verification</p>
 <p><strong>Addresses double penalty problem</strong> through neighborhood-based approach</p>
+</section>
+<section id="differences-between-the-agreement-scales-and-the-fss" class="level2">
+<h2 class="anchored" data-anchor-id="differences-between-the-agreement-scales-and-the-fss">Differences between the Agreement Scales and the FSS</h2>
+<section id="fraction-skill-score-fss" class="level3">
+<h3 class="anchored" data-anchor-id="fraction-skill-score-fss">Fraction Skill Score (FSS)</h3>
+<ul>
+<li><p><em>Purpose</em>: Quantifies the overall similarity between a forecast and an observation field, after both have been smoothed using a neighbourhood approach.</p></li>
+<li><p><em>How it works</em>: Both the forecast and observed fields are converted into binary maps (e.g., rainfall above/below a threshold). For each location, the fraction of points exceeding the threshold within a neighbourhood is computed. The FSS then measures the mean squared difference between these fractions for the forecast and observations, normalized so that a value of 1 represents perfect skill and 0 represents no skill.</p></li>
+<li><p><em>Interpretation</em>: FSS is domain-averaged, meaning it tells you how good your forecast is across the whole area at a given spatial scale. You can use FSS to determine the minimum scale at which the forecast is deemed “skillful” (typically when FSS &gt; 0.5 or other empirical thresholds).</p></li>
+</ul>
+</section>
+<section id="agreement-scales-score" class="level3">
+<h3 class="anchored" data-anchor-id="agreement-scales-score">Agreement Scales Score</h3>
+<ul>
+<li><p><em>Purpose</em>: Provides a location-specific measure of similarity between forecasts (or ensemble members) and observations, quantifying the spatial scale at which different fields agree.</p></li>
+<li><p><em>How it works</em>: For each grid point, the method finds the size of the square neighbourhood over which the forecast and observed fields meet a predefined similarity criterion (often based on their local agreement in binary precipitation features). The resulting “agreement scale” at each location tells you how large an area you’d need to average before the forecast and observation become “close enough” in that region.</p></li>
+<li><p><em>Interpretation</em>: Unlike the FSS, agreement scales allow you to see where in the domain agreement is better/worse, providing a map of local forecast reliability. This is valuable for diagnosing forecast skill and uncertainty at specific locations and for understanding how ensemble spread varies in space.</p></li>
+</ul>
 <hr>
+</section>
 </section>
 <section id="references-resources" class="level2">
 <h2 class="anchored" data-anchor-id="references-resources">References &amp; Resources</h2>
