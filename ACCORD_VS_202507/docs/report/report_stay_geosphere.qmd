@@ -15,7 +15,7 @@ bibliography: references.bib
 
 # Introduction
 
-During a three-week scientific visit at GeoSphere, the main focus was the **implementation and validation of spatial verification methods** for high-impact meteorological forecast assessment, particularly for extreme weather events. This work contributed to the ACCORD MQA initiative, targeting operational model evaluation and development  using the `harp` package.
+During a three-week scientific visit at GeoSphere, from the 13th to the 1st of August 2025, the main focus was the **implementation and validation of spatial verification methods** for high-impact meteorological forecast assessment, particularly for extreme weather events. This work contributed to the ACCORD MQA initiative, targeting operational model evaluation and development  using the `harp` package.
 
 # General Review of Verification Methods
 
