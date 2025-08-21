@@ -19,7 +19,7 @@ During a three-week scientific visit at GeoSphere, from the 13th to the 1st of A
 
 # General Review of Verification Methods
 
-A comprehensive review of advanced spatial verification techniques set the context for evaluating high-resolution weather forecasts, especially regarding the challenge of location-dependent forecast errors and the "double penalty" effect [@slx_presentation].
+A comprehensive review of advanced spatial verification techniques set the context for evaluating high-resolution weather forecasts, especially regarding the challenge of location-dependent forecast errors and the "double penalty" effect [@review].
 
 ### SLX Score
 
