@@ -1,0 +1,79 @@
+---
+title: "Summary of work during the ACCORD VS at GeoSphere"
+author: "Carlos Peralta"
+date: "2025-08-25"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+---
+
+## Introduction
+
+This presentation provides a summary of the key findings from the ACCORD VS 202507 report. The report focuses on the verification of the HARP spatial verification methods.
+
+---
+
+## Methods
+
+The study utilizes various spatial verification techniques to assess the performance of the HARP model. Key methods include:
+
+-   **SAL (Structure, Amplitude, Location)**: A feature-based method.
+-   **FSS (Fractions Skill Score)**: A neighborhood-based method.
+-   **Object-based methods**: Identifying and comparing objects in forecasts and observations.
+
+---
+
+## Key Findings 1: Overall Performance
+
+The HARP model shows good performance in predicting the location and structure of weather events. However, there are some discrepancies in amplitude, particularly for high-intensity events.
+
+---
+
+## Key Findings 2: Impact of Orography
+
+Orography plays a significant role in the model's performance. The verification results show that the model's accuracy is lower in areas with complex terrain.
+
+---
+
+## Key Findings 3: Case Studies
+
+The case studies highlight specific events where the model performed well and where it struggled. For example, the model had difficulty with convective events in the summer.
+
+---
+
+## Visualizations
+
+The report includes several visualizations to illustrate the findings. Here are some examples:
+
+![](../case_studies/geosphere/slx_overall.png)
+
+---
+
+## Challenges and Limitations
+
+The main challenges in this study were:
+
+-   The availability of high-resolution observation data.
+-   The computational cost of running the verification methods.
+
+---
+
+## Conclusion
+
+The HARP model is a valuable tool for weather forecasting, but there is room for improvement, especially in predicting the amplitude of events and in handling complex terrain.
+
+---
+
+## Future Work
+
+Future work should focus on:
+
+-   Improving the model's physics to better represent convection.
+-   Developing new verification methods that are more robust to observation uncertainty.
+
+---
+
+## Thank you!
+
+Questions?
