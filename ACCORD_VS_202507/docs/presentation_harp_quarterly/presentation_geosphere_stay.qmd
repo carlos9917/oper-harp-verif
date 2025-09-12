@@ -1,0 +1,564 @@
+---
+title: "Spatial Verification Methods for Extreme Events"
+subtitle: "Implementation and Validation Results from GeoSphere Stay"
+author: "Carlos Peralta, Polly Schmederer and Philipp Scheffknecht"
+date: "August 2025"
+format:
+  revealjs:
+    theme: white
+    slide-number: true
+    chalkboard: true
+    preview-links: auto
+    footer: "ACCORD MQA Initiative - GeoSphere Stay 2025"
+    fig-align: center
+---
+
+## Overview {.smaller}
+
+**Three-week scientific visit at GeoSphere (July 13 - August 1, 2025)**
+
+:::: {.columns}
+::: {.column width="50%"}
+**Main Objectives:**
+- Implementation of spatial verification methods
+- Focus on extreme weather events 
+- Integration with ACCORD MQA initiative
+- Development using `harp` package
+
+**Methods Implemented:**
+- SLX Score (Structure of Local eXtremes)
+- Agreement Scales Score (Dey Method)
+:::
+
+::: {.column width="50%"}
+**Key Results:**
+- Successfully implemented both methods in `harpSpatial`
+- Validated using Austrian CLAEF 1km ensemble
+- Tested on DINI and DMI radar data
+- Analyzed convective vs orographic cases
+- Demonstrated added value over traditional metrics
+:::
+::::
+
+---
+
+## The Double Penalty Problem {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+**Traditional point-by-point verification suffers from:**
+
+- **Location Error**: Forecast is penalized for placing feature in wrong location
+- **Miss Error**: Forecast is penalized again for missing feature in correct location
+- **Result**: Misleadingly low scores even with correct intensity/structure
+:::
+
+::: {.column width="50%"}
+**Particularly problematic for:**
+- High-resolution NWP models
+- Extreme precipitation events
+- Convective-scale forecasting
+- Ensemble verification
+
+**Solution**: Spatial verification methods that account for displacement tolerance
+:::
+::::
+
+---
+
+## Method 1: SLX Score - Structure of Local Extremes {.smaller}
+
+**Purpose**: Evaluate model capability to predict spatial structure of precipitation extremes
+
+:::: {.columns}
+::: {.column width="60%"}
+**Four Components:**
+- `SLX_ob_max`: How well forecast captures observed maxima
+- `SLX_fc_max`: How well observations capture forecast maxima  
+- `SLX_ob_min`: How well forecast captures observed minima
+- `SLX_fc_min`: How well observations capture forecast minima
+
+$$\text{SLX} = \frac{1}{4}(\text{SLX}_{ob\_max} + \text{SLX}_{fc\_max} + \text{SLX}_{ob\_min} + \text{SLX}_{fc\_min})$$
+:::
+
+::: {.column width="40%"}
+**Key Properties:**
+- Neighborhood-based (L parameter)
+- Asymmetric penalty function
+- Tolerance for small displacement errors
+- Scale-dependent evaluation
+:::
+::::
+
+---
+
+## SLX Score Function {.smaller}
+
+**Piecewise linear function balancing over/under-forecasting:**
+
+$$S(ob, \phi) = \begin{cases}
+\phi/(ob-k) & \text{if } ob > k \text{ and } \phi < ob-k \\
+1 & \text{if } ob > k \text{ and } ob-k \leq \phi \leq ob \\
+\max(1 - (\phi-ob)/(A \times ob), 0) & \text{if } ob > k \text{ and } \phi > ob \\
+1 & \text{if } ob \leq k \text{ and } \phi \leq k \\
+\max(1 - (\phi-k)/(A \times k), 0) & \text{if } ob \leq k \text{ and } \phi > k
+\end{cases}$$
+
+**Parameters**: k = 0.1 kg/m² (dry threshold), A = 4 (asymmetry factor)
+
+---
+
+## SLX Implementation in R {.smaller}
+
+```{r}
+# Core SLX score function
+score_function_sass <- function(phi, ob, k = 0.1, A = 4.0) {
+  if (ob > k) {
+    if (phi < ob - k) {
+      return(phi / max(ob - k, 1e-9))
+    } else if (phi <= ob) {
+      return(1.0)
+    } else {
+      return(max(1 - (phi - ob) / (A * ob), 0.0))
+    }
+  } else {  # ob <= k
+    if (phi <= k) {
+      return(1.0)
+    } else {
+      return(max(1 - (phi - k) / (A * k), 0.0))
+    }
+  }
+}
+
+# Neighborhood extreme calculation
+get_neighbourhood_extreme <- function(arr, i, j, L, mode = 'max') {
+  i_min <- max(1, i - L)
+  i_max <- min(nrow(arr), i + L)
+  j_min <- max(1, j - L) 
+  j_max <- min(ncol(arr), j + L)
+  
+  neighbourhood <- arr[i_min:i_max, j_min:j_max]
+  if (mode == 'max') max(neighbourhood) else min(neighbourhood)
+}
+```
+
+---
+
+## Method 2: Agreement Scales Score {.smaller}
+
+**Purpose**: Quantify spatial predictability and scale-dependent skill for ensemble verification
+
+:::: {.columns}
+::: {.column width="50%"}
+**Similarity Criterion:**
+$$D^S_{ij} = \begin{cases}
+\frac{(f^S_{1ij} - f^S_{2ij})^2}{(f^S_{1ij})^2 + (f^S_{2ij})^2} & \text{if } f^S_{1ij} > 0 \text{ or } f^S_{2ij} > 0 \\
+1 & \text{if both fields = 0}
+\end{cases}$$
+
+**Agreement Criterion:**
+$$D^S_{ij} \leq D^S_{crit,ij} = \alpha + (1-\alpha)\frac{S}{S_{lim}}$$
+:::
+
+::: {.column width="50%"}
+**Applications:**
+- **SA(mm)**: Agreement between ensemble members
+- **SA(mo)**: Agreement between members and observations
+
+**Interpretation:**
+- Small scales → high spatial predictability
+- Large scales → low spatial predictability
+- SA(mo) > SA(mm) → under-spread ensemble
+:::
+::::
+
+---
+
+## Agreement Scales Implementation in R {.smaller}
+
+```
+# Calculate similarity criterion between two fields
+calc_similarity <- function(f1, f2) {
+  if (f1 > 0 || f2 > 0) {
+    return((f1 - f2)^2 / (f1^2 + f2^2))
+  } else {
+    return(1.0)
+  }
+}
+
+# Agreement criterion threshold
+agreement_criterion <- function(scale, alpha = 0.5, s_lim = 80) {
+  return(alpha + (1 - alpha) * scale / s_lim)
+}
+
+# Calculate agreement scale at grid point
+calc_agreement_scale <- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) {
+  for (scale in 0:s_lim) {
+    # Define neighborhood bounds
+    i_bounds <- max(1, i - scale):min(nrow(field1), i + scale)
+    j_bounds <- max(1, j - scale):min(ncol(field1), j + scale)
+    
+    # Calculate neighborhood averages  
+    f1_avg <- mean(field1[i_bounds, j_bounds])
+    f2_avg <- mean(field2[i_bounds, j_bounds])
+    
+    # Check agreement criterion
+    d_ij <- calc_similarity(f1_avg, f2_avg)
+    d_crit <- agreement_criterion(scale, alpha, s_lim)
+    
+    if (d_ij <= d_crit) return(scale)
+  }
+  return(s_lim)
+}
+```
+
+---
+
+## Case Study 1: Convective Event (July 28, 2025) {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+![INCAPlus observations](case_studies/geosphere/2025072815_convection_case/ob_accrr3h_202507281800_INCAPlus.png){width=80%}
+
+![CLAEF 1km forecast](case_studies/geosphere/2025072815_convection_case/fc_accrr1h_202507281800_3_CLAEF00.png){width=80%}
+:::
+
+::: {.column width="50%"}
+**Event Characteristics:**
+- Convection-driven precipitation
+- Multiple cells across Austria
+- Displacement errors evident
+- Complex spatial patterns
+
+**Key Findings:**
+- Combined SLX: ~0.45 at grid scale
+- Gradual improvement with neighborhood size
+- Forecast maxima poorly collocated with observations
+- Large agreement scales (~38 grid points) indicate low fine-scale predictability
+:::
+::::
+
+---
+
+## Convective Case: SLX Results {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+![SLX overall scores](case_studies/geosphere/2025072815_convection_case/slx_overall_2025072815_3_accrr3h.png){width=90%}
+
+![SLX components](case_studies/geosphere/2025072815_convection_case/slx_comps_2025072815_3_accrr3h.png){width=90%}
+:::
+
+::: {.column width="50%"}
+**SLX Analysis:**
+- **Obs minima** (0.8-0.85): Dry areas well represented
+- **Obs maxima** (0.38-0.42): Partly captured, location mismatches
+- **Forecast minima**: Improves with scale (0.3→0.8)
+- **Forecast maxima**: Poor agreement (<0.35), drops to ~0
+
+**Interpretation**: Model captures mesoscale patterns but struggles with fine-scale localization
+:::
+::::
+
+---
+
+## Case Study 2: Orographic Event (July 8, 2025) {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+![INCAPlus observations](case_studies/geosphere/2025070800_orog_case/ob_accrr3h_202507080300_INCAPlus.png){width=80%}
+
+![CLAEF 1km forecast](case_studies/geosphere/2025070800_orog_case/fc_accrr3h_202507080300_3_CLAEF00.png){width=80%}
+:::
+
+::: {.column width="50%"}
+**Event Characteristics:**
+- Orographically-driven precipitation
+- Terrain-locked features
+- Strong NW maximum
+- Additional spurious maxima in SE
+
+**Key Findings:**
+- SLX skill highest at grid scale (~0.65)
+- Degrades with increasing neighborhood size
+- Small agreement scales (~2-3 grid points)
+- Orographic forcing anchors precipitation well
+:::
+::::
+
+---
+
+## Orographic Case: SLX Results {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+![SLX overall scores](case_studies/geosphere/2025070800_orog_case/slx_overall_2025070800_3_accrr3h.png){width=90%}
+
+![SLX components](case_studies/geosphere/2025070800_orog_case/slx_comps_2025070800_3_accrr3h.png){width=90%}
+:::
+
+::: {.column width="50%"}
+**SLX Analysis:**
+- **Overall SLX**: 0.65 at L=0 (Good), decreases with scale
+- **Maxima components**: Strong (0.65-0.70), well collocated
+- **Obs minima**: Degrades markedly (0.55→0.25)
+- **Forecast minima**: Moderate and stable
+
+**Interpretation**: Excellent fine-scale skill due to terrain anchoring. Wet bias evident in forecast minima component.
+:::
+::::
+
+---
+
+## Comparative Results Summary {.smaller}
+
+| **Aspect** | **Convective Case** | **Orographic Case** |
+|------------|---------------------|---------------------|
+| **Peak SLX** | 0.52 (L=20, Moderate) | 0.65 (L=0, Good) |
+| **Behavior with Scale** | Increases with L | Decreases with L |
+| **Mean Agreement Scale** | ~38 grid points | ~2-3 grid points |
+| **Spatial Predictability** | Low (mesoscale only) | High (terrain-locked) |
+| **Main Issue** | Displacement errors | Wet bias/false alarms |
+| **Forecast Quality** | Pattern similar, wrong location | Good location, excess precipitation |
+
+**Key Insight**: Spatial verification reveals fundamentally different error characteristics that traditional metrics would miss.
+
+---
+
+## Technical Implementation {.smaller}
+
+**Integration with `harp` ecosystem:**
+
+:::: {.columns}
+::: {.column width="50%"}
+```
+# SLX integration in harpSpatial
+verify_spatial(forecast_data,
+               obs_data,
+               scores = c("slx", "fss"),
+               thresholds = c(0.1, 1, 5),
+               neighbourhood_sizes = seq(0, 20, 5),
+               by = c("lead_time", "fcst_cycle"))
+```
+
+**Agreement Scales:**
+```
+# Ensemble member-member agreement
+sa_mm <- calc_agreement_scales_mm(
+  ensemble_data, 
+  alpha = 0.5, 
+  s_lim = 80)
+
+# Member-observation agreement  
+sa_mo <- calc_agreement_scales_mo(
+  ensemble_data, 
+  obs_data,
+  alpha = 0.5,
+  s_lim = 80)
+```
+:::
+
+::: {.column width="50%"}
+**Current Status:**
+- ✅ SLX implemented in `verify_spatial`
+- ✅ Agreement scales as separate functions
+- ✅ Validated against literature examples
+- ⚠️ Performance optimization needed for large domains
+
+**Future Development:**
+- Integration of agreement scales in main verification workflow
+- Computational efficiency improvements
+- Extension to other meteorological variables
+:::
+::::
+
+---
+
+## Performance and Scalability {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+**Current Performance:**
+- Austrian domain (100x100 km): Reasonable speed
+- Large domains (DINI, 1000x1000 km): Significantly slower
+- Memory usage scales with ensemble size
+
+**Computational Challenges:**
+- Nested loops for neighborhood calculations
+- Multiple ensemble member comparisons
+- Agreement scales: O(S_lim × N_points) complexity
+:::
+
+::: {.column width="50%"}
+**Optimization Strategies:**
+- Vectorization of neighborhood operations
+- Parallel processing for ensemble pairs
+- Pre-computed distance matrices
+- Efficient extreme detection algorithms
+
+**Trade-offs:**
+- Accuracy vs computational efficiency
+- Memory usage vs processing speed
+- Real-time vs post-processing applications
+:::
+::::
+
+---
+
+## Validation Results {.smaller}
+
+**Method validation using synthetic and literature cases:**
+
+:::: {.columns}
+::: {.column width="50%"}
+**SLX Validation:**
+- ✅ Reproduced Sass (2021) synthetic test cases
+- ✅ Score increases with neighborhood size for displaced features
+- ✅ Asymmetric penalty function working correctly
+- ✅ Extreme detection algorithm validated
+
+**Agreement Scales Validation:**
+- ✅ Reproduced Dey et al. (2016) idealized ensemble
+- ✅ Spread-skill relationships correctly identified
+- ✅ Scale-dependent agreement maps match expectations
+:::
+
+::: {.column width="50%"}
+**Real Data Validation:**
+- Both methods show expected behavior
+- Results consistent with meteorological understanding
+- Clear discrimination between event types
+- Complementary information to traditional scores
+
+**Robustness Tests:**
+- Stable across different precipitation intensities
+- Consistent results across multiple cases
+- Parameter sensitivity within acceptable ranges
+:::
+::::
+
+---
+
+## Key Benefits and Applications {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+**SLX Score Benefits:**
+- ✅ Extreme-focused verification
+- ✅ Addresses double penalty problem  
+- ✅ Scale-dependent evaluation
+- ✅ Comprehensive (maxima + minima)
+- ✅ Operationally practical
+
+**Agreement Scales Benefits:**
+- ✅ Location-dependent skill assessment
+- ✅ Ensemble spread-skill relationships
+- ✅ Scale-aware uncertainty quantification
+- ✅ Physically interpretable results
+:::
+
+::: {.column width="50%"}
+**Operational Applications:**
+- Model development and tuning
+- Ensemble calibration assessment
+- Event-based forecast verification
+- Real-time forecast quality monitoring
+
+**Research Applications:**
+- Understanding forecast error characteristics
+- Scale-dependent predictability studies
+- Ensemble system evaluation
+- Extreme event climatology
+:::
+::::
+
+---
+
+## Future Work and Recommendations {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+**Short-term Priorities:**
+- Performance optimization for large domains
+- Integration of agreement scales in main `harp` workflow
+- Documentation and user guidance
+- Additional case study analysis
+
+**Medium-term Development:**
+- Extension to other variables (wind, temperature)
+- Multi-threshold analysis capabilities
+- Automated parameter optimization
+- Real-time implementation
+:::
+
+::: {.column width="50%"}
+**Research Opportunities:**
+- Scale-dependent ensemble perturbations
+- Physics-based predictability analysis
+- Machine learning integration
+- Climate model evaluation applications
+
+**Community Integration:**
+- ACCORD MQA operational deployment
+- Training workshops and documentation
+- Scientific publication of results
+- Code sharing and collaboration
+:::
+::::
+
+---
+
+## Conclusions {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+**Successfully Achieved:**
+1. **Implementation** of SLX and Agreement Scales methods in R/harp
+2. **Validation** using both synthetic and real-world cases
+3. **Demonstration** of added value over traditional metrics
+4. **Analysis** of two contrasting meteorological scenarios
+5. **Integration** within ACCORD MQA framework
+:::
+
+::: {.column width="50%"}
+**Key Scientific Insights:**
+- Spatial verification reveals error characteristics invisible to traditional methods
+- Orographic vs convective events show fundamentally different predictability patterns
+- Scale-dependent analysis essential for high-resolution model evaluation
+- Ensemble spread-skill relationships quantifiable at local scales
+:::
+::::
+
+**Impact**: These methods provide operational forecasters and researchers with powerful tools to understand and improve high-resolution weather prediction, particularly for extreme events where spatial accuracy is crucial.
+
+---
+
+## Acknowledgments {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+**GeoSphere Austria Team:**
+- Polly Schmederer (supervision and guidance)
+- Philipp Scheffknecht (technical support)
+- All GeoSphere staff for hosting and collaboration
+
+**ACCORD Community:**
+- MQA initiative participants
+- `harp` development team
+- CLAEF ensemble system providers
+:::
+
+::: {.column width="50%"}
+**Scientific Community:**
+- Bent Hansen Sass (SLX method development)
+- Suranjana Dey et al. (Agreement Scales method)
+- Spatial verification research community
+
+**Resources:**
+- Computing facilities at GeoSphere
+- CLAEF 1km ensemble data
+- INCAPlus observation data
+:::
+::::
+
+**Contact**: carlos.peralta@[institution] | carlos9917@github
