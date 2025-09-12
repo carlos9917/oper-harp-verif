@@ -4,8 +4,13 @@ author: "Carlos Peralta"
 date: "2025-08-25"
 format:
   revealjs:
-    theme: simple
+    theme: serif
     slide-number: true
+    transition: slide
+    background-transition: fade
+  #revealjs:
+  #  theme: simple
+  #  slide-number: true
 ---
 
 ## Introduction
