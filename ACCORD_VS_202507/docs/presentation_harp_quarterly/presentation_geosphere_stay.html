@@ -148,25 +148,25 @@ Carlos Peralta, Polly Schmederer and Philipp Scheffknecht
 <p><strong>Three-week scientific visit at GeoSphere (July 13 - August 1, 2025)</strong></p>
 <div class="columns">
 <div class="column" style="width:50%;">
-<p><strong>Main Objectives:</strong> - Implementation of spatial verification methods - Focus on extreme weather events - Integration with ACCORD MQA initiative - Development using <code>harp</code> package</p>
-<p><strong>Methods Implemented:</strong> - SLX Score (Structure of Local eXtremes) - Agreement Scales Score (Dey Method)</p>
-</div><div class="column" style="width:50%;">
-<p><strong>Key Results:</strong> - Successfully implemented both methods in <code>harpSpatial</code> - Validated using Austrian CLAEF 1km ensemble - Analyzed convective vs orographic cases - Demonstrated added value over traditional metrics</p>
-</div></div>
-</section>
-<section id="the-double-penalty-problem" class="slide level2 smaller">
-<h2>The Double Penalty Problem</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><strong>Traditional point-by-point verification suffers from:</strong></p>
+<p><strong>Main Objectives:</strong></p>
 <ul>
-<li><strong>Location Error</strong>: Forecast is penalized for placing feature in wrong location</li>
-<li><strong>Miss Error</strong>: Forecast is penalized again for missing feature in correct location</li>
-<li><strong>Result</strong>: Misleadingly low scores even with correct intensity/structure</li>
+<li><p>Implementation of spatial verification methods</p></li>
+<li><p>Focus on extreme weather events</p></li>
+<li><p>Integration with ACCORD MQA initiative</p></li>
+<li><p>Development using <code>harp</code> package</p></li>
+</ul>
+<p><strong>Methods Implemented:</strong></p>
+<ul>
+<li><p>SLX Score (Structure of Local eXtremes)</p></li>
+<li><p>Agreement Scales Score (Dey Method)</p></li>
 </ul>
 </div><div class="column" style="width:50%;">
-<p><strong>Particularly problematic for:</strong> - High-resolution NWP models - Extreme precipitation events - Convective-scale forecasting - Ensemble verification</p>
-<p><strong>Solution</strong>: Spatial verification methods that account for displacement tolerance</p>
+<p><strong>Implemented both methods in <code>harpSpatial</code> (develop)</strong></p>
+<ul>
+<li><p>Validated using Austrian CLAEF 1km ensemble</p></li>
+<li><p>Tested on DINI and DMI radar data</p></li>
+<li><p>Analyzed convective vs orographic cases</p></li>
+</ul>
 </div></div>
 </section>
 <section id="method-1-slx-score---structure-of-local-extremes" class="slide level2 smaller">
@@ -174,11 +174,22 @@ Carlos Peralta, Polly Schmederer and Philipp Scheffknecht
 <p><strong>Purpose</strong>: Evaluate model capability to predict spatial structure of precipitation extremes</p>
 <div class="columns">
 <div class="column" style="width:60%;">
-<p><strong>Four Components:</strong> - <code>SLX_ob_max</code>: How well forecast captures observed maxima - <code>SLX_fc_max</code>: How well observations capture forecast maxima<br>
-- <code>SLX_ob_min</code>: How well forecast captures observed minima - <code>SLX_fc_min</code>: How well observations capture forecast minima</p>
+<p><strong>Four Components:</strong></p>
+<ul>
+<li><p><code>SLX_ob_max</code>: How well forecast captures observed maxima</p></li>
+<li><p><code>SLX_fc_max</code>: How well observations capture forecast maxima</p></li>
+<li><p><code>SLX_ob_min</code>: How well forecast captures observed minima</p></li>
+<li><p><code>SLX_fc_min</code>: How well observations capture forecast minima</p></li>
+</ul>
 <p><span class="math display">\[\text{SLX} = \frac{1}{4}(\text{SLX}_{ob\_max} + \text{SLX}_{fc\_max} + \text{SLX}_{ob\_min} + \text{SLX}_{fc\_min})\]</span></p>
 </div><div class="column" style="width:40%;">
-<p><strong>Key Properties:</strong> - Neighborhood-based (L parameter) - Asymmetric penalty function - Tolerance for small displacement errors - Scale-dependent evaluation</p>
+<p><strong>Key Properties:</strong></p>
+<ul>
+<li><p>Neighborhood-based (L parameter)</p></li>
+<li><p>Asymmetric penalty function</p></li>
+<li><p>Tolerance for small displacement errors</p></li>
+<li><p>Scale-dependent evaluation</p></li>
+</ul>
 </div></div>
 </section>
 <section id="slx-score-function" class="slide level2 smaller">
@@ -195,6 +206,35 @@ Carlos Peralta, Polly Schmederer and Philipp Scheffknecht
 </section>
 <section id="slx-implementation-in-r" class="slide level2 smaller">
 <h2>SLX Implementation in R</h2>
+<pre><code># Core SLX score function
+score_function_sass &lt;- function(phi, ob, k = 0.1, A = 4.0) {
+  if (ob &gt; k) {
+    if (phi &lt; ob - k) {
+      return(phi / max(ob - k, 1e-9))
+    } else if (phi &lt;= ob) {
+      return(1.0)
+    } else {
+      return(max(1 - (phi - ob) / (A * ob), 0.0))
+    }
+  } else {  # ob &lt;= k
+    if (phi &lt;= k) {
+      return(1.0)
+    } else {
+      return(max(1 - (phi - k) / (A * k), 0.0))
+    }
+  }
+}
+
+# Neighborhood extreme calculation
+get_neighbourhood_extreme &lt;- function(arr, i, j, L, mode = 'max') {
+  i_min &lt;- max(1, i - L)
+  i_max &lt;- min(nrow(arr), i + L)
+  j_min &lt;- max(1, j - L) 
+  j_max &lt;- min(ncol(arr), j + L)
+  
+  neighbourhood &lt;- arr[i_min:i_max, j_min:j_max]
+  if (mode == 'max') max(neighbourhood) else min(neighbourhood)
+}</code></pre>
 </section>
 <section id="method-2-agreement-scales-score" class="slide level2 smaller">
 <h2>Method 2: Agreement Scales Score</h2>
@@ -206,9 +246,23 @@ Carlos Peralta, Polly Schmederer and Philipp Scheffknecht
 1 &amp; \text{if both fields = 0}
 \end{cases}\]</span></p>
 <p><strong>Agreement Criterion:</strong> <span class="math display">\[D^S_{ij} \leq D^S_{crit,ij} = \alpha + (1-\alpha)\frac{S}{S_{lim}}\]</span></p>
-</div><div class="column" style="width:50%;">
-<p><strong>Applications:</strong> - <strong>SA(mm)</strong>: Agreement between ensemble members - <strong>SA(mo)</strong>: Agreement between members and observations</p>
-<p><strong>Interpretation:</strong> - Small scales → high spatial predictability - Large scales → low spatial predictability - SA(mo) &gt; SA(mm) → under-spread ensemble</p>
+</div></div>
+</section>
+<section id="agreement-scales-score-applications" class="slide level2 smaller">
+<h2>Agreement Scales Score applications</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Applications:</strong></p>
+<ul>
+<li><p><strong>SA(mm)</strong>: Agreement between ensemble members</p></li>
+<li><p><strong>SA(mo)</strong>: Agreement between members and observations</p></li>
+</ul>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><p>Small scales → high spatial predictability</p></li>
+<li><p>Large scales → low spatial predictability</p></li>
+<li><p>SA(mo) &gt; SA(mm) → under-spread ensemble</p></li>
+</ul>
 </div></div>
 </section>
 <section id="agreement-scales-implementation-in-r" class="slide level2 smaller">
@@ -697,44 +751,6 @@ sa_mo &lt;- calc_agreement_scales_mo(
         ]
       });
     </script>
-    
-    <script>
-      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
-      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
-      // slide changes (different for each slide format).
-      (function () {
-        // dispatch for htmlwidgets
-        function fireSlideEnter() {
-          const event = window.document.createEvent("Event");
-          event.initEvent("slideenter", true, true);
-          window.document.dispatchEvent(event);
-        }
-
-        function fireSlideChanged(previousSlide, currentSlide) {
-          fireSlideEnter();
-
-          // dispatch for shiny
-          if (window.jQuery) {
-            if (previousSlide) {
-              window.jQuery(previousSlide).trigger("hidden");
-            }
-            if (currentSlide) {
-              window.jQuery(currentSlide).trigger("shown");
-            }
-          }
-        }
-
-        // hookup for slidy
-        if (window.w3c_slidy) {
-          window.w3c_slidy.add_observer(function (slide_num) {
-            // slide_num starts at position 1
-            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
-          });
-        }
-
-      })();
-    </script>
-
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")

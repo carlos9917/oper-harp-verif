@@ -20,47 +20,31 @@ format:
 :::: {.columns}
 ::: {.column width="50%"}
 **Main Objectives:**
+
 - Implementation of spatial verification methods
+
 - Focus on extreme weather events 
+
 - Integration with ACCORD MQA initiative
+
 - Development using `harp` package
 
 **Methods Implemented:**
+
 - SLX Score (Structure of Local eXtremes)
+
 - Agreement Scales Score (Dey Method)
+
 :::
 
 ::: {.column width="50%"}
-**Key Results:**
-- Successfully implemented both methods in `harpSpatial`
+**Implemented both methods in `harpSpatial` (develop)**
+
 - Validated using Austrian CLAEF 1km ensemble
+
 - Tested on DINI and DMI radar data
+
 - Analyzed convective vs orographic cases
-- Demonstrated added value over traditional metrics
-:::
-::::
-
----
-
-## The Double Penalty Problem {.smaller}
-
-:::: {.columns}
-::: {.column width="50%"}
-**Traditional point-by-point verification suffers from:**
-
-- **Location Error**: Forecast is penalized for placing feature in wrong location
-- **Miss Error**: Forecast is penalized again for missing feature in correct location
-- **Result**: Misleadingly low scores even with correct intensity/structure
-:::
-
-::: {.column width="50%"}
-**Particularly problematic for:**
-- High-resolution NWP models
-- Extreme precipitation events
-- Convective-scale forecasting
-- Ensemble verification
-
-**Solution**: Spatial verification methods that account for displacement tolerance
 :::
 ::::
 
@@ -73,9 +57,13 @@ format:
 :::: {.columns}
 ::: {.column width="60%"}
 **Four Components:**
+
 - `SLX_ob_max`: How well forecast captures observed maxima
+
 - `SLX_fc_max`: How well observations capture forecast maxima  
+
 - `SLX_ob_min`: How well forecast captures observed minima
+
 - `SLX_fc_min`: How well observations capture forecast minima
 
 $$\text{SLX} = \frac{1}{4}(\text{SLX}_{ob\_max} + \text{SLX}_{fc\_max} + \text{SLX}_{ob\_min} + \text{SLX}_{fc\_min})$$
@@ -83,9 +71,13 @@ $$\text{SLX} = \frac{1}{4}(\text{SLX}_{ob\_max} + \text{SLX}_{fc\_max} + \text{S
 
 ::: {.column width="40%"}
 **Key Properties:**
+
 - Neighborhood-based (L parameter)
+
 - Asymmetric penalty function
+
 - Tolerance for small displacement errors
+
 - Scale-dependent evaluation
 :::
 ::::
@@ -110,7 +102,7 @@ $$S(ob, \phi) = \begin{cases}
 
 ## SLX Implementation in R {.smaller}
 
-```{r}
+```
 # Core SLX score function
 score_function_sass <- function(phi, ob, k = 0.1, A = 4.0) {
   if (ob > k) {
@@ -150,6 +142,7 @@ get_neighbourhood_extreme <- function(arr, i, j, L, mode = 'max') {
 
 :::: {.columns}
 ::: {.column width="50%"}
+
 **Similarity Criterion:**
 $$D^S_{ij} = \begin{cases}
 \frac{(f^S_{1ij} - f^S_{2ij})^2}{(f^S_{1ij})^2 + (f^S_{2ij})^2} & \text{if } f^S_{1ij} > 0 \text{ or } f^S_{2ij} > 0 \\
@@ -159,15 +152,26 @@ $$D^S_{ij} = \begin{cases}
 **Agreement Criterion:**
 $$D^S_{ij} \leq D^S_{crit,ij} = \alpha + (1-\alpha)\frac{S}{S_{lim}}$$
 :::
+::::
 
+---
+
+## Agreement Scales Score applications {.smaller}
+
+:::: {.columns}
 ::: {.column width="50%"}
 **Applications:**
+
 - **SA(mm)**: Agreement between ensemble members
+
 - **SA(mo)**: Agreement between members and observations
 
 **Interpretation:**
+
 - Small scales → high spatial predictability
+
 - Large scales → low spatial predictability
+
 - SA(mo) > SA(mm) → under-spread ensemble
 :::
 ::::
@@ -444,16 +448,25 @@ sa_mo <- calc_agreement_scales_mo(
 :::: {.columns}
 ::: {.column width="50%"}
 **SLX Score Benefits:**
+
 - ✅ Extreme-focused verification
+
 - ✅ Addresses double penalty problem  
+
 - ✅ Scale-dependent evaluation
+
 - ✅ Comprehensive (maxima + minima)
+
 - ✅ Operationally practical
 
 **Agreement Scales Benefits:**
+
 - ✅ Location-dependent skill assessment
+
 - ✅ Ensemble spread-skill relationships
+
 - ✅ Scale-aware uncertainty quantification
+
 - ✅ Physically interpretable results
 :::
 
@@ -508,16 +521,18 @@ sa_mo <- calc_agreement_scales_mo(
 
 ---
 
-## Conclusions {.smaller}
+## Summary {.smaller}
 
 :::: {.columns}
 ::: {.column width="50%"}
-**Successfully Achieved:**
+
 1. **Implementation** of SLX and Agreement Scales methods in R/harp
+
 2. **Validation** using both synthetic and real-world cases
-3. **Demonstration** of added value over traditional metrics
-4. **Analysis** of two contrasting meteorological scenarios
-5. **Integration** within ACCORD MQA framework
+
+3. **Analysis** of two contrasting meteorological scenarios
+
+4. **Integration** within ACCORD MQA framework
 :::
 
 ::: {.column width="50%"}
@@ -529,36 +544,4 @@ sa_mo <- calc_agreement_scales_mo(
 :::
 ::::
 
-**Impact**: These methods provide operational forecasters and researchers with powerful tools to understand and improve high-resolution weather prediction, particularly for extreme events where spatial accuracy is crucial.
-
 ---
-
-## Acknowledgments {.smaller}
-
-:::: {.columns}
-::: {.column width="50%"}
-**GeoSphere Austria Team:**
-- Polly Schmederer (supervision and guidance)
-- Philipp Scheffknecht (technical support)
-- All GeoSphere staff for hosting and collaboration
-
-**ACCORD Community:**
-- MQA initiative participants
-- `harp` development team
-- CLAEF ensemble system providers
-:::
-
-::: {.column width="50%"}
-**Scientific Community:**
-- Bent Hansen Sass (SLX method development)
-- Suranjana Dey et al. (Agreement Scales method)
-- Spatial verification research community
-
-**Resources:**
-- Computing facilities at GeoSphere
-- CLAEF 1km ensemble data
-- INCAPlus observation data
-:::
-::::
-
-**Contact**: carlos.peralta@[institution] | carlos9917@github
