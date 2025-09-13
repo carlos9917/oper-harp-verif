@@ -2,14 +2,14 @@
 title: "Spatial Verification Methods for Extreme Events"
 subtitle: "Implementation and Validation Results from GeoSphere Stay"
 author: "Carlos Peralta, Polly Schmederer and Philipp Scheffknecht"
-date: "August 2025"
+date: "September 2025"
 format:
   revealjs:
     theme: white
     slide-number: true
     chalkboard: true
     preview-links: auto
-    footer: "ACCORD MQA Initiative - GeoSphere Stay 2025"
+    footer: "ACCORD MQA - GeoSphere Stay 2025"
     fig-align: center
 ---
 
@@ -222,9 +222,9 @@ calc_agreement_scale <- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) 
 
 :::: {.columns}
 ::: {.column width="50%"}
-![INCAPlus observations](case_studies/geosphere/2025072815_convection_case/ob_accrr3h_202507281800_INCAPlus.png){width=80%}
+![INCAPlus observations](../case_studies/geosphere/2025072815_convection_case/ob_accrr3h_202507281800_INCAPlus.png){width=80%}
 
-![CLAEF 1km forecast](case_studies/geosphere/2025072815_convection_case/fc_accrr1h_202507281800_3_CLAEF00.png){width=80%}
+![CLAEF 1km forecast](../case_studies/geosphere/2025072815_convection_case/fc_accrr1h_202507281800_3_CLAEF00.png){width=80%}
 :::
 
 ::: {.column width="50%"}
@@ -248,9 +248,9 @@ calc_agreement_scale <- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) 
 
 :::: {.columns}
 ::: {.column width="50%"}
-![SLX overall scores](case_studies/geosphere/2025072815_convection_case/slx_overall_2025072815_3_accrr3h.png){width=90%}
+![SLX overall scores](../case_studies/geosphere/2025072815_convection_case/slx_overall_2025072815_3_accrr3h.png){width=90%}
 
-![SLX components](case_studies/geosphere/2025072815_convection_case/slx_comps_2025072815_3_accrr3h.png){width=90%}
+![SLX components](../case_studies/geosphere/2025072815_convection_case/slx_comps_2025072815_3_accrr3h.png){width=90%}
 :::
 
 ::: {.column width="50%"}
@@ -270,9 +270,9 @@ calc_agreement_scale <- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) 
 
 :::: {.columns}
 ::: {.column width="50%"}
-![INCAPlus observations](case_studies/geosphere/2025070800_orog_case/ob_accrr3h_202507080300_INCAPlus.png){width=80%}
+![INCAPlus observations](../case_studies/geosphere/2025070800_orog_case/ob_accrr3h_202507080300_INCAPlus.png){width=80%}
 
-![CLAEF 1km forecast](case_studies/geosphere/2025070800_orog_case/fc_accrr3h_202507080300_3_CLAEF00.png){width=80%}
+![CLAEF 1km forecast](../case_studies/geosphere/2025070800_orog_case/fc_accrr3h_202507080300_3_CLAEF00.png){width=80%}
 :::
 
 ::: {.column width="50%"}
@@ -296,9 +296,9 @@ calc_agreement_scale <- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) 
 
 :::: {.columns}
 ::: {.column width="50%"}
-![SLX overall scores](case_studies/geosphere/2025070800_orog_case/slx_overall_2025070800_3_accrr3h.png){width=90%}
+![SLX overall scores](../case_studies/geosphere/2025070800_orog_case/slx_overall_2025070800_3_accrr3h.png){width=90%}
 
-![SLX components](case_studies/geosphere/2025070800_orog_case/slx_comps_2025070800_3_accrr3h.png){width=90%}
+![SLX components](../case_studies/geosphere/2025070800_orog_case/slx_comps_2025070800_3_accrr3h.png){width=90%}
 :::
 
 ::: {.column width="50%"}
@@ -443,13 +443,9 @@ sa_mo <- calc_agreement_scales_mo(
 
 ---
 
-## Key Benefits and Applications {.smaller}
-
 :::: {.columns}
 ::: {.column width="50%"}
 **SLX Score Benefits:**
-
-- ✅ Extreme-focused verification
 
 - ✅ Addresses double penalty problem  
 
@@ -467,7 +463,6 @@ sa_mo <- calc_agreement_scales_mo(
 
 - ✅ Scale-aware uncertainty quantification
 
-- ✅ Physically interpretable results
 :::
 
 ::: {.column width="50%"}
@@ -493,15 +488,13 @@ sa_mo <- calc_agreement_scales_mo(
 ::: {.column width="50%"}
 **Short-term Priorities:**
 - Performance optimization for large domains
-- Integration of agreement scales in main `harp` workflow
+- Integration of agreement scales in main `oper-harp-verif` workflow
 - Documentation and user guidance
 - Additional case study analysis
 
 **Medium-term Development:**
 - Extension to other variables (wind, temperature)
 - Multi-threshold analysis capabilities
-- Automated parameter optimization
-- Real-time implementation
 :::
 
 ::: {.column width="50%"}
@@ -511,11 +504,6 @@ sa_mo <- calc_agreement_scales_mo(
 - Machine learning integration
 - Climate model evaluation applications
 
-**Community Integration:**
-- ACCORD MQA operational deployment
-- Training workshops and documentation
-- Scientific publication of results
-- Code sharing and collaboration
 :::
 ::::
 
@@ -535,13 +523,6 @@ sa_mo <- calc_agreement_scales_mo(
 4. **Integration** within ACCORD MQA framework
 :::
 
-::: {.column width="50%"}
-**Key Scientific Insights:**
-- Spatial verification reveals error characteristics invisible to traditional methods
-- Orographic vs convective events show fundamentally different predictability patterns
-- Scale-dependent analysis essential for high-resolution model evaluation
-- Ensemble spread-skill relationships quantifiable at local scales
-:::
 ::::
 
 ---
