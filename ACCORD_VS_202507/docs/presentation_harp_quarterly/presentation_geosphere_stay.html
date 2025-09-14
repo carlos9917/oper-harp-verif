@@ -347,27 +347,27 @@ calc_agreement_scale &lt;- function(field1, field2, i, j, alpha = 0.5, s_lim = 8
 <div class="column" style="width:50%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="fo_field_plots_trimmed.png" style="width:80.0%"></p>
+<p><img data-src="fo_field_plots_trimmed_case1.png" style="width:80.0%"></p>
 <figcaption>Agreement case1</figcaption>
 </figure>
 </div>
 </div><div class="column" style="width:50%;">
 <p><strong>Agreement scales Analysis:</strong></p>
 <ul>
-<li><p><strong>Locations</strong>: The forecast shows that rain with similar pattern, fine details misaligned.</p></li>
+<li><p><strong>Fields</strong>: The forecast shows that rain with similar pattern, fine details misaligned.</p></li>
 <li><p><strong>Scales</strong>: Most areas only show agreement when viewed on broad scales (40–60+ grid points), fine‑scale matches rare.</p></li>
 <li><p><strong>Histogram</strong>: Shows some points align perfectly in no‑rain areas, but overall the forecast skill only emerges at large (~38 grid point) mesoscale smoothing.</p></li>
 </ul>
 </div></div>
 </section>
 <section id="case-study-1-key-findings" class="slide level2 smaller">
-<h2>Case Study 1: Key findings</h2>
+<h2>Case Study 1: Key Findings</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <ul>
-<li>Combined SLX: ~0.45 at grid scale</li>
-<li>Gradual improvement with neighborhood size</li>
-<li>Forecast maxima poorly collocated with observations</li>
+<li><p>Combined SLX: ~0.45 at grid scale</p></li>
+<li><p>Gradual improvement with neighborhood size</p></li>
+<li><p>Forecast maxima poorly collocated with observations</p></li>
 </ul>
 <p><strong>Interpretation</strong>: Model captures mesoscale patterns but struggles with fine-scale localization</p>
 </div></div>
@@ -378,14 +378,8 @@ calc_agreement_scale &lt;- function(field1, field2, i, j, alpha = 0.5, s_lim = 8
 <div class="column" style="width:50%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="../case_studies/geosphere/2025070800_orog_case/ob_accrr3h_202507080300_INCAPlus.png" style="width:80.0%"></p>
-<figcaption>INCAPlus observations</figcaption>
-</figure>
-</div>
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="../case_studies/geosphere/2025070800_orog_case/fc_accrr3h_202507080300_3_CLAEF00.png" style="width:80.0%"></p>
-<figcaption>CLAEF 1km forecast</figcaption>
+<p><img data-src="case2.png" style="width:80.0%"></p>
+<figcaption>case2</figcaption>
 </figure>
 </div>
 </div><div class="column" style="width:50%;">
@@ -404,29 +398,46 @@ calc_agreement_scale &lt;- function(field1, field2, i, j, alpha = 0.5, s_lim = 8
 <div class="column" style="width:50%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="../case_studies/geosphere/2025070800_orog_case/slx_overall_2025070800_3_accrr3h.png" style="width:90.0%"></p>
-<figcaption>SLX overall scores</figcaption>
-</figure>
-</div>
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="../case_studies/geosphere/2025070800_orog_case/slx_comps_2025070800_3_accrr3h.png" style="width:90.0%"></p>
-<figcaption>SLX components</figcaption>
+<p><img data-src="SLX_case2.png" style="width:90.0%"></p>
+<figcaption>SLX case2</figcaption>
 </figure>
 </div>
 </div><div class="column" style="width:50%;">
-<p><strong>SLX Analysis:</strong> - <strong>Overall SLX</strong>: 0.65 at L=0 (Good), decreases with scale - <strong>Maxima components</strong>: Strong (0.65-0.70), well collocated - <strong>Obs minima</strong>: Degrades markedly (0.55→0.25) - <strong>Forecast minima</strong>: Moderate and stable</p>
-<p><strong>Interpretation</strong>: Excellent fine-scale skill due to terrain anchoring. Wet bias evident in forecast minima component.</p>
+<p><strong>SLX Analysis:</strong></p>
+<ul>
+<li><p><strong>Overall SLX</strong>: 0.65 at L=0 (Good), decreases with scale</p></li>
+<li><p><strong>Maxima components</strong>: Strong (0.65-0.70), well collocated</p></li>
+<li><p><strong>Obs minima</strong>: Degrades markedly (0.55→0.25)</p></li>
+<li><p><strong>Forecast minima</strong>: Moderate and stable</p></li>
+</ul>
+</div></div>
+</section>
+<section id="orographic-case-agreement-scales" class="slide level2 smaller">
+<h2>Orographic Case: Agreement Scales</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="fo_field_plots_trimmed_case2.png" style="width:80.0%"></p>
+<figcaption>Agreement case1</figcaption>
+</figure>
+</div>
+</div><div class="column" style="width:50%;">
+<p><strong>Agreement scales Analysis:</strong></p>
+<p><strong>Fields</strong>: Precipitation is localized. The model produces precipitation in similar regions, introducing additional maxima, especially in the southeast, which were not observed.</p>
+<p><strong>Scales</strong>: The agreeent scales map shows that agreement is reached at very fine neighborhood sizes across much of the domain. Forecast and observed precipitation structures align closely, and only minimal spatial tolerance is needed.</p>
+<p><strong>Histogram</strong> - Has an extremely sharp spike at very small scales (0–3 grid points). Long tail toward larger scales is negligible compared to the dominance at fine scales.</p>
 </div></div>
 </section>
 <section id="orographic-case-key-findings" class="slide level2 smaller">
-<h2>Orographic Case: KEy Findings</h2>
+<h2>Orographic Case: Key Findings</h2>
 <ul>
 <li><p>SLX skill highest at grid scale (~0.65)</p></li>
 <li><p>Degrades with increasing neighborhood size</p></li>
 <li><p>Small agreement scales (~2-3 grid points)</p></li>
 <li><p>Orographic forcing anchors precipitation well</p></li>
 </ul>
+<p><strong>Interpretation</strong>: Excellent fine-scale skill due to terrain anchoring. Wet bias evident in forecast minima component.</p>
 </section>
 <section id="comparative-results-summary" class="slide level2 smaller">
 <h2>Comparative Results Summary</h2>
@@ -476,7 +487,6 @@ calc_agreement_scale &lt;- function(field1, field2, i, j, alpha = 0.5, s_lim = 8
 </tr>
 </tbody>
 </table>
-<p><strong>Key Insight</strong>: Spatial verification reveals fundamentally different error characteristics that traditional metrics would miss.</p>
 </section>
 <section id="technical-implementation" class="slide level2 smaller">
 <h2>Technical Implementation</h2>
@@ -504,19 +514,12 @@ sa_mo &lt;- calc_agreement_scales_mo(
   alpha = 0.5,
   s_lim = 80)</code></pre>
 </div><div class="column" style="width:50%;">
-<p><strong>Current Status:</strong> - ✅ SLX implemented in <code>verify_spatial</code> - ✅ Agreement scales as separate functions - ✅ Validated against literature examples - ⚠️ Performance optimization needed for large domains</p>
-<p><strong>Future Development:</strong> - Integration of agreement scales in main verification workflow - Computational efficiency improvements - Extension to other meteorological variables</p>
-</div></div>
-</section>
-<section id="performance-and-scalability" class="slide level2 smaller">
-<h2>Performance and Scalability</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><strong>Current Performance:</strong> - Austrian domain (100x100 km): Reasonable speed - Large domains (DINI, 1000x1000 km): Significantly slower - Memory usage scales with ensemble size</p>
-<p><strong>Computational Challenges:</strong> - Nested loops for neighborhood calculations - Multiple ensemble member comparisons - Agreement scales: O(S_lim × N_points) complexity</p>
-</div><div class="column" style="width:50%;">
-<p><strong>Optimization Strategies:</strong> - Vectorization of neighborhood operations - Parallel processing for ensemble pairs - Pre-computed distance matrices - Efficient extreme detection algorithms</p>
-<p><strong>Trade-offs:</strong> - Accuracy vs computational efficiency - Memory usage vs processing speed - Real-time vs post-processing applications</p>
+<p><strong>Current Status:</strong> - ✅ SLX implemented in <code>verify_spatial</code></p>
+<ul>
+<li><p>✅ Agreement scales as separate functions</p></li>
+<li><p>✅ Validated against literature examples</p></li>
+<li><p>⚠️ Performance optimization needed for large domains</p></li>
+</ul>
 </div></div>
 </section>
 <section id="validation-results" class="slide level2 smaller">
@@ -524,15 +527,28 @@ sa_mo &lt;- calc_agreement_scales_mo(
 <p><strong>Method validation using synthetic and literature cases:</strong></p>
 <div class="columns">
 <div class="column" style="width:50%;">
-<p><strong>SLX Validation:</strong> - ✅ Reproduced Sass (2021) synthetic test cases - ✅ Score increases with neighborhood size for displaced features - ✅ Asymmetric penalty function working correctly - ✅ Extreme detection algorithm validated</p>
-<p><strong>Agreement Scales Validation:</strong> - ✅ Reproduced Dey et al.&nbsp;(2016) idealized ensemble - ✅ Spread-skill relationships correctly identified - ✅ Scale-dependent agreement maps match expectations</p>
+<p><strong>SLX Validation:</strong></p>
+<ul>
+<li><p>✅ Reproduced Sass (2021) synthetic test cases</p></li>
+<li><p>✅ Score increases with neighborhood size for displaced features</p></li>
+</ul>
+<p><strong>Agreement Scales Validation:</strong></p>
+<ul>
+<li><p>✅ Reproduced Dey et al.&nbsp;(2016) idealized ensemble</p></li>
+<li><p>✅ Scale-dependent agreement maps match expectations</p></li>
+</ul>
 </div><div class="column" style="width:50%;">
-<p><strong>Real Data Validation:</strong> - Both methods show expected behavior - Results consistent with meteorological understanding - Clear discrimination between event types - Complementary information to traditional scores</p>
-<p><strong>Robustness Tests:</strong> - Stable across different precipitation intensities - Consistent results across multiple cases - Parameter sensitivity within acceptable ranges</p>
+<p><strong>Case studies:</strong></p>
+<ul>
+<li><p>Both methods show expected behavior</p></li>
+<li><p>Results consistent with meteorological understanding</p></li>
+<li><p>Clear discrimination between event types</p></li>
+<li><p>Complementary information to traditional scores</p></li>
+</ul>
 </div></div>
 </section>
-<section class="slide level2">
-
+<section id="scores-characteristics" class="slide level2 smaller">
+<h2>Scores characteristics</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <p><strong>SLX Score Benefits:</strong></p>
@@ -540,27 +556,14 @@ sa_mo &lt;- calc_agreement_scales_mo(
 <li><p>✅ Addresses double penalty problem</p></li>
 <li><p>✅ Scale-dependent evaluation</p></li>
 <li><p>✅ Comprehensive (maxima + minima)</p></li>
-<li><p>✅ Operationally practical</p></li>
 </ul>
+</div><div class="column" style="width:50%;">
 <p><strong>Agreement Scales Benefits:</strong></p>
 <ul>
 <li><p>✅ Location-dependent skill assessment</p></li>
 <li><p>✅ Ensemble spread-skill relationships</p></li>
 <li><p>✅ Scale-aware uncertainty quantification</p></li>
 </ul>
-</div><div class="column" style="width:50%;">
-<p><strong>Operational Applications:</strong> - Model development and tuning - Ensemble calibration assessment - Event-based forecast verification - Real-time forecast quality monitoring</p>
-<p><strong>Research Applications:</strong> - Understanding forecast error characteristics - Scale-dependent predictability studies - Ensemble system evaluation - Extreme event climatology</p>
-</div></div>
-</section>
-<section id="future-work-and-recommendations" class="slide level2 smaller">
-<h2>Future Work and Recommendations</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><strong>Short-term Priorities:</strong> - Performance optimization for large domains - Integration of agreement scales in main <code>oper-harp-verif</code> workflow - Documentation and user guidance - Additional case study analysis</p>
-<p><strong>Medium-term Development:</strong> - Extension to other variables (wind, temperature) - Multi-threshold analysis capabilities</p>
-</div><div class="column" style="width:50%;">
-<p><strong>Research Opportunities:</strong> - Scale-dependent ensemble perturbations - Physics-based predictability analysis - Machine learning integration - Climate model evaluation applications</p>
 </div></div>
 </section>
 <section id="summary" class="slide level2 smaller">
@@ -568,11 +571,32 @@ sa_mo &lt;- calc_agreement_scales_mo(
 <div class="columns">
 <div class="column" style="width:50%;">
 <ol type="1">
-<li><p><strong>Implementation</strong> of SLX and Agreement Scales methods in R/harp</p></li>
+<li><p><strong>Implementation</strong> of SLX and Agreement Scales methods in <code>harp</code></p></li>
 <li><p><strong>Validation</strong> using both synthetic and real-world cases</p></li>
 <li><p><strong>Analysis</strong> of two contrasting meteorological scenarios</p></li>
-<li><p><strong>Integration</strong> within ACCORD MQA framework</p></li>
+<li><p><strong>Integration</strong> within <code>harpSpatial</code> library</p></li>
 </ol>
+</div></div>
+</section>
+<section id="future-work" class="slide level2 smaller">
+<h2>Future Work</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Short-term Priorities:</strong></p>
+<ul>
+<li><p>Merge branches</p></li>
+<li><p>Performance optimization for large domains (i.e., DINI)</p></li>
+<li><p>Include member-to-member option in <code>verify_spatial</code> (currently only S(mo) comparison)</p></li>
+<li><p>Integration of agreement scales in main <code>oper-harp-verif</code> workflow</p></li>
+<li><p>Documentation and user guidance</p></li>
+<li><p>Additional case study analysis</p></li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>Medium-term Development:</strong></p>
+<ul>
+<li><p>Extension to other variables (wind, temperature)</p></li>
+<li><p>Multi-threshold analysis capabilities</p></li>
+</ul>
 </div></div>
 </section>
 <section class="slide level2">
