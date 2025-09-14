@@ -222,43 +222,76 @@ calc_agreement_scale <- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) 
 
 :::: {.columns}
 ::: {.column width="50%"}
-![INCAPlus observations](../case_studies/geosphere/2025072815_convection_case/ob_accrr3h_202507281800_INCAPlus.png){width=80%}
-
-![CLAEF 1km forecast](../case_studies/geosphere/2025072815_convection_case/fc_accrr1h_202507281800_3_CLAEF00.png){width=80%}
+![fcst and obs](case1.png){width=80%}
 :::
 
 ::: {.column width="50%"}
 **Event Characteristics:**
-- Convection-driven precipitation
-- Multiple cells across Austria
-- Displacement errors evident
-- Complex spatial patterns
 
-**Key Findings:**
-- Combined SLX: ~0.45 at grid scale
-- Gradual improvement with neighborhood size
-- Forecast maxima poorly collocated with observations
-- Large agreement scales (~38 grid points) indicate low fine-scale predictability
+- Convection-driven precipitation
+
+- Multiple cells across Austria
+
+- Displacement errors evident
+
+- Complex spatial patterns
 :::
 ::::
 
 ---
 
-## Convective Case: SLX Results {.smaller}
+
+## Convective Case: SLX {.smaller}
 
 :::: {.columns}
 ::: {.column width="50%"}
-![SLX overall scores](../case_studies/geosphere/2025072815_convection_case/slx_overall_2025072815_3_accrr3h.png){width=90%}
-
-![SLX components](../case_studies/geosphere/2025072815_convection_case/slx_comps_2025072815_3_accrr3h.png){width=90%}
+![SLX case1](SLX_case1.png){width=80%}
 :::
 
 ::: {.column width="50%"}
 **SLX Analysis:**
+
 - **Obs minima** (0.8-0.85): Dry areas well represented
+
 - **Obs maxima** (0.38-0.42): Partly captured, location mismatches
+
 - **Forecast minima**: Improves with scale (0.3→0.8)
+
 - **Forecast maxima**: Poor agreement (<0.35), drops to ~0
+
+:::
+::::
+
+---
+
+## Convective Case: Agreement Scales {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+![Agreement case1](fo_field_plots_trimmed.png){width=80%}
+:::
+
+::: {.column width="50%"}
+**Agreement scales Analysis:**
+
+- **Locations**: The forecast shows that rain with similar pattern, fine details misaligned. 
+
+- **Scales**: Most areas only show agreement when viewed on broad scales (40–60+ grid points), fine‑scale matches rare. 
+
+- **Histogram**: Shows some points align perfectly in no‑rain areas, but overall the forecast skill only emerges at large (~38 grid point) mesoscale smoothing.
+
+:::
+::::
+
+---
+
+## Case Study 1: Key findings {.smaller}
+:::: {.columns}
+::: {.column width="50%"}
+
+- Combined SLX: ~0.45 at grid scale
+- Gradual improvement with neighborhood size
+- Forecast maxima poorly collocated with observations
 
 **Interpretation**: Model captures mesoscale patterns but struggles with fine-scale localization
 :::
@@ -277,16 +310,15 @@ calc_agreement_scale <- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) 
 
 ::: {.column width="50%"}
 **Event Characteristics:**
+
 - Orographically-driven precipitation
+
 - Terrain-locked features
+
 - Strong NW maximum
+
 - Additional spurious maxima in SE
 
-**Key Findings:**
-- SLX skill highest at grid scale (~0.65)
-- Degrades with increasing neighborhood size
-- Small agreement scales (~2-3 grid points)
-- Orographic forcing anchors precipitation well
 :::
 ::::
 
@@ -313,6 +345,16 @@ calc_agreement_scale <- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) 
 ::::
 
 ---
+
+## Orographic Case: KEy Findings {.smaller}
+
+- SLX skill highest at grid scale (~0.65)
+
+- Degrades with increasing neighborhood size
+
+- Small agreement scales (~2-3 grid points)
+
+- Orographic forcing anchors precipitation well
 
 ## Comparative Results Summary {.smaller}
 

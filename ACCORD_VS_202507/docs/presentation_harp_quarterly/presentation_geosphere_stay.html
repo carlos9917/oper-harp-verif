@@ -307,39 +307,68 @@ calc_agreement_scale &lt;- function(field1, field2, i, j, alpha = 0.5, s_lim = 8
 <div class="column" style="width:50%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="../case_studies/geosphere/2025072815_convection_case/ob_accrr3h_202507281800_INCAPlus.png" style="width:80.0%"></p>
-<figcaption>INCAPlus observations</figcaption>
-</figure>
-</div>
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="../case_studies/geosphere/2025072815_convection_case/fc_accrr1h_202507281800_3_CLAEF00.png" style="width:80.0%"></p>
-<figcaption>CLAEF 1km forecast</figcaption>
+<p><img data-src="case1.png" style="width:80.0%"></p>
+<figcaption>fcst and obs</figcaption>
 </figure>
 </div>
 </div><div class="column" style="width:50%;">
-<p><strong>Event Characteristics:</strong> - Convection-driven precipitation - Multiple cells across Austria - Displacement errors evident - Complex spatial patterns</p>
-<p><strong>Key Findings:</strong> - Combined SLX: ~0.45 at grid scale - Gradual improvement with neighborhood size - Forecast maxima poorly collocated with observations - Large agreement scales (~38 grid points) indicate low fine-scale predictability</p>
+<p><strong>Event Characteristics:</strong></p>
+<ul>
+<li><p>Convection-driven precipitation</p></li>
+<li><p>Multiple cells across Austria</p></li>
+<li><p>Displacement errors evident</p></li>
+<li><p>Complex spatial patterns</p></li>
+</ul>
 </div></div>
 </section>
-<section id="convective-case-slx-results" class="slide level2 smaller">
-<h2>Convective Case: SLX Results</h2>
+<section id="convective-case-slx" class="slide level2 smaller">
+<h2>Convective Case: SLX</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="../case_studies/geosphere/2025072815_convection_case/slx_overall_2025072815_3_accrr3h.png" style="width:90.0%"></p>
-<figcaption>SLX overall scores</figcaption>
-</figure>
-</div>
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="../case_studies/geosphere/2025072815_convection_case/slx_comps_2025072815_3_accrr3h.png" style="width:90.0%"></p>
-<figcaption>SLX components</figcaption>
+<p><img data-src="SLX_case1.png" style="width:80.0%"></p>
+<figcaption>SLX case1</figcaption>
 </figure>
 </div>
 </div><div class="column" style="width:50%;">
-<p><strong>SLX Analysis:</strong> - <strong>Obs minima</strong> (0.8-0.85): Dry areas well represented - <strong>Obs maxima</strong> (0.38-0.42): Partly captured, location mismatches - <strong>Forecast minima</strong>: Improves with scale (0.3→0.8) - <strong>Forecast maxima</strong>: Poor agreement (&lt;0.35), drops to ~0</p>
+<p><strong>SLX Analysis:</strong></p>
+<ul>
+<li><p><strong>Obs minima</strong> (0.8-0.85): Dry areas well represented</p></li>
+<li><p><strong>Obs maxima</strong> (0.38-0.42): Partly captured, location mismatches</p></li>
+<li><p><strong>Forecast minima</strong>: Improves with scale (0.3→0.8)</p></li>
+<li><p><strong>Forecast maxima</strong>: Poor agreement (&lt;0.35), drops to ~0</p></li>
+</ul>
+</div></div>
+</section>
+<section id="convective-case-agreement-scales" class="slide level2 smaller">
+<h2>Convective Case: Agreement Scales</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="fo_field_plots_trimmed.png" style="width:80.0%"></p>
+<figcaption>Agreement case1</figcaption>
+</figure>
+</div>
+</div><div class="column" style="width:50%;">
+<p><strong>Agreement scales Analysis:</strong></p>
+<ul>
+<li><p><strong>Locations</strong>: The forecast shows that rain with similar pattern, fine details misaligned.</p></li>
+<li><p><strong>Scales</strong>: Most areas only show agreement when viewed on broad scales (40–60+ grid points), fine‑scale matches rare.</p></li>
+<li><p><strong>Histogram</strong>: Shows some points align perfectly in no‑rain areas, but overall the forecast skill only emerges at large (~38 grid point) mesoscale smoothing.</p></li>
+</ul>
+</div></div>
+</section>
+<section id="case-study-1-key-findings" class="slide level2 smaller">
+<h2>Case Study 1: Key findings</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li>Combined SLX: ~0.45 at grid scale</li>
+<li>Gradual improvement with neighborhood size</li>
+<li>Forecast maxima poorly collocated with observations</li>
+</ul>
 <p><strong>Interpretation</strong>: Model captures mesoscale patterns but struggles with fine-scale localization</p>
 </div></div>
 </section>
@@ -360,8 +389,13 @@ calc_agreement_scale &lt;- function(field1, field2, i, j, alpha = 0.5, s_lim = 8
 </figure>
 </div>
 </div><div class="column" style="width:50%;">
-<p><strong>Event Characteristics:</strong> - Orographically-driven precipitation - Terrain-locked features - Strong NW maximum - Additional spurious maxima in SE</p>
-<p><strong>Key Findings:</strong> - SLX skill highest at grid scale (~0.65) - Degrades with increasing neighborhood size - Small agreement scales (~2-3 grid points) - Orographic forcing anchors precipitation well</p>
+<p><strong>Event Characteristics:</strong></p>
+<ul>
+<li><p>Orographically-driven precipitation</p></li>
+<li><p>Terrain-locked features</p></li>
+<li><p>Strong NW maximum</p></li>
+<li><p>Additional spurious maxima in SE</p></li>
+</ul>
 </div></div>
 </section>
 <section id="orographic-case-slx-results" class="slide level2 smaller">
@@ -384,6 +418,15 @@ calc_agreement_scale &lt;- function(field1, field2, i, j, alpha = 0.5, s_lim = 8
 <p><strong>SLX Analysis:</strong> - <strong>Overall SLX</strong>: 0.65 at L=0 (Good), decreases with scale - <strong>Maxima components</strong>: Strong (0.65-0.70), well collocated - <strong>Obs minima</strong>: Degrades markedly (0.55→0.25) - <strong>Forecast minima</strong>: Moderate and stable</p>
 <p><strong>Interpretation</strong>: Excellent fine-scale skill due to terrain anchoring. Wet bias evident in forecast minima component.</p>
 </div></div>
+</section>
+<section id="orographic-case-key-findings" class="slide level2 smaller">
+<h2>Orographic Case: KEy Findings</h2>
+<ul>
+<li><p>SLX skill highest at grid scale (~0.65)</p></li>
+<li><p>Degrades with increasing neighborhood size</p></li>
+<li><p>Small agreement scales (~2-3 grid points)</p></li>
+<li><p>Orographic forcing anchors precipitation well</p></li>
+</ul>
 </section>
 <section id="comparative-results-summary" class="slide level2 smaller">
 <h2>Comparative Results Summary</h2>
