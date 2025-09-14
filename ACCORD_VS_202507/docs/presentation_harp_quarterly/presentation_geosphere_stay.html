@@ -204,38 +204,6 @@ Carlos Peralta, Polly Schmederer and Philipp Scheffknecht
 \end{cases}\]</span></p>
 <p><strong>Parameters</strong>: k = 0.1 kg/m² (dry threshold), A = 4 (asymmetry factor)</p>
 </section>
-<section id="slx-implementation-in-r" class="slide level2 smaller">
-<h2>SLX Implementation in R</h2>
-<pre><code># Core SLX score function
-score_function_sass &lt;- function(phi, ob, k = 0.1, A = 4.0) {
-  if (ob &gt; k) {
-    if (phi &lt; ob - k) {
-      return(phi / max(ob - k, 1e-9))
-    } else if (phi &lt;= ob) {
-      return(1.0)
-    } else {
-      return(max(1 - (phi - ob) / (A * ob), 0.0))
-    }
-  } else {  # ob &lt;= k
-    if (phi &lt;= k) {
-      return(1.0)
-    } else {
-      return(max(1 - (phi - k) / (A * k), 0.0))
-    }
-  }
-}
-
-# Neighborhood extreme calculation
-get_neighbourhood_extreme &lt;- function(arr, i, j, L, mode = 'max') {
-  i_min &lt;- max(1, i - L)
-  i_max &lt;- min(nrow(arr), i + L)
-  j_min &lt;- max(1, j - L) 
-  j_max &lt;- min(ncol(arr), j + L)
-  
-  neighbourhood &lt;- arr[i_min:i_max, j_min:j_max]
-  if (mode == 'max') max(neighbourhood) else min(neighbourhood)
-}</code></pre>
-</section>
 <section id="method-2-agreement-scales-score" class="slide level2 smaller">
 <h2>Method 2: Agreement Scales Score</h2>
 <p><strong>Purpose</strong>: Quantify spatial predictability and scale-dependent skill for ensemble verification</p>
@@ -264,42 +232,6 @@ get_neighbourhood_extreme &lt;- function(arr, i, j, L, mode = 'max') {
 <li><p>SA(mo) &gt; SA(mm) → under-spread ensemble</p></li>
 </ul>
 </div></div>
-</section>
-<section id="agreement-scales-implementation-in-r" class="slide level2 smaller">
-<h2>Agreement Scales Implementation in R</h2>
-<pre><code># Calculate similarity criterion between two fields
-calc_similarity &lt;- function(f1, f2) {
-  if (f1 &gt; 0 || f2 &gt; 0) {
-    return((f1 - f2)^2 / (f1^2 + f2^2))
-  } else {
-    return(1.0)
-  }
-}
-
-# Agreement criterion threshold
-agreement_criterion &lt;- function(scale, alpha = 0.5, s_lim = 80) {
-  return(alpha + (1 - alpha) * scale / s_lim)
-}
-
-# Calculate agreement scale at grid point
-calc_agreement_scale &lt;- function(field1, field2, i, j, alpha = 0.5, s_lim = 80) {
-  for (scale in 0:s_lim) {
-    # Define neighborhood bounds
-    i_bounds &lt;- max(1, i - scale):min(nrow(field1), i + scale)
-    j_bounds &lt;- max(1, j - scale):min(ncol(field1), j + scale)
-    
-    # Calculate neighborhood averages  
-    f1_avg &lt;- mean(field1[i_bounds, j_bounds])
-    f2_avg &lt;- mean(field2[i_bounds, j_bounds])
-    
-    # Check agreement criterion
-    d_ij &lt;- calc_similarity(f1_avg, f2_avg)
-    d_crit &lt;- agreement_criterion(scale, alpha, s_lim)
-    
-    if (d_ij &lt;= d_crit) return(scale)
-  }
-  return(s_lim)
-}</code></pre>
 </section>
 <section id="case-study-1-convective-event-july-28-2025" class="slide level2 smaller">
 <h2>Case Study 1: Convective Event (July 28, 2025)</h2>
