@@ -192,7 +192,7 @@ $$D^S_{ij} \leq D^S_{crit,ij} = \alpha + (1-\alpha)\frac{S}{S_{lim}}$$
 
 :::: {.columns}
 ::: {.column width="50%"}
-![Agreement case1](fo_field_plots_trimmed_case1.png){width=80%}
+[![](fo_field_plots_trimmed_case1.png){width=60%}](fo_field_plots_trimmed_case1.png)
 :::
 
 ::: {.column width="50%"}
