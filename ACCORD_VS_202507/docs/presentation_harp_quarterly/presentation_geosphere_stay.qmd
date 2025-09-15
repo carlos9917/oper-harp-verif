@@ -276,7 +276,7 @@ $$D^S_{ij} \leq D^S_{crit,ij} = \alpha + (1-\alpha)\frac{S}{S_{lim}}$$
 
 :::: {.columns}
 ::: {.column width="50%"}
-![Agreement case1](fo_field_plots_trimmed_case2.png){width=80%}
+![Agreement case2](fo_field_plots_trimmed_case2.png){width=80%}
 :::
 
 ::: {.column width="50%"}
@@ -465,8 +465,6 @@ sa_mo <- calc_agreement_scales_mo(
 
 - Include member-to-member option in `verify_spatial` (currently only S(mo) comparison)
 
-- Integration of agreement scales in main `oper-harp-verif` workflow
-
 - Documentation and user guidance
 
 - Additional case study analysis
@@ -478,7 +476,8 @@ sa_mo <- calc_agreement_scales_mo(
 
 - Extension to other variables (wind, temperature)
 
-- Multi-threshold analysis capabilities
+- Integration of agreement scales in main `oper-harp-verif` workflow
+
 :::
 ::::
 
